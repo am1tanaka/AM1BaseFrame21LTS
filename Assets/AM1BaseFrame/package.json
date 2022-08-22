@@ -1,0 +1,27 @@
+{
+  "name": "jp.am1.baseframe",
+  "version": "0.1.1",
+  "displayName": "AM1 Base Framework",
+  "description": "This is a base framework package",
+  "unity": "2020.3",
+  "keywords": [
+    "unity",
+    "framework"
+  ],
+  "author": {
+    "name": "Yu Tanaka",
+    "url": "https://am1.jp/"
+  },
+  "samples": [
+    {
+      "displayName": "Demo",
+      "description": "Demo assets.",
+      "path": "Samples~/Demo"
+    },
+    {
+      "displayName": "General",
+      "description": "Reuse assets.",
+      "path": "Samples~/General"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+    "name": "AM1.BaseFrame.General",
+    "rootNamespace": "",
+    "references": [
+        "GUID:9aa49cfb2c2502f4da296bd300aba59f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
