@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 using AM1.BaseFrame.General;
 using UnityEngine.SceneManagement;
 using Codice.Client.BaseCommands;
+using System.IO;
 
 namespace AM1.BaseFrame.Editor
 {
@@ -14,6 +15,9 @@ namespace AM1.BaseFrame.Editor
     /// </summary>
     public class SetStateSystemToActiveSceneEditor : EditorWindow
     {
+        public static string GeneratedScriptPath => "Assets/AM1/BaseFrame/Scripts/Generated/";
+        public static string ScriptTemplatePath => "Assets/AM1BaseFrame/Package Resources/";
+
         [MenuItem("Tools/AM1/Set StateSystem to Active Scene", false, 0)]
         static void SetStateSystemToActiveScene()
         {
@@ -121,7 +125,53 @@ namespace AM1.BaseFrame.Editor
         {
             var target = SceneManager.GetActiveScene();
 
+            CreateBooter();
 
+            /*
+            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/AM1BaseFrame/Editor/UXML/SetStateSystemToActiveSceneEditor.uxml");
+            VisualElement labelFromUXML = visualTree.Instantiate();
+            */
+
+        }
+
+        void CreateBooter()
+        {
+            // 作成先フォルダーの確認
+            if (!Directory.Exists(GeneratedScriptPath))
+            {
+                Directory.CreateDirectory(GeneratedScriptPath);
+            }
+
+            // 切り替えスクリプト
+            var bootStateChangerScripts = AssetDatabase.FindAssets("BootStateChanger", new[] { GeneratedScriptPath });
+            if (bootStateChangerScripts.Length == 0)
+            {
+                // スクリプト作成
+                CreateScript("BootStateChanger");
+            }
+
+            var booterScripts = AssetDatabase.FindAssets("Booter", new[] { GeneratedScriptPath });
+            if (booterScripts.Length == 0)
+            {
+                // Booterスクリプトを作成
+                CreateScript("Booter");
+            }
+
+            var booterObject = new GameObject();
+            var booterScript = AssetDatabase.LoadAssetAtPath<MonoBehaviour>($"{GeneratedScriptPath}Booter.cs");
+            booterObject.AddComponent(booterScript);
+        }
+
+        /// <summary>
+        /// ファイル名(拡張子不要)を指定して、テンプレートテキストを読み込んで、スクリプトファイルとして保存。
+        /// </summary>
+        /// <param name="fname">スクリプトのファイル名。拡張子(.cs)不要</param>
+        void CreateScript(string fname)
+        {
+            var scriptSource = AssetDatabase.LoadAssetAtPath<TextAsset>($"{ScriptTemplatePath}{fname}.cs.txt");
+            string exportPath = $"{GeneratedScriptPath}{fname}.cs";
+            File.WriteAllText(exportPath, scriptSource.text);
+            AssetDatabase.Refresh(ImportAssetOptions.ImportRecursive);
         }
 
     }
