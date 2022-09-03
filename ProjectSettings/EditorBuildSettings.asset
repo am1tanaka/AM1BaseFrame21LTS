@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/AM1/Temp/TempSystem.unity
+    guid: 976ed3434b2b0b843a4d9b69a56307be
+  - enabled: 1
     path: Assets/AM1BaseFrame.Samples.win/Demo/Scenes/DemoSystem.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1

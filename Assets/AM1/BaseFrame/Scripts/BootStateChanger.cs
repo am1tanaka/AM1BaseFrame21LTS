@@ -13,8 +13,8 @@ namespace AM1.BaseFrame.General
     {
         public override void Init()
         {
-            // 画面を覆う場合、以下を設定
-            // ScreenTransitionRegistry.StartCover((int)ScreenTransitionType.FilledRadial);
+            // 画面を覆う
+            ScreenTransitionRegistry.StartCover((int)ScreenTransitionType.FilledRadial);
         }
 
         public override void OnHideScreen()

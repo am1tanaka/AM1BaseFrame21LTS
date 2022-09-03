@@ -15,8 +15,11 @@ namespace AM1.BaseFrame.Editor
     /// </summary>
     public class SetStateSystemToActiveSceneEditor : EditorWindow
     {
+        public static string ScriptPath => "Assets/AM1/BaseFrame/Scripts/";
         public static string GeneratedScriptPath => "Assets/AM1/BaseFrame/Scripts/Generated/";
         public static string ScriptTemplatePath => "Assets/AM1BaseFrame/Package Resources/";
+
+        public static string PrefabPath => "Assets/AM1/BaseFrame/Prefabs/";
 
         [MenuItem("Tools/AM1/Set StateSystem to Active Scene", false, 0)]
         static void SetStateSystemToActiveScene()
@@ -48,6 +51,7 @@ namespace AM1.BaseFrame.Editor
             // アクティブシーンにすでにシステムに必要なスクリプトが揃っているかを確認
             var qtext = rootVisualElement.Query<Label>("QText");
             var qtextFirst = qtext.First();
+            qtextFirst.text = "";
  
             if (AreSystemComponents())
             {
@@ -70,6 +74,9 @@ namespace AM1.BaseFrame.Editor
             report = "";
             bool res = false;
             existsSystemObjects.Clear();
+
+            var booter = FindObjectsOfType<Booter>();
+            res |= ExistsActiveScene(booter, "Booterオブジェクト");
 
             var stateChanger = FindObjectsOfType<StateChanger>();
             res |= ExistsActiveScene(stateChanger, "状態切り替え管理スクリプト StateChanger");
@@ -126,40 +133,28 @@ namespace AM1.BaseFrame.Editor
             var target = SceneManager.GetActiveScene();
 
             CreateBooter();
-
-            /*
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/AM1BaseFrame/Editor/UXML/SetStateSystemToActiveSceneEditor.uxml");
-            VisualElement labelFromUXML = visualTree.Instantiate();
-            */
-
+            AddPrefab("StateChanger");
+            AddPrefab("AudioPlayer");
+            AddPrefab("FadeCanvas");
         }
 
         void CreateBooter()
         {
-            // 作成先フォルダーの確認
-            if (!Directory.Exists(GeneratedScriptPath))
-            {
-                Directory.CreateDirectory(GeneratedScriptPath);
-            }
-
-            // 切り替えスクリプト
-            var bootStateChangerScripts = AssetDatabase.FindAssets("BootStateChanger", new[] { GeneratedScriptPath });
-            if (bootStateChangerScripts.Length == 0)
-            {
-                // スクリプト作成
-                CreateScript("BootStateChanger");
-            }
-
-            var booterScripts = AssetDatabase.FindAssets("Booter", new[] { GeneratedScriptPath });
-            if (booterScripts.Length == 0)
-            {
-                // Booterスクリプトを作成
-                CreateScript("Booter");
-            }
-
             var booterObject = new GameObject();
-            var booterScript = AssetDatabase.LoadAssetAtPath<MonoBehaviour>($"{GeneratedScriptPath}Booter.cs");
-            booterObject.AddComponent(booterScript);
+            booterObject.name = "Booter";
+            booterObject.AddComponent(typeof(Booter));
+            Undo.RegisterCreatedObjectUndo(booterObject, "Created Booter Object");
+        }
+
+        /// <summary>
+        /// 指定のプレハブをシーンに追加
+        /// </summary>
+        /// <param name="prefab">アタッチするプレハブの名前</param>
+        void AddPrefab(string prefab)
+        {
+            var prefabObject = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabPath}{prefab}.prefab");
+            var go = PrefabUtility.InstantiatePrefab(prefabObject);
+            Undo.RegisterCreatedObjectUndo(go, $"Instantiated {prefab} prefab");
         }
 
         /// <summary>
