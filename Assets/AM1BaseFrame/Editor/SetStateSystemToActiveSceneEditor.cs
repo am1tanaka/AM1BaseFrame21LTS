@@ -21,55 +21,41 @@ namespace AM1.BaseFrame.Editor
 
         public static string PrefabPath => "Assets/AM1/BaseFrame/Prefabs/";
 
-        [MenuItem("Tools/AM1/Set StateSystem to Active Scene", false, 0)]
-        static void SetStateSystemToActiveScene()
-        {
-            var wnd = GetWindow<SetStateSystemToActiveSceneEditor>();
-            wnd.titleContent = new GUIContent("Set State System To Active Scene");
-        }
-
         /// <summary>
         /// 実行結果のテキスト
         /// </summary>
-        string report;
+        static string report;
 
         /// <summary>
         /// 既存のシステムオブジェクトのリスト
         /// </summary>
-        List<GameObject> existsSystemObjects = new List<GameObject>();
+        static List<GameObject> existsSystemObjects = new List<GameObject>();
 
-        public void CreateGUI()
+        [MenuItem("Tools/AM1/Set StateSystem to Active Scene", false, 0)]
+        static void SetStateSystemToActiveScene()
         {
-            // Each editor window contains a root VisualElement object
-            VisualElement root = rootVisualElement;
-
-            // Import UXML
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/AM1BaseFrame/Editor/UXML/SetStateSystemToActiveSceneEditor.uxml");
-            VisualElement labelFromUXML = visualTree.Instantiate();
-            root.Add(labelFromUXML);
-
             // アクティブシーンにすでにシステムに必要なスクリプトが揃っているかを確認
-            var qtext = rootVisualElement.Query<Label>("QText");
-            var qtextFirst = qtext.First();
-            qtextFirst.text = "";
- 
+            string mes = "";
+
             if (AreSystemComponents())
             {
-                qtextFirst.text = report + "\n\n";
+                mes = report + "\n\n";
                 Selection.objects = existsSystemObjects.ToArray();
             }
 
-            qtextFirst.text += $"シーン'{SceneManager.GetActiveScene().name}'にシステムオブジェクトを追加しますか？";
+            mes += $"シーン'{SceneManager.GetActiveScene().name}'にシステムオブジェクトを追加しますか？";
 
-            // ハンドラ登録
-            SetupHandler();
+            if (EditorUtility.DisplayDialog("Systemシーン用のオブジェクトの生成", mes, "追加", "いいえ"))
+            {
+                SetSystemObjects();
+            }
         }
 
         /// <summary>
         /// システムに必要なコンポーネントが揃っているかを確認
         /// </summary>
         /// <returns>いくつか存在している時true</returns>
-        bool AreSystemComponents()
+        static bool AreSystemComponents()
         {
             report = "";
             bool res = false;
@@ -93,7 +79,7 @@ namespace AM1.BaseFrame.Editor
             return res;
         }
 
-        bool ExistsActiveScene(MonoBehaviour[] objs, string nm)
+        static bool ExistsActiveScene(MonoBehaviour[] objs, string nm)
         {
             bool res = false;
 
@@ -109,26 +95,10 @@ namespace AM1.BaseFrame.Editor
             return res;
         }
 
-        void SetupHandler()
-        {
-            var buttons = rootVisualElement.Query<Button>();
-            foreach(var button in buttons.ToList())
-            {
-                if (button.name == "AcceptButton")
-                {
-                    button.RegisterCallback<ClickEvent>(SetSystemObjects);
-                }
-                else
-                {
-                    button.RegisterCallback<ClickEvent>((ClickEvent evt) => Close());
-                }
-            }
-        }
-
         /// <summary>
         /// システムオブジェクトをシーンに配置
         /// </summary>
-        void SetSystemObjects(ClickEvent evt)
+        static void SetSystemObjects()
         {
             var target = SceneManager.GetActiveScene();
 
@@ -138,7 +108,7 @@ namespace AM1.BaseFrame.Editor
             AddPrefab("FadeCanvas");
         }
 
-        void CreateBooter()
+        static void CreateBooter()
         {
             var booterObject = new GameObject();
             booterObject.name = "Booter";
@@ -150,7 +120,7 @@ namespace AM1.BaseFrame.Editor
         /// 指定のプレハブをシーンに追加
         /// </summary>
         /// <param name="prefab">アタッチするプレハブの名前</param>
-        void AddPrefab(string prefab)
+        static void AddPrefab(string prefab)
         {
             var prefabObject = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabPath}{prefab}.prefab");
             var go = PrefabUtility.InstantiatePrefab(prefabObject);
@@ -161,7 +131,7 @@ namespace AM1.BaseFrame.Editor
         /// ファイル名(拡張子不要)を指定して、テンプレートテキストを読み込んで、スクリプトファイルとして保存。
         /// </summary>
         /// <param name="fname">スクリプトのファイル名。拡張子(.cs)不要</param>
-        void CreateScript(string fname)
+        static void CreateScript(string fname)
         {
             var scriptSource = AssetDatabase.LoadAssetAtPath<TextAsset>($"{ScriptTemplatePath}{fname}.cs.txt");
             string exportPath = $"{GeneratedScriptPath}{fname}.cs";

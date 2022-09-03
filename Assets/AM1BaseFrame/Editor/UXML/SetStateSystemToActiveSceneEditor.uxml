@@ -1,5 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
-    <ui:Label text="Hello World! From UXML" name="QText" />
-    <ui:Button text="Accept" display-tooltip-when-elided="true" name="AcceptButton" />
-    <ui:Button text="Cancel" display-tooltip-when-elided="true" name="CancelButton" />
-</ui:UXML>
