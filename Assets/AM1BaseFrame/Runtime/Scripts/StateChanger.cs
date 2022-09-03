@@ -35,6 +35,13 @@ namespace AM1.BaseFrame
     /// </summary>
     public class StateChanger : MonoBehaviour
     {
+        /// <summary>
+        /// 状態切り替えが要求されているか、実行中の時、true
+        /// </summary>
+        public static bool IsRequestOrChanging => IsChanging || (nextStates.Count > 0);
+        /// <summary>
+        /// 切り替え処理中
+        /// </summary>
         public static bool IsChanging { get; private set; }
 
         /// <summary>
@@ -45,7 +52,7 @@ namespace AM1.BaseFrame
         /// <summary>
         /// 次のフレームで切り替えたい状態のインスタンス
         /// </summary>
-        static IStateChanger nextState;
+        static Queue<IStateChanger> nextStates = new Queue<IStateChanger>();
 
         /// <summary>
         /// 現在の状態
@@ -71,7 +78,7 @@ namespace AM1.BaseFrame
         public static void ResetStatics()
         {
             IsChanging = false;
-            nextState = null;
+            nextStates.Clear();
             CurrentState = null;
             LastState = null;
             sceneChangeProgress = null;
@@ -81,11 +88,11 @@ namespace AM1.BaseFrame
 
         private void Update()
         {
-            // nextSceneが未設定なら何もしない
-            if (nextState == null) return;
+            // 切り替え中かnextScenesが空なら何もしない
+            if (IsChanging || (nextStates.Count == 0)) return;
 
-            var sc = nextState;
-            nextState = null;
+            IsChanging = true;
+            var sc = nextStates.Dequeue();
             StartCoroutine(ChangeScene(sc));
         }
 
@@ -135,16 +142,15 @@ namespace AM1.BaseFrame
         /// すでに他のシーンへの切り替え中はキャンセル。
         /// </summary>
         /// <param name="target">切り替えたい状態への切り替え処理インスタンス</param>
+        /// <param name="canQueue">切り替え中や要求が出ている時の追加要求をキューに詰む場合はtrue。デフォルトfalse</param>
         /// <returns>切り替え要求を受け取ったらtrue</returns>
-        public static bool ChangeRequest(IStateChanger target)
+        public static bool ChangeRequest(IStateChanger target, bool canQueue=false)
         {
             // すでに変更中だったり、変更要望を受け取っていたらキャンセル
-            if (IsChanging || (nextState != null)) return false;
+            if (!canQueue && IsRequestOrChanging) return false;
 
             // 次のフレームでシーン切り替えをするためのデータ設定
-            IsChanging = true;
-            nextState = target;
-
+            nextStates.Enqueue(target);
             return true;
         }
 
@@ -155,7 +161,7 @@ namespace AM1.BaseFrame
         /// <returns>切り替え処理が完了していて、指定の状態ならtrue</returns>
         public static bool IsStateStarted(IStateChanger target)
         {
-            if (IsChanging) return false;
+            if (IsRequestOrChanging) return false;
 
             return CurrentState == target;
         }

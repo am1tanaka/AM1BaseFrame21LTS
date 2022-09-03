@@ -79,7 +79,7 @@ public class StateChangeTests : AM1BaseFrameTestBase
         float left = sec;
 
         // 切り替え開始待ち
-        while (!StateChanger.IsChanging && (left > 0))
+        while (!StateChanger.IsRequestOrChanging && (left > 0))
         {
             left -= Time.unscaledDeltaTime;
             yield return null;
@@ -87,7 +87,7 @@ public class StateChangeTests : AM1BaseFrameTestBase
         if (left <= 0) yield break;
 
         // 切り替え待ち
-        while (StateChanger.IsChanging && (left > 0))
+        while (StateChanger.IsRequestOrChanging && (left > 0))
         {
             left -= Time.unscaledDeltaTime;
             yield return null;

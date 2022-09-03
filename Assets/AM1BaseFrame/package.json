@@ -17,11 +17,6 @@
       "displayName": "Demo",
       "description": "Demo assets.",
       "path": "Samples~/Demo"
-    },
-    {
-      "displayName": "General",
-      "description": "Reuse assets.",
-      "path": "Samples~/General"
     }
   ]
 }

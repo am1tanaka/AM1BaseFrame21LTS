@@ -16,9 +16,9 @@ namespace AM1.BaseFrame
         /// Request > Init > (前のシーンのTerminate) > (シーンの解放待ち) > OnHideScreen > OnAwakeDone
         /// </summary>
         /// <returns>成功したらtrue / 失敗=false</returns>
-        public virtual bool Request()
+        public virtual bool Request(bool canQueue=false)
         {
-            return StateChanger.ChangeRequest(Instance);
+            return StateChanger.ChangeRequest(Instance, canQueue);
         }
 
         /// <summary>

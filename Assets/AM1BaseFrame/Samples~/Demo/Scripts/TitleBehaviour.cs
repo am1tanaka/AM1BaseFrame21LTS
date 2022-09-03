@@ -48,7 +48,7 @@ namespace AM1.BaseFrame.Demo
         /// </summary>
         public void OnStartButtonClicked()
         {
-            if (StateChanger.IsChanging) return;
+            if (StateChanger.IsRequestOrChanging) return;
 
             switch (CurrentState)
             {
