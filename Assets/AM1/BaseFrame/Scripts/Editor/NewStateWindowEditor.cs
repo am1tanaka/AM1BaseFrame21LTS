@@ -173,6 +173,12 @@ namespace AM1.BaseFrame.Editor
             }
             File.WriteAllText(StateChangerScriptPath, tempText);
             AssetDatabase.Refresh(ImportAssetOptions.ImportRecursive);
+
+            // シーンの作成
+            if (makeSceneToggle.value)
+            {
+                NewSceneEditor.NewScene(sceneName.text);
+            }
         }
     }
 }
