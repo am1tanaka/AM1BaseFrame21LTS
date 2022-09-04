@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using AM1.BaseFrame.General.Editor;
 
 namespace AM1.BaseFrame.Editor
 {

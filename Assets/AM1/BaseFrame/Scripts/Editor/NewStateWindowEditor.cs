@@ -6,6 +6,7 @@ using System.IO;
 using AM1.BaseFrame.General;
 using System.Security.Cryptography.X509Certificates;
 using Codice.Client.Common;
+using AM1.BaseFrame.Editor;
 
 namespace AM1.BaseFrame.General.Editor
 {
