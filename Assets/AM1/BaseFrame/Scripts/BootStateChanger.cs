@@ -27,7 +27,7 @@ namespace AM1.BaseFrame.General
             SESourceAndClips.Instance.InitDelaySEPlayer(System.Enum.GetValues(typeof(SEPlayer.SE)).Length, SEPlayer.DelaySeconds, SEPlayer.DelayMax);
 
             // ここに最初のシーンへの切り替え要求を追記
-            // TitleStateChanger.Instance.Request();
+            // TitleStateChanger.Instance.Request(true);
         }
     }
 }
