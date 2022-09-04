@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using AM1.BaseFrame.General;
 
 namespace AM1.BaseFrame.General
 {
