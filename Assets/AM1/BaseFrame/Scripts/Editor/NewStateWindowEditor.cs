@@ -7,7 +7,7 @@ using AM1.BaseFrame.General;
 using System.Security.Cryptography.X509Certificates;
 using Codice.Client.Common;
 
-namespace AM1.BaseFrame.Editor
+namespace AM1.BaseFrame.General.Editor
 {
     public class NewStateWindowEditor : EditorWindow
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-namespace AM1.BaseFrame.Editor
+namespace AM1.BaseFrame.General.Editor
 {
     public static class AM1BaseFrameUtils
     {

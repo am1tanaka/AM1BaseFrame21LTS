@@ -6,7 +6,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine.UIElements;
 using System.IO;
 
-namespace AM1.BaseFrame.Editor
+namespace AM1.BaseFrame.General.Editor
 {
     /// <summary>
     /// 新規シーンの作成。起動報告スクリプトを仕込んだオブジェクトを設定

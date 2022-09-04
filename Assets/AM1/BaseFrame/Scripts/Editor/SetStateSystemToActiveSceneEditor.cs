@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using Codice.Client.BaseCommands;
 using System.IO;
 
-namespace AM1.BaseFrame.Editor
+namespace AM1.BaseFrame.General.Editor
 {
     /// <summary>
     /// 状態システムのシステムシーンに必要な最小限の構成を現在のアクティブシーンに追加するスクリプト
