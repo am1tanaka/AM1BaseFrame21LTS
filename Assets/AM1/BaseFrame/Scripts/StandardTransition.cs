@@ -39,9 +39,9 @@ namespace AM1.BaseFrame.General
                 return false;
             }
 
-            if (sec <= 1f / 60f)
+            // 即時か、遷移済みですでに閉じていたら何もしない
+            if ((sec <= 1f / 60f) || (!IsTransitioning && (anim.GetBool("Cover") == cover)))
             {
-                // 即時
                 IsTransitioning = false;
             }
             else
