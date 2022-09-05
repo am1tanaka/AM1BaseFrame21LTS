@@ -23,6 +23,9 @@ namespace AM1.BaseFrame.General.Editor
         FloatField transitionSec;
         Button createButton;
 
+        [SerializeField]
+        string saveScenePath = "Assets";
+
         /// <summary>
         /// 状態切り替えのファイル名
         /// </summary>
@@ -104,6 +107,8 @@ namespace AM1.BaseFrame.General.Editor
         /// <param name="cvt"></param>
         void CreateButtonProc(ClickEvent cvt)
         {
+            createButton.SetEnabled(false);
+
             string packagePath = AM1BaseFrameUtils.packageFullPath;
             string templatePath = $"{packagePath}/Package Resources/SceneStateChangerTemplate.cs.txt";
             string tempText = File.ReadAllText(templatePath);
@@ -178,7 +183,11 @@ namespace AM1.BaseFrame.General.Editor
             // シーンの作成
             if (makeSceneToggle.value)
             {
-                NewSceneEditor.NewScene(sceneName.text);
+                string path = NewSceneEditor.NewScene(sceneName.text, saveScenePath);
+                if (path.Length > 0)
+                {
+                    saveScenePath = Path.GetDirectoryName(path);
+                }
             }
         }
     }

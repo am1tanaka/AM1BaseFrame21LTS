@@ -19,7 +19,7 @@ namespace AM1.BaseFrame.General.Editor
         Button createButton;
 
         [SerializeField]
-        static string savePath;
+        string savePathField = "Assets";
 
         [MenuItem("Tools/AM1/New BaseFrame Scene", false, 2)]
         static void NewBaseFrameScene()
@@ -60,10 +60,14 @@ namespace AM1.BaseFrame.General.Editor
         /// <param name="scName">作成するシーン名</param>
         void NewSceneAndClearText(string scName)
         {
-            if (NewScene(scName))
+            createButton.SetEnabled(false);
+            string path = NewScene(scName, savePathField);
+            if (path.Length > 0)
             {
                 sceneName.value = "";
+                savePathField = Path.GetDirectoryName(path);
             }
+            UpdateElement();
         }
 
         /// <summary>
@@ -71,7 +75,7 @@ namespace AM1.BaseFrame.General.Editor
         /// </summary>
         /// <param name="scName">シーン名</param>
         /// <returns>作成したらtrue</returns>
-        public static bool NewScene(string scName)
+        public static string NewScene(string scName, string savePath)
         {
             // 新しいシーンを作成
             var newScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
@@ -84,24 +88,22 @@ namespace AM1.BaseFrame.General.Editor
             go.AddComponent<AwakeReporter>();
             Undo.RegisterCreatedObjectUndo(go, $"Created {scName}Behaviour Object.");
 
-            // シーンの保存
-            if (string.IsNullOrEmpty(savePath))
+            // フォルダー選択
+            string folder = EditorUtility.SaveFolderPanel("シーンの保存先フォルダー", savePath, "");
+            if (!string.IsNullOrEmpty(folder))
             {
-                savePath = "Assets";
-            }
-            var filePath = EditorUtility.SaveFilePanelInProject("Save Scene", $"{scName}", "unity", "Save Scene", savePath);
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                // 保存実行
-                AssetDatabase.Refresh();
-                savePath = Path.GetDirectoryName(filePath);
-                var path = AssetDatabase.GenerateUniqueAssetPath(filePath);
+                string scenePath = Path.Combine(folder, scName + ".unity");
+
+                // シーンの保存
+                var relPath = "Assets/"+Path.GetRelativePath(Application.dataPath, scenePath);
+                savePath = Path.GetDirectoryName(relPath);
+                var path = AssetDatabase.GenerateUniqueAssetPath(relPath);
                 EditorSceneManager.SaveScene(newScene, path);
-                AssetDatabase.Refresh(ImportAssetOptions.ImportRecursive);
-                return true;
+                AssetDatabase.Refresh();
+                return path;
             }
 
-            return false;
+            return "";
         }
     }
 }
