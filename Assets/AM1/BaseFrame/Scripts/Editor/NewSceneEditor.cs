@@ -78,7 +78,6 @@ namespace AM1.BaseFrame.General.Editor
         {
             // 新しいシーンを作成
             var newScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
-            EditorSceneManager.SetActiveScene(newScene);
 
             // オブジェクト作成
             var go = new GameObject();
