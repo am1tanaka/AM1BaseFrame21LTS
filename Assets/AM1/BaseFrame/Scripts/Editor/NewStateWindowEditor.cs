@@ -23,7 +23,6 @@ namespace AM1.BaseFrame.General.Editor
         FloatField transitionSec;
         Button createButton;
 
-        [SerializeField]
         string saveScenePath = "Assets";
 
         /// <summary>

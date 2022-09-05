@@ -18,7 +18,6 @@ namespace AM1.BaseFrame.General.Editor
         TextField sceneName;
         Button createButton;
 
-        [SerializeField]
         string savePathField = "Assets";
 
         [MenuItem("Tools/AM1/New BaseFrame Scene", false, 2)]
@@ -79,7 +78,6 @@ namespace AM1.BaseFrame.General.Editor
         {
             // 新しいシーンを作成
             var newScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
-            newScene.name = scName;
             EditorSceneManager.SetActiveScene(newScene);
 
             // オブジェクト作成
