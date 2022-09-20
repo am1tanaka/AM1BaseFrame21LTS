@@ -7,13 +7,12 @@ using AM1.BaseFrame.General;
 using System.Security.Cryptography.X509Certificates;
 using Codice.Client.Common;
 using AM1.BaseFrame.Editor;
+using UnityEditor.SceneManagement;
 
 namespace AM1.BaseFrame.General.Editor
 {
     public class NewStateWindowEditor : EditorWindow
     {
-        static string ScriptFolder => "Assets/AM1/BaseFrame/Scripts";
-        static string StateChangerScriptFolder => "Assets/AM1/BaseFrame/Scripts/StateChangers";
         static string ImportedEditorFolder => "Assets/AM1/BaseFrame/Scripts/Editor";
 
         TextField stateName;
@@ -28,7 +27,7 @@ namespace AM1.BaseFrame.General.Editor
         /// <summary>
         /// 状態切り替えのファイル名
         /// </summary>
-        string StateChangerScriptPath => $"{StateChangerScriptFolder}/{stateName.text}StateChanger.cs";
+        string StateChangerScriptFileName => $"{stateName.text}StateChanger.cs";
 
         [MenuItem("Tools/AM1/New State", false, 1)]
         public static void ShowNewState()
@@ -75,8 +74,7 @@ namespace AM1.BaseFrame.General.Editor
             transitionSec.SetEnabled((ScreenTransitionType)transitionEnum.value != ScreenTransitionType.None);
 
             // 作成ボタン
-            bool isExists = File.Exists(StateChangerScriptPath);
-            createButton.SetEnabled(!isExists && (stateName.value.Length > 0));
+            createButton.SetEnabled(stateName.value.Length > 0);
         }
 
         /// <summary>
@@ -101,6 +99,37 @@ namespace AM1.BaseFrame.General.Editor
         }
 
         /// <summary>
+        /// 指定のフォルダーを起点にして保存先フォルダーを特定してスクリプトを保存。
+        /// 保存先はfolder/Scripts > folder/Script > folder直下の順。folderがない時は作成
+        /// </summary>
+        /// <param name="folder">起点フォルダー</param>
+        /// <param name="tempText">スクリプトファイルの中身</param>
+        void WriteScript(string folder, string tempText)
+        {
+            // スクリプトの作成先を特定
+            string scriptFolder = Path.Combine(folder, "Scripts");
+            if (!Directory.Exists(scriptFolder))
+            {
+                scriptFolder = Path.Combine(folder, "Script");
+                if (!Directory.Exists(scriptFolder))
+                {
+                    scriptFolder = folder;
+                    if (!Directory.Exists(scriptFolder))
+                    {
+                        Directory.CreateDirectory(scriptFolder);
+                    }
+                }
+            }
+
+            // 保存
+            string filePath = Path.Combine(scriptFolder, StateChangerScriptFileName);
+            string relPath = "Assets/" + Path.GetRelativePath(Application.dataPath, filePath);
+            string savePath = AssetDatabase.GenerateUniqueAssetPath(relPath);
+            File.WriteAllText(savePath, tempText);
+            AssetDatabase.Refresh(ImportAssetOptions.ImportRecursive);
+        }
+
+        /// <summary>
         /// 状態の作成を実行
         /// </summary>
         /// <param name="cvt"></param>
@@ -108,6 +137,55 @@ namespace AM1.BaseFrame.General.Editor
         {
             createButton.SetEnabled(false);
 
+            // 保存先フォルダー選択
+            string selectedFolder= EditorUtility.SaveFolderPanel("保存先フォルダー", saveScenePath, "");
+            if (string.IsNullOrEmpty(selectedFolder))
+            {
+                // 指定がなければ処理止め
+                Debug.Log($"保存先がキャンセルされたため新しい状態の作成を中止しました。");
+                UpdateActivity();
+                return;
+            }
+
+            // スクリプトを保存
+            string tempText = MakeStateChangerScript();
+            WriteScript(selectedFolder, tempText);
+
+            // シーンの作成
+            if (makeSceneToggle.value)
+            {
+                MakeNewScene(selectedFolder);
+            }
+
+            saveScenePath = Path.GetDirectoryName(selectedFolder);
+        }
+
+        /// <summary>
+        /// 指定のフォルダー以下のScenes, Scene, 直下でフォルダーを検索し、
+        /// 最初に見つけた場所へシーンを保存。
+        /// </summary>
+        /// <param name="selectedFolder">指定フォルダー</param>
+        void MakeNewScene(string selectedFolder)
+        {
+            string savePath = Path.Combine(selectedFolder, "Scenes");
+            if (!Directory.Exists(savePath))
+            {
+                savePath = Path.Combine(selectedFolder, "Scene");
+                if (!Directory.Exists(savePath))
+                {
+                    savePath = selectedFolder;
+                }
+            }
+
+            NewSceneEditor.NewScene(sceneName.text, savePath);
+        }
+
+        /// <summary>
+        /// テンプレートから指定の状態名のスクリプトを作成して返す。
+        /// </summary>
+        /// <returns>更新を加えたスクリプト</returns>
+        string MakeStateChangerScript()
+        {
             string packagePath = AM1BaseFrameUtils.packageFullPath;
             string templatePath = $"{packagePath}/Package Resources/SceneStateChangerTemplate.cs.txt";
             string tempText = File.ReadAllText(templatePath);
@@ -126,7 +204,7 @@ namespace AM1.BaseFrame.General.Editor
                     {
                         lines[i] = lines[i].Replace("//", "");
                         lines[i] = lines[i].Replace(":ScreenTransitionType:", transitionEnum.text.Replace(" ", ""));
-                        lines[i] = lines[i].Replace(":ScreenTransitionSeconds:", transitionSec.text+"f");
+                        lines[i] = lines[i].Replace(":ScreenTransitionSeconds:", transitionSec.text + "f");
                     }
 
                     tempText += lines[i].Replace("\r", "\r\n");
@@ -138,7 +216,7 @@ namespace AM1.BaseFrame.General.Editor
             {
                 // シーン作成
                 string loadCode = "// シーンの非同期読み込み開始\r\n";
-                     loadCode += $"            StateChanger.LoadSceneAsync(\"{sceneName.text}\", true);\r\n";
+                loadCode += $"            StateChanger.LoadSceneAsync(\"{sceneName.text}\", true);\r\n";
                 tempText = tempText.Replace(":LoadScene:", loadCode);
             }
             else
@@ -154,8 +232,8 @@ namespace AM1.BaseFrame.General.Editor
             if (transitionEnum.text != "None")
             {
                 string uncover = "// 画面の覆いを解除\r\n";
-                     uncover += $"            ScreenTransitionRegistry.StartUncover({transitionSec.value}f);\r\n";
-                     uncover += $"            yield return ScreenTransitionRegistry.WaitAll();\r\n";
+                uncover += $"            ScreenTransitionRegistry.StartUncover({transitionSec.value}f);\r\n";
+                uncover += $"            yield return ScreenTransitionRegistry.WaitAll();\r\n";
                 tempText = tempText.Replace(":OnAwakeDone:", uncover);
             }
 
@@ -171,23 +249,7 @@ namespace AM1.BaseFrame.General.Editor
                 tempText = tempText.Replace(":Terminate:", "");
             }
 
-            // 保存先フォルダーのチェック
-            if (!Directory.Exists(StateChangerScriptFolder))
-            {
-                Directory.CreateDirectory(StateChangerScriptFolder);
-            }
-            File.WriteAllText(StateChangerScriptPath, tempText);
-            AssetDatabase.Refresh(ImportAssetOptions.ImportRecursive);
-
-            // シーンの作成
-            if (makeSceneToggle.value)
-            {
-                string path = NewSceneEditor.NewScene(sceneName.text, saveScenePath);
-                if (path.Length > 0)
-                {
-                    saveScenePath = Path.GetDirectoryName(path);
-                }
-            }
+            return tempText;
         }
     }
 }

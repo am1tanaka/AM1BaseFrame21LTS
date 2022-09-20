@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace AM1.BaseFrame.General
+namespace AM1.BaseFrame
 {
     public class AnimDone : MonoBehaviour
     {

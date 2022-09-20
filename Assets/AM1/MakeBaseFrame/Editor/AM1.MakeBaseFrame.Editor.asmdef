@@ -1,15 +1,15 @@
 {
-    "name": "AM1.BaseFrame.General",
+    "name": "AM1.MakeBaseFrame.Editor",
     "rootNamespace": "",
-    "references": [
-        "GUID:9aa49cfb2c2502f4da296bd300aba59f"
-    ],
+    "references": [],
     "includePlatforms": [],
-    "excludePlatforms": [],
+    "excludePlatforms": [
+        "Editor"
+    ],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": true,
+    "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false

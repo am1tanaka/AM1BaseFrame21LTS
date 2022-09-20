@@ -60,12 +60,16 @@ namespace AM1.BaseFrame.General.Editor
         void NewSceneAndClearText(string scName)
         {
             createButton.SetEnabled(false);
-            string path = NewScene(scName, savePathField);
-            if (path.Length > 0)
+
+            // フォルダー選択
+            string folder = EditorUtility.SaveFolderPanel("シーンの保存先フォルダー", savePathField, "");
+            if (!string.IsNullOrEmpty(folder))
             {
+                var saved = NewScene(scName, folder);
                 sceneName.value = "";
-                savePathField = Path.GetDirectoryName(path);
+                savePathField = Path.GetDirectoryName(saved);
             }
+
             UpdateElement();
         }
 
@@ -73,7 +77,8 @@ namespace AM1.BaseFrame.General.Editor
         /// シーン作成
         /// </summary>
         /// <param name="scName">シーン名</param>
-        /// <returns>作成したらtrue</returns>
+        /// <param name="savePath">保存先フォルダー</param>
+        /// <returns>保存先フォルダーのプロジェクトからの相対パス</returns>
         public static string NewScene(string scName, string savePath)
         {
             // 新しいシーンを作成
@@ -86,21 +91,15 @@ namespace AM1.BaseFrame.General.Editor
             Undo.RegisterCreatedObjectUndo(go, $"Created {scName}Behaviour Object.");
 
             // フォルダー選択
-            string folder = EditorUtility.SaveFolderPanel("シーンの保存先フォルダー", savePath, "");
-            if (!string.IsNullOrEmpty(folder))
-            {
-                string scenePath = Path.Combine(folder, scName + ".unity");
+            string scenePath = Path.Combine(savePath, scName + ".unity");
 
-                // シーンの保存
-                var relPath = "Assets/"+Path.GetRelativePath(Application.dataPath, scenePath);
-                savePath = Path.GetDirectoryName(relPath);
-                var path = AssetDatabase.GenerateUniqueAssetPath(relPath);
-                EditorSceneManager.SaveScene(newScene, path);
-                AssetDatabase.Refresh();
-                return path;
-            }
+            // シーンの保存
+            var relPath = "Assets/"+Path.GetRelativePath(Application.dataPath, scenePath);
+            var path = AssetDatabase.GenerateUniqueAssetPath(relPath);
+            EditorSceneManager.SaveScene(newScene, path);
+            AssetDatabase.Refresh();
 
-            return "";
+            return path;
         }
     }
 }
