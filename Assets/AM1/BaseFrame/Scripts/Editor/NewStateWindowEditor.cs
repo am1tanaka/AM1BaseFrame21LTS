@@ -3,13 +3,10 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using System.IO;
-using AM1.BaseFrame.General;
-using System.Security.Cryptography.X509Certificates;
-using Codice.Client.Common;
+using AM1.BaseFrame.Assets;
 using AM1.BaseFrame.Editor;
-using UnityEditor.SceneManagement;
 
-namespace AM1.BaseFrame.General.Editor
+namespace AM1.BaseFrame.Assets.Editor
 {
     public class NewStateWindowEditor : EditorWindow
     {
@@ -29,7 +26,7 @@ namespace AM1.BaseFrame.General.Editor
         /// </summary>
         string StateChangerScriptFileName => $"{stateName.text}StateChanger.cs";
 
-        [MenuItem("Tools/AM1/New State", false, 1)]
+        [MenuItem("Tools/AM1/New State", false, 20)]
         public static void ShowNewState()
         {
             NewStateWindowEditor wnd = GetWindow<NewStateWindowEditor>();

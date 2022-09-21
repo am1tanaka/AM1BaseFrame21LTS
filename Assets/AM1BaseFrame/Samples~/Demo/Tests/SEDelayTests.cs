@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.TestTools;
 using AM1.BaseFrame;
 using AM1.BaseFrame.Demo;
-using AM1.BaseFrame.General;
+using AM1.BaseFrame.Assets;
 
 public class SEDelayTests : AM1BaseFrameTestBase
 {

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using AM1.BaseFrame.General;
+using AM1.BaseFrame.Assets;
 using UnityEngine.SceneManagement;
 using Codice.Client.BaseCommands;
 using System.IO;
 
-namespace AM1.BaseFrame.General.Editor
+namespace AM1.BaseFrame.Assets.Editor
 {
     /// <summary>
     /// 状態システムのシステムシーンに必要な最小限の構成を現在のアクティブシーンに追加するスクリプト
@@ -31,7 +31,7 @@ namespace AM1.BaseFrame.General.Editor
         /// </summary>
         static List<GameObject> existsSystemObjects = new List<GameObject>();
 
-        [MenuItem("Tools/AM1/Set StateSystem to Active Scene", false, 0)]
+        [MenuItem("Tools/AM1/Set StateSystem to Active Scene", false, 5)]
         static void SetStateSystemToActiveScene()
         {
             // アクティブシーンにすでにシステムに必要なスクリプトが揃っているかを確認
@@ -60,9 +60,6 @@ namespace AM1.BaseFrame.General.Editor
             report = "";
             bool res = false;
             existsSystemObjects.Clear();
-
-            var booter = FindObjectsOfType<Booter>();
-            res |= ExistsActiveScene(booter, "Booterオブジェクト");
 
             var stateChanger = FindObjectsOfType<StateChanger>();
             res |= ExistsActiveScene(stateChanger, "状態切り替え管理スクリプト StateChanger");
@@ -112,7 +109,6 @@ namespace AM1.BaseFrame.General.Editor
         {
             var booterObject = new GameObject();
             booterObject.name = "Booter";
-            booterObject.AddComponent(typeof(Booter));
             Undo.RegisterCreatedObjectUndo(booterObject, "Created Booter Object");
         }
 

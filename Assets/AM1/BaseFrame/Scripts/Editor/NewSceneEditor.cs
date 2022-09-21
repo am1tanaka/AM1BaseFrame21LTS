@@ -6,7 +6,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine.UIElements;
 using System.IO;
 
-namespace AM1.BaseFrame.General.Editor
+namespace AM1.BaseFrame.Assets.Editor
 {
     /// <summary>
     /// 新規シーンの作成。起動報告スクリプトを仕込んだオブジェクトを設定
@@ -20,7 +20,7 @@ namespace AM1.BaseFrame.General.Editor
 
         string savePathField = "Assets";
 
-        [MenuItem("Tools/AM1/New BaseFrame Scene", false, 2)]
+        [MenuItem("Tools/AM1/New BaseFrame Scene", false, 22)]
         static void NewBaseFrameScene()
         {
             var wnd = GetWindow<NewSceneEditor>();

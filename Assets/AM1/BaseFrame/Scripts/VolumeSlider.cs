@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AM1.BaseFrame.General
+namespace AM1.BaseFrame.Assets
 {
     /// <summary>
     /// ボリューム用のスライダーにアタッチする。
@@ -21,6 +21,8 @@ namespace AM1.BaseFrame.General
 
         void Start()
         {
+            if (!StateChanger.IsReady) return;
+
             slider = GetComponent<Slider>();
             slider.onValueChanged.AddListener(OnChangeValue);
 
@@ -36,6 +38,14 @@ namespace AM1.BaseFrame.General
 #endif
             currentVolumeSetting = VolumeSetting.volumeSettings[(int)volumeType];
             slider.value = currentVolumeSetting.Volume;
+        }
+
+        private void OnDestroy()
+        {
+            if (slider != null)
+            {
+                slider.onValueChanged.RemoveListener(OnChangeValue);
+            }
         }
 
         /// <summary>

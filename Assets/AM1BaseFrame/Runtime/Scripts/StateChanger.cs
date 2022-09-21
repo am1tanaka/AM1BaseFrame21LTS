@@ -36,9 +36,18 @@ namespace AM1.BaseFrame
     public class StateChanger : MonoBehaviour
     {
         /// <summary>
+        /// 開始の準備が整ったらtrue。
+        /// このフラグがfalseの時、他シーンは一度削除されるので
+        /// Awake()やStart()の処理をしないようなコードを入れることで
+        /// エディターでの動作が安定する。
+        /// </summary>
+        public static bool IsReady { get; private set; } = false;
+
+        /// <summary>
         /// 状態切り替えが要求されているか、実行中の時、true
         /// </summary>
         public static bool IsRequestOrChanging => IsChanging || (nextStates.Count > 0);
+
         /// <summary>
         /// 切り替え処理中
         /// </summary>
@@ -92,6 +101,7 @@ namespace AM1.BaseFrame
             if (IsChanging || (nextStates.Count == 0)) return;
 
             IsChanging = true;
+            IsReady = true;
             var sc = nextStates.Dequeue();
             StartCoroutine(ChangeScene(sc));
         }

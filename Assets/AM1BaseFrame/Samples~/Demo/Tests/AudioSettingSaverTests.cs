@@ -4,7 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using AM1.BaseFrame;
-using AM1.BaseFrame.General;
+using AM1.BaseFrame.Assets;
 
 public class AudioSettingSaverTests
 {

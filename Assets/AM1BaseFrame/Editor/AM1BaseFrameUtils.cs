@@ -56,19 +56,13 @@ namespace AM1.BaseFrame.Editor
             if (Directory.Exists(packagePath))
             {
                 // Search default location for development package
-                if (Directory.Exists(packagePath + "/Assets/AM1BaseFrame/Editor Resources"))
+                if (Directory.Exists(packagePath + "/Assets/AM1BaseFrame/Package Resources"))
                 {
-                    return "Assets/Packages/com.unity.TextMeshPro";
-                }
-
-                // Search for default location of normal TextMesh Pro AssetStore package
-                if (Directory.Exists(packagePath + "/Assets/TextMesh Pro/Editor Resources"))
-                {
-                    return "Assets/TextMesh Pro";
+                    return "Assets/AM1BaseFrame/Package Resources";
                 }
 
                 // Search for potential alternative locations in the user project
-                string[] matchingPaths = Directory.GetDirectories(packagePath, "TextMesh Pro", SearchOption.AllDirectories);
+                string[] matchingPaths = Directory.GetDirectories(packagePath, "AM1BaseFrame", SearchOption.AllDirectories);
                 packagePath = ValidateLocation(matchingPaths, packagePath);
                 if (packagePath != null) return packagePath;
             }
@@ -133,6 +127,5 @@ namespace AM1.BaseFrame.Editor
 
             return null;
         }
-
     }
 }

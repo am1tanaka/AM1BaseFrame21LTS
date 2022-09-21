@@ -1,5 +1,5 @@
 {
-    "name": "AM1.BaseFrame.General.Editor",
+    "name": "AM1.BaseFrame.Assets.Editor",
     "rootNamespace": "",
     "references": [
         "GUID:9aa49cfb2c2502f4da296bd300aba59f",

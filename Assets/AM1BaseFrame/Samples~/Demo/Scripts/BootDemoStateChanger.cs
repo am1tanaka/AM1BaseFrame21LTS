@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using AM1.BaseFrame.General;
+using AM1.BaseFrame.Assets;
 
 namespace AM1.BaseFrame.Demo
 {

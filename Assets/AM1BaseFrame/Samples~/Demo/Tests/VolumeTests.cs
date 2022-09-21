@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.TestTools;
 using AM1.BaseFrame;
-using AM1.BaseFrame.General;
+using AM1.BaseFrame.Assets;
 
 public class VolumeTests : AM1BaseFrameTestBase
 {

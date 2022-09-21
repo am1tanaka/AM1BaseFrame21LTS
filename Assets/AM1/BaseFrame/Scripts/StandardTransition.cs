@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AM1.BaseFrame.General
+namespace AM1.BaseFrame.Assets
 {
     /// <summary>
     /// 標準的な画面切り替え処理を管理

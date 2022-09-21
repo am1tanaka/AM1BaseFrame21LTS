@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AM1.BaseFrame.General
+namespace AM1.BaseFrame.Assets
 {
     /// <summary>
     /// SEのボリュームをPlayerPrefsで読み書きする
