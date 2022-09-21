@@ -15,11 +15,9 @@ namespace AM1.BaseFrame.Assets.Editor
     /// </summary>
     public class SetStateSystemToActiveSceneEditor : EditorWindow
     {
-        public static string ScriptPath => "Assets/AM1/BaseFrame/Scripts/";
-        public static string GeneratedScriptPath => "Assets/AM1/BaseFrame/Scripts/Generated/";
-        public static string ScriptTemplatePath => "Assets/AM1BaseFrame/Package Resources/";
-
         public static string PrefabPath => "Assets/AM1/BaseFrame/Prefabs/";
+
+        static GameObject booterObject;
 
         /// <summary>
         /// 実行結果のテキスト
@@ -48,6 +46,8 @@ namespace AM1.BaseFrame.Assets.Editor
             if (EditorUtility.DisplayDialog("Systemシーン用のオブジェクトの生成", mes, "追加", "いいえ"))
             {
                 SetSystemObjects();
+                Debug.Log($"Booterオブジェクトに、Import BaseFrame Assetsで作成したBooterスクリプトをアタッチしてください。");
+                Selection.activeObject = booterObject;
             }
         }
 
@@ -107,7 +107,7 @@ namespace AM1.BaseFrame.Assets.Editor
 
         static void CreateBooter()
         {
-            var booterObject = new GameObject();
+            booterObject = new GameObject();
             booterObject.name = "Booter";
             Undo.RegisterCreatedObjectUndo(booterObject, "Created Booter Object");
         }
@@ -122,18 +122,5 @@ namespace AM1.BaseFrame.Assets.Editor
             var go = PrefabUtility.InstantiatePrefab(prefabObject);
             Undo.RegisterCreatedObjectUndo(go, $"Instantiated {prefab} prefab");
         }
-
-        /// <summary>
-        /// ファイル名(拡張子不要)を指定して、テンプレートテキストを読み込んで、スクリプトファイルとして保存。
-        /// </summary>
-        /// <param name="fname">スクリプトのファイル名。拡張子(.cs)不要</param>
-        static void CreateScript(string fname)
-        {
-            var scriptSource = AssetDatabase.LoadAssetAtPath<TextAsset>($"{ScriptTemplatePath}{fname}.cs.txt");
-            string exportPath = $"{GeneratedScriptPath}{fname}.cs";
-            File.WriteAllText(exportPath, scriptSource.text);
-            AssetDatabase.Refresh(ImportAssetOptions.ImportRecursive);
-        }
-
     }
 }

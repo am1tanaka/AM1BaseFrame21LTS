@@ -1,4 +1,3 @@
-using AM1.BaseFrame.Editor;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -15,7 +14,7 @@ namespace AM1.PackageBaseFrame.Editor
         static string saveFolder= "Assets/AM1BaseFrame/Package Resources";
 
         [MenuItem("Tools/AM1/Package BaseFrame Assets", false, 100)]
-        static bool PackageBaseFrameAssets()
+        static void PackageBaseFrameAssets()
         {
             // 保存先フォルダーを選択
             string savePath = EditorUtility.SaveFolderPanel("パッケージの保存先", saveFolder, "");
@@ -34,7 +33,7 @@ namespace AM1.PackageBaseFrame.Editor
                     else
                     {
                         Debug.Log($"ユーザー操作によりキャンセルしました。");
-                        return true;
+                        return;
                     }
 
                     saveFolder = savePath;
@@ -45,8 +44,6 @@ namespace AM1.PackageBaseFrame.Editor
                 }
 
             }
-
-            return true;
         }
 
         static void GetExportFiles(string target, List<string> exportFileList)
