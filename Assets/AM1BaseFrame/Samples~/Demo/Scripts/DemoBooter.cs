@@ -19,8 +19,10 @@ namespace AM1.BaseFrame.Demo
             for (int i = 0; i < SceneManager.sceneCount; i++)
             {
                 var sc = SceneManager.GetSceneAt(i);
+                Debug.Log($"{i} {sc.name} {gameObject.scene.name}");
                 if (sc.name != gameObject.scene.name)
                 {
+                    Debug.Log($"unload scene {sc.name}");
                     yield return SceneManager.UnloadSceneAsync(sc.name);
                 }
             }
@@ -28,7 +30,7 @@ namespace AM1.BaseFrame.Demo
 
             BootDemoStateChanger.Instance.Request();
             yield return new WaitWhile(() => StateChanger.IsRequestOrChanging);
-            Destroy(gameObject);
+            this.enabled = false;
         }
     }
 }
