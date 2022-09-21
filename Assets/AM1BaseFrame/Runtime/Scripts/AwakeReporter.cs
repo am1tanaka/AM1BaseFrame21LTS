@@ -12,7 +12,10 @@ namespace AM1.BaseFrame
     {
         private void Awake()
         {
-            StateChanger.AwakeDone(gameObject.scene.name);
+            if (StateChanger.IsReady)
+            {
+                StateChanger.AwakeDone(gameObject.scene.name);
+            }
         }
     }
 }

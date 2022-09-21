@@ -26,18 +26,23 @@ namespace AM1.BaseFrame.Demo
 
         private void Awake()
         {
+            if (!StateChanger.IsReady) return;
+
             Instance = this;
             StateChanger.AwakeDone(gameObject.scene.name);
         }
 
         void Start()
         {
+            if (!StateChanger.IsReady) return;
+
             IsStarted = true;
         }
 
         void Update()
         {
-            if (Input.GetButtonDown("Jump") || Input.GetButtonDown("Fire1"))
+            if (!Input.GetMouseButtonDown(0)
+                && (Input.GetButtonDown("Jump") || Input.GetButtonDown("Fire1")))
             {
                 OnStartButtonClicked();
             }

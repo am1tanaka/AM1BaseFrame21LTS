@@ -21,6 +21,8 @@ namespace AM1.BaseFrame.Demo
 
         private void Awake()
         {
+            if (!StateChanger.IsReady) return;
+
             Instance = this;
             StateChanger.AwakeDone(gameObject.scene.name);
         }

@@ -7,7 +7,7 @@ namespace AM1.BaseFrame.Demo
 {
     public class DemoBooter : MonoBehaviour
     {
-        private void Awake()
+        private void Start()
         {
             StartCoroutine(BootSequence());
         }
@@ -16,21 +16,33 @@ namespace AM1.BaseFrame.Demo
         {
 #if UNITY_EDITOR
             // システムシーン以外を削除
+            Scene[] scenes = new Scene[SceneManager.sceneCount];
             for (int i = 0; i < SceneManager.sceneCount; i++)
             {
-                var sc = SceneManager.GetSceneAt(i);
-                Debug.Log($"{i} {sc.name} {gameObject.scene.name}");
+                scenes[i] = SceneManager.GetSceneAt(i);
+            }
+            for (int i=0;i<scenes.Length;i++)
+            {
+                var sc = scenes[i];
                 if (sc.name != gameObject.scene.name)
                 {
-                    Debug.Log($"unload scene {sc.name}");
-                    yield return SceneManager.UnloadSceneAsync(sc.name);
+                    yield return SceneManager.UnloadSceneAsync(sc);
                 }
             }
 #endif
-
             BootDemoStateChanger.Instance.Request();
             yield return new WaitWhile(() => StateChanger.IsRequestOrChanging);
-            this.enabled = false;
+            var gos = gameObject.GetComponents<MonoBehaviour>();
+            if (gos.Length > 1)
+            {
+                // 2つ以上コンポーネントがアタッチされていたらこのスクリプトだけ削除
+                Destroy(this);
+            }
+            else
+            {
+                // 1つの時はこれだけなのでオブジェクトごと削除
+                Destroy(gameObject);
+            }
         }
     }
 }

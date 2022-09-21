@@ -10,7 +10,7 @@ using AM1.BaseFrame.Assets;
 /// </summary>
 public class Booter : MonoBehaviour
 {
-    private void Awake()
+    private void Start()
     {
         StartCoroutine(BootSequence());
     }
@@ -19,18 +19,34 @@ public class Booter : MonoBehaviour
     {
 #if UNITY_EDITOR
         // システムシーン以外を削除
+        Scene[] scenes = new Scene[SceneManager.sceneCount];
         for (int i = 0; i < SceneManager.sceneCount; i++)
         {
-            var sc = SceneManager.GetSceneAt(i);
+            scenes[i] = SceneManager.GetSceneAt(i);
+        }
+        for (int i=0;i<scenes.Length;i++)
+        {
+            var sc = scenes[i];
             if (sc.name != gameObject.scene.name)
             {
-                yield return SceneManager.UnloadSceneAsync(sc.name);
+                yield return SceneManager.UnloadSceneAsync(sc);
             }
         }
 #endif
 
         BootStateChanger.Instance.Request();
         yield return new WaitWhile(() => StateChanger.IsRequestOrChanging);
-        this.enabled = false;
+
+        var gos = gameObject.GetComponents<MonoBehaviour>();
+        if (gos.Length > 1)
+        {
+            // 2つ以上コンポーネントがアタッチされていたらこのスクリプトだけ削除
+            Destroy(this);
+        }
+        else
+        {
+            // 1つの時はこれだけなのでオブジェクトごと削除
+            Destroy(gameObject);
+        }
     }
 }
