@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEditor.SceneManagement;
 using UnityEngine.UIElements;
 using System.IO;
+using AM1.BaseFrame.Editor;
 
 namespace AM1.BaseFrame.Assets.Editor
 {
@@ -17,8 +18,6 @@ namespace AM1.BaseFrame.Assets.Editor
 
         TextField sceneName;
         Button createButton;
-
-        string savePathField = "Assets";
 
         [MenuItem("Tools/AM1/New BaseFrame Scene", false, 22)]
         static void NewBaseFrameScene()
@@ -62,12 +61,14 @@ namespace AM1.BaseFrame.Assets.Editor
             createButton.SetEnabled(false);
 
             // フォルダー選択
+            var savePathField = AM1BaseFrameUtils.LocalSettings.sceneFolder;
             string folder = EditorUtility.SaveFolderPanel("シーンの保存先フォルダー", savePathField, "");
             if (!string.IsNullOrEmpty(folder))
             {
                 var saved = NewScene(scName, folder);
                 sceneName.value = "";
-                savePathField = Path.GetDirectoryName(saved);
+                AM1BaseFrameUtils.LocalSettings.sceneFolder = Path.GetDirectoryName(saved);
+                AM1BaseFrameUtils.LocalSettings.Save();
             }
 
             UpdateElement();

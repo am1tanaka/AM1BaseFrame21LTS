@@ -19,8 +19,6 @@ namespace AM1.BaseFrame.Assets.Editor
         FloatField transitionSec;
         Button createButton;
 
-        string saveScenePath = "Assets";
-
         /// <summary>
         /// 状態切り替えのファイル名
         /// </summary>
@@ -135,7 +133,8 @@ namespace AM1.BaseFrame.Assets.Editor
             createButton.SetEnabled(false);
 
             // 保存先フォルダー選択
-            string selectedFolder= EditorUtility.SaveFolderPanel("保存先フォルダー", saveScenePath, "");
+            var saveStatePath = AM1BaseFrameUtils.LocalSettings.stateFolder;
+            string selectedFolder= EditorUtility.SaveFolderPanel("保存先フォルダー", saveStatePath, "");
             if (string.IsNullOrEmpty(selectedFolder))
             {
                 // 指定がなければ処理止め
@@ -154,7 +153,8 @@ namespace AM1.BaseFrame.Assets.Editor
                 MakeNewScene(selectedFolder);
             }
 
-            saveScenePath = Path.GetDirectoryName(selectedFolder);
+            AM1BaseFrameUtils.LocalSettings.stateFolder = Path.Combine("Assets", Path.GetRelativePath(Application.dataPath, selectedFolder));
+            AM1BaseFrameUtils.LocalSettings.Save();
         }
 
         /// <summary>

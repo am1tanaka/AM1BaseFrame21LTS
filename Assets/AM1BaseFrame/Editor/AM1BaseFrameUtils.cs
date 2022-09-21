@@ -5,8 +5,73 @@ using System.IO;
 
 namespace AM1.BaseFrame.Editor
 {
+    [System.Serializable]
+    public class BaseFrameLocalSettings
+    {
+        public static string SettingFilePath => "Assets/AM1/BaseFrame/LocalSettings/Settings.json";
+
+        /// <summary>
+        /// 新しい状態を生成する先のフォルダー
+        /// </summary>
+        public string stateFolder = "Assets";
+
+        /// <summary>
+        /// 新しいシーンの作成先フォルダー
+        /// </summary>
+        public string sceneFolder = "Assets/Scenes";
+
+        /// <summary>
+        /// 設定を読み込む。
+        /// </summary>
+        public void Load()
+        {
+            if (File.Exists(SettingFilePath))
+            {
+                string settings = File.ReadAllText(SettingFilePath);
+                if (settings.Length > 0)
+                {
+                    var fromFile = JsonUtility.FromJson<BaseFrameLocalSettings>(settings);
+                    this.stateFolder = fromFile.stateFolder;
+                    this.sceneFolder = fromFile.sceneFolder;
+                    return;
+                }
+            }
+
+            // 現在の状態を保存
+            Save();
+        }
+
+        /// <summary>
+        /// 既定の先へ保存
+        /// </summary>
+        public void Save()
+        {
+            var json = JsonUtility.ToJson(this);
+            File.WriteAllText(SettingFilePath, json);
+        }
+    }
+
     public static class AM1BaseFrameUtils
     {
+        static BaseFrameLocalSettings baseFrameLocalSettings;
+
+        /// <summary>
+        /// 設定を返す。
+        /// </summary>
+        public static BaseFrameLocalSettings LocalSettings
+        {
+            get
+            {
+                if (baseFrameLocalSettings == null)
+                {
+                    // ファイルがないので作成
+                    baseFrameLocalSettings = new BaseFrameLocalSettings();
+                    baseFrameLocalSettings.Load();
+                }
+                return baseFrameLocalSettings;
+            }
+        }
+
         /// <summary>
         /// Returns the relative path of the package.
         /// </summary>
