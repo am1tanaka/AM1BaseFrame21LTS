@@ -20,7 +20,7 @@ namespace AM1.PackageBaseFrame.Editor
             string savePath = EditorUtility.SaveFolderPanel("パッケージの保存先", saveFolder, "");
             if (!string.IsNullOrEmpty(savePath))
             {
-                string relPath = "Assets/"+Path.GetRelativePath(Application.dataPath, savePath);
+                string relPath = "Assets/"+ Path.GetRelativePath(Application.dataPath, savePath);
                 string packagePath = $"{relPath}/BaseFrame.unitypackage";
                 if (File.Exists(packagePath))
                 {

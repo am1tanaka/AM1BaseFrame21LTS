@@ -13,7 +13,6 @@ namespace AM1.BaseFrame.Editor
         {
             // 保存先フォルダーの選択
             string selectedFolder = EditorUtility.SaveFolderPanel("起動スクリプトを保存するフォルダー(Scriptsフォルダーなど)を選択してください。", "Assets", "");
-            Debug.Log($"slec={selectedFolder}");
             if (string.IsNullOrEmpty(selectedFolder)) {
                 Debug.Log($"保存先の選択がキャンセルされたのでインポート処理を中止しました。");
                 return;
@@ -38,11 +37,19 @@ namespace AM1.BaseFrame.Editor
         /// <param name="targetFolder">保存左記フォルダー</param>
         static void CreateScriptFromTemplate(string fileName, string targetFolder)
         {
-            string booterPath = Path.Combine(AM1BaseFrameUtils.packageRelativePath, $"{fileName}Template.cs.txt");
-            string booterText = File.ReadAllText(booterPath);
+            // すでにファイルがあるなら何もしない
             string booterSaveName = Path.Combine(targetFolder, $"{fileName}.cs");
-            string relPath = "Assets/"+Path.GetRelativePath(Application.dataPath, booterSaveName);
+            string relPath = "Assets/" + AM1BaseFrameUtils.GetRelativePath(Application.dataPath, booterSaveName);
             string booterSavePath = AssetDatabase.GenerateUniqueAssetPath(relPath);
+            if (File.Exists(booterSavePath))
+            {
+                Debug.LogWarning($"{booterSavePath}がすでにあるのでスクリプトの作成をスキップします。");
+                return;
+            }
+
+            // テンプレートから指定フォルダーへスクリプトとして保存
+            string booterPath = Path.Combine(AM1BaseFrameUtils.packageRelativePath+"/Package Resources", $"{fileName}Template.cs.txt");
+            string booterText = File.ReadAllText(booterPath);
             File.WriteAllText(booterSavePath, booterText);
         }
     }

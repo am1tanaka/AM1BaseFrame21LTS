@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using System.IO;
 
 namespace AM1.BaseFrame.Editor
@@ -121,9 +122,9 @@ namespace AM1.BaseFrame.Editor
             if (Directory.Exists(packagePath))
             {
                 // Search default location for development package
-                if (Directory.Exists(packagePath + "/Assets/AM1BaseFrame/Package Resources"))
+                if (Directory.Exists(packagePath + "/Assets/AM1BaseFrame"))
                 {
-                    return "Assets/AM1BaseFrame/Package Resources";
+                    return "Assets/AM1BaseFrame";
                 }
 
                 // Search for potential alternative locations in the user project
@@ -191,6 +192,37 @@ namespace AM1.BaseFrame.Editor
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Path.RelativePath()が2020にはないのでカプセル化
+        /// </summary>
+        /// <param name="abspath">基準となるパス</param>
+        /// <param name="target">対象のパス</param>
+        /// <returns>相対パス</returns>
+        public static string GetRelativePath(string abspath, string target)
+        {
+            var getRelativePath = typeof(Path).GetMethod("GetRelativePath");
+            if (getRelativePath != null)
+            {
+                return getRelativePath.Invoke(null, new object[] { abspath, target }) as string;
+            }
+
+            // 自前実装
+            string fullAbs = Path.GetFullPath(abspath);
+            string fullTarget = Path.GetFullPath(target);
+            if (!fullTarget.StartsWith(fullAbs))
+            {
+                Debug.Log($"プロジェクトフォルダーのAssetsフォルダー外が指定されました。");
+                return target;
+            }
+
+            string rel = fullTarget.Substring(fullAbs.Length);
+            while (rel.StartsWith("\\"))
+            {
+                rel = rel.Substring(1);
+            }
+            return rel;
         }
     }
 }

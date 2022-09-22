@@ -118,7 +118,7 @@ namespace AM1.BaseFrame.Assets.Editor
 
             // 保存
             string filePath = Path.Combine(scriptFolder, StateChangerScriptFileName);
-            string relPath = "Assets/" + Path.GetRelativePath(Application.dataPath, filePath);
+            string relPath = "Assets/" + AM1BaseFrameUtils.GetRelativePath(Application.dataPath, filePath);
             string savePath = AssetDatabase.GenerateUniqueAssetPath(relPath);
             File.WriteAllText(savePath, tempText);
             AssetDatabase.Refresh(ImportAssetOptions.ImportRecursive);
@@ -153,7 +153,7 @@ namespace AM1.BaseFrame.Assets.Editor
                 MakeNewScene(selectedFolder);
             }
 
-            AM1BaseFrameUtils.LocalSettings.stateFolder = Path.Combine("Assets", Path.GetRelativePath(Application.dataPath, selectedFolder));
+            AM1BaseFrameUtils.LocalSettings.stateFolder = Path.Combine("Assets", AM1BaseFrameUtils.GetRelativePath(Application.dataPath, selectedFolder));
             AM1BaseFrameUtils.LocalSettings.Save();
         }
 
@@ -193,7 +193,7 @@ namespace AM1.BaseFrame.Assets.Editor
             // 画面切り替えの設定
             if (transitionEnum.text != "None")
             {
-                var lines = tempText.Split("\n");
+                var lines = tempText.Split(new char[] { '\n' });
                 tempText = "";
                 for (int i = 0; i < lines.Length; i++)
                 {

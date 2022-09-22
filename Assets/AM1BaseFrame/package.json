@@ -1,6 +1,6 @@
 {
   "name": "jp.am1.baseframe",
-  "version": "0.1.1",
+  "version": "0.5.0",
   "displayName": "AM1 Base Framework",
   "description": "This is a base framework package",
   "unity": "2020.3",
@@ -10,6 +10,7 @@
   ],
   "author": {
     "name": "Yu Tanaka",
+    "twitter": "@am1tanaka",
     "url": "https://am1.jp/"
   },
   "samples": [

@@ -95,7 +95,7 @@ namespace AM1.BaseFrame.Assets.Editor
             string scenePath = Path.Combine(savePath, scName + ".unity");
 
             // シーンの保存
-            var relPath = "Assets/"+Path.GetRelativePath(Application.dataPath, scenePath);
+            var relPath = "Assets/"+ AM1BaseFrameUtils.GetRelativePath(Application.dataPath, scenePath);
             var path = AssetDatabase.GenerateUniqueAssetPath(relPath);
             EditorSceneManager.SaveScene(newScene, path);
             AssetDatabase.Refresh();

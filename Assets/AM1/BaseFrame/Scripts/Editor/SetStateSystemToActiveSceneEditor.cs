@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 using AM1.BaseFrame.Assets;
 using UnityEngine.SceneManagement;
-using Codice.Client.BaseCommands;
 using System.IO;
 
 namespace AM1.BaseFrame.Assets.Editor
