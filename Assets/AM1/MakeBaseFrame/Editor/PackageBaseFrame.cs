@@ -13,7 +13,7 @@ namespace AM1.PackageBaseFrame.Editor
     {
         static string saveFolder= "Assets/AM1BaseFrame/Package Resources";
 
-        [MenuItem("Tools/AM1/Package BaseFrame Assets", false, 100)]
+        [MenuItem("Tools/AM1/Make Package/Package BaseFrame Assets", false, 100)]
         static void PackageBaseFrameAssets()
         {
             // 保存先フォルダーを選択

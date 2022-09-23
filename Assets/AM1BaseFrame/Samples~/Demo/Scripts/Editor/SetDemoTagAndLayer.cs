@@ -7,7 +7,7 @@ using System.Linq;
 
 public class SetDemoTagAndLayer
 {
-    [MenuItem("Tools/AM1/Set Demo Tags and Layers", false, 400)]
+    [MenuItem("Tools/AM1/Set Demo Tags and Layers", false, 40)]
     static void SetDemoTagsAndLayersEditor()
     {
         if (EditorUtility.DisplayDialog("タグとレイヤーの読み込み", "Demo用のタグとレイヤーを読み込みますか？", "読み込む", "キャンセル"))
