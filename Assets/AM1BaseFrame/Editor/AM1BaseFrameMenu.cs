@@ -3,30 +3,41 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using UnityEditor.PackageManager;
+using System.Threading;
 
 namespace AM1.BaseFrame.Editor
 {
     public class AM1BaseFrameMenu : EditorWindow
     {
+        static string booterFolder;
+
         [MenuItem("Tools/AM1/Import BaseFrame Assets", false, 0)]
         static void ImportBaseFrameAssets()
         {
             // 保存先フォルダーの選択
-            string selectedFolder = EditorUtility.SaveFolderPanel("起動スクリプトを保存するフォルダー(Scriptsフォルダーなど)を選択してください。", "Assets", "");
-            if (string.IsNullOrEmpty(selectedFolder)) {
+            booterFolder = EditorUtility.SaveFolderPanel("起動スクリプトを保存するフォルダー(Scriptsフォルダーなど)を選択してください。", "Assets", "");
+            if (string.IsNullOrEmpty(booterFolder)) {
                 Debug.Log($"保存先の選択がキャンセルされたのでインポート処理を中止しました。");
                 return;
             }
 
-            // 選択先のフォルダーにBooterとBootStateChangerを作成
-            AssetDatabase.Refresh();
-            CreateScriptFromTemplate("Booter", selectedFolder);
-            CreateScriptFromTemplate("BootStateChanger", selectedFolder);
-            AssetDatabase.Refresh();
-
             // パッケージをインポート
             string baseFramePackagePath = AM1BaseFrameUtils.packageFullPath + "/Package Resources/BaseFrame.unitypackage";
             AssetDatabase.ImportPackage(baseFramePackagePath, true);
+            CreateBooterScript();
+        }
+
+        /// <summary>
+        /// 起動スクリプトを生成
+        /// </summary>
+        static void CreateBooterScript()
+        {
+            // Booterスクリプトを作成
+            AssetDatabase.Refresh();
+            CreateScriptFromTemplate("Booter", booterFolder);
+            CreateScriptFromTemplate("BootStateChanger", booterFolder);
+            AssetDatabase.Refresh();
         }
 
         /// <summary>

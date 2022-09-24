@@ -26,7 +26,7 @@ public class BootStateChanger : StateChangerBase<BootStateChanger>, IStateChange
         // 遅延再生初期化
         SESourceAndClips.Instance.InitDelaySEPlayer(System.Enum.GetValues(typeof(SEPlayer.SE)).Length, SEPlayer.DelaySeconds, SEPlayer.DelayMax);
 
-        // ここに最初のシーンへの切り替え要求を追記
+        // ここに最初の状態への切り替え要求を追記
         // TitleStateChanger.Instance.Request(true);
     }
 }
