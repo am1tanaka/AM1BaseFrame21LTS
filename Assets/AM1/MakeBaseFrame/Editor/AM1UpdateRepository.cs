@@ -77,14 +77,6 @@ public class AM1UpdateRepository
     /// <summary>
     /// 参考 http://var.blog.jp/archives/24980791.html
     /// </summary>
-    [MenuItem("Tools/Process Test")]
-    static void ProcessTest()
-    {
-        string repo_path = @"D:\Temp\Rensyu";
-        ExecuteCommand("git", $@"-C {repo_path} add .");
-        ExecuteCommand("git", $@"-C {repo_path} -c user.name=autocommit -c user.email=autocommit@autocommit commit -m Update");
-    }
-
     static int ExecuteCommand(string command, string arguments = "")
     {
         var process = new Process
