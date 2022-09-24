@@ -26,6 +26,27 @@ namespace AM1.BaseFrame.Editor
             string baseFramePackagePath = AM1BaseFrameUtils.packageFullPath + "/Package Resources/BaseFrame.unitypackage";
             AssetDatabase.ImportPackage(baseFramePackagePath, true);
             CreateBooterScript();
+
+            // gitignoreとeditorconfigを作成
+            SaveGitIgnoreAndEditorConfig();
+        }
+
+        [MenuItem("Tools/AM1/Save gitignore and editorconfig", false, 60)]
+        static void SaveGitIgnoreAndEditorConfigMenu()
+        {
+            if (EditorUtility.DisplayDialog(".gitignoreと.editorconfigの作成", ".gitignoreと.editorconfigを作成しますか？", "作成", "キャンセル"))
+            {
+                SaveGitIgnoreAndEditorConfig();
+            }
+        }
+
+        static void SaveGitIgnoreAndEditorConfig()
+        {
+            string projectPath = Path.GetFullPath(Application.dataPath + "/..");
+            string editorconfig = Path.Combine(projectPath, ".editorconfig");
+            AM1BaseFrameUtils.SaveTemplateNotExists("editorconfig.txt", editorconfig);
+            string gitignore = Path.Combine(projectPath, ".gitignore");
+            AM1BaseFrameUtils.SaveTemplateNotExists("gitignore.txt", gitignore);
         }
 
         /// <summary>

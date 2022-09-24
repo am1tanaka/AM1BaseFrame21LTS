@@ -224,5 +224,25 @@ namespace AM1.BaseFrame.Editor
             }
             return rel;
         }
+
+        /// <summary>
+        /// 指定のテンプレートファイルを指定のパスに保存する。
+        /// ただし、すでにファイルがあった場合は保存しない。
+        /// </summary>
+        /// <param name="templateName">テンプレートファイル名</param>
+        /// <param name="savePath">保存先パス</param>
+        public static void SaveTemplateNotExists(string templateName, string savePath)
+        {
+            if (File.Exists(savePath))
+            {
+                Debug.Log($"{savePath}がすでにあるのでキャンセルします。");
+                return;
+            }
+
+            string tempPath = Path.Combine(packageRelativePath, "Package Resources");
+            tempPath = Path.Combine(tempPath, templateName);
+            string text = File.ReadAllText(tempPath);
+            File.WriteAllText(savePath, text);
+        }
     }
 }
