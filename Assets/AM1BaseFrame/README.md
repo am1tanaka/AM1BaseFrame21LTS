@@ -105,7 +105,9 @@ Unity2021LTS向けにまとめた自家製フレームワークです。1週間�
 ## ライセンス
 
 ### 本体パッケージ
-MITライセンス
+[MIT License](./LICENSE.md)
+
+Copyright (c) 2022 Yu Tanaka
 
 ### デモ使用アセット
 以下、いずれもCC0。
