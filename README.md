@@ -1,12 +1,39 @@
 # AM1BaseFrame21LTS
-Unity2021LTS向けにまとめた自家製フレームワークです。1週間ゲームジャムなどでの利用や、設計の勉強を目的として作っています。
-
-そのまま使っていただいても構いませんし、改造や反面教師とするなどご自由にご利用ください。
-
-このリポジトリーはフレームワークパッケージの開発用のものです。フレームワークを利用する場合は、以下の手順に従ってパッケージマネージャーからインポートしてください。
+フレームワークや共通コード、フェーズシステムなどの自家製汎用パッケージの開発リポジトリ。本リポジトリからフォルダーを公開リポジトリーにアップして、自家製パッケージとして利用する。
 
 ## 対象バージョン
-- Unity2021LTS
+- 開発 Unity2021.3.10f1
+- 対応 Unity2020LTS以降
+
+## サンプルフォルダーへのシンボリックリンクの作成
+サンプルフォルダーはUnityの管理外にするため直に参照できない。以下でシンボリックリンクを作成してUnityに認識させる。
+
+### Windows
+参考 https://learn.microsoft.com/ja-jp/powershell/scripting/windows-powershell/wmf/whats-new/new-updated-cmdlets?view=powershell-7.2
+
+- Assetsフォルダーへ移動
+- 以下はPhaseSystemのサンプルへのシンボリックリンクの作成例
+
+```
+New-Item -ItemType SymbolicLink -Path ./AM1PhaseSystemSample.win -Value ./AM1PhaseSystem/Samples~
+```
+
+- .gitignoreに作成したシンボリックリンクを無視するよう設定
+
+### Mac
+
+```
+ln -s ./AM1PhaseSystem/Samples~ .
+```
+
+作成後に`.mac`を付けて名前を変更して、.gitignoreに作成したシンボリックリンクを無視するよう設定。
+
+シンボリックリンクの削除は以下。
+
+```
+unlink シンボリックリンクのパス
+```
+
 
 ## 機能
 

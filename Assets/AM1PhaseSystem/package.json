@@ -1,0 +1,24 @@
+{
+  "name": "jp.am1.phasesystem",
+  "version": "0.1.0",
+  "displayName": "AM1 Phase System",
+  "description": "This is a phase system package",
+  "unity": "2020.3",
+  "keywords": [
+    "unity",
+    "framework",
+    "phase"
+  ],
+  "author": {
+    "name": "Yu Tanaka",
+    "twitter": "@am1tanaka",
+    "url": "https://am1.jp/"
+  },
+  "samples": [
+    {
+      "displayName": "Sample",
+      "description": "Sample assets.",
+      "path": "Samples~/Sample"
+    }
+  ]
+}

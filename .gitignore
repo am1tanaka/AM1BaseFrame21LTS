@@ -80,5 +80,8 @@ crashlytics-build.properties
 /Assets/TextMesh Pro*
 *.cd
 
+/Assets/AM1BaseFrame.Samples.win*
+/Assets/AM1PhaseSystemSamples.win*
+
 !/Assets/AM1BaseFrame/Samples~*
 !/Assets/AM1BaseFrame/Package Resources/*.unitypackage
