@@ -1,13 +1,15 @@
 {
     "name": "AM1.PhaseSystem",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:3fe9809e51b573d40859cb607fe83684"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": false,
+    "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false

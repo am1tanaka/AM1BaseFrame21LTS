@@ -1,0 +1,16 @@
+{
+  "name": "jp.am1.utils",
+  "version": "0.1.0",
+  "displayName": "AM1 Common Utilities",
+  "description": "This is a common utilities package package",
+  "unity": "2020.3",
+  "keywords": [
+    "unity",
+    "framework"
+  ],
+  "author": {
+    "name": "Yu Tanaka",
+    "twitter": "@am1tanaka",
+    "url": "https://am1.jp/"
+  }
+}

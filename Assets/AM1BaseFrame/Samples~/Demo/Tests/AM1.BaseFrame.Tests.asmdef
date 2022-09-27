@@ -6,7 +6,8 @@
         "UnityEditor.TestRunner",
         "AM1.BaseFrame",
         "AM1.BaseFrame.Demo",
-        "AM1.BaseFrame.Assets"
+        "AM1.BaseFrame.Assets",
+        "AM1.Utils"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

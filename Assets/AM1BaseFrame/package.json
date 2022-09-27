@@ -1,6 +1,6 @@
 {
   "name": "jp.am1.baseframe",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "displayName": "AM1 Base Framework",
   "description": "This is a base framework package",
   "unity": "2020.3",
@@ -12,6 +12,9 @@
     "name": "Yu Tanaka",
     "twitter": "@am1tanaka",
     "url": "https://am1.jp/"
+  },
+  "dependencies": {
+    "jp.am1.utils": "0.1.0"
   },
   "samples": [
     {

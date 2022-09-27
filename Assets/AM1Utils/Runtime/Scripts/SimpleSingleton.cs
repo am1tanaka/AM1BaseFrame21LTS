@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AM1.BaseFrame
+namespace AM1.Utils
 {
     /// <summary>
     /// Instanceにアクセスするとシングルトンを返すシンプルなジェネリッククラス。
