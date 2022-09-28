@@ -17,19 +17,16 @@
 - デフォルトでは操作性の観点からRequest()、Push()、Pop()はフェーズの切り替え中は処理を受け付けません
 - 何らかの理由で、切り替え後に次の切り替えを予約する場合は、Request(), Push(), Pop()の引数にtrueを設定します
 
-## IPhaseRequest
-- Request(bool reserve=false)
-  - 現在の階層のフェーズを切り替えるようPhaseManagerへ要求します
-- Push(bool reserve=false)
-  - 現在のフェーズに戻れるようにスタックに積んで切り替え要求します
-- Pop(bool reserve=false)
-  - 一つ前のフェーズに戻す要求をします
-- PopAll(bool reserve=false)
-  - ルートのフェーズまで戻すよう要求します
+## PhaseManager
+- Request(PhaseChangeRequest ph, bool reserve=false)
+  - 指定した処理による切り替えを要求します
+
 
 ## IPhase
 - enum State.None, Init, Update, Terminate
 - State CurrentState
+- bool CanChange
+  - 他のフェーズに切り替え可能な状態ならtrue
 - bool IsTerminated
   - 終了処理が完了していたらtrue
 - void Init()
