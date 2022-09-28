@@ -48,7 +48,7 @@ public class PhaseTestBench : PhaseBase
         fixedUpdateCount++;
     }
 
-    public override void Teminate()
+    public override void Terminate()
     {
         terminateCount++;
     }

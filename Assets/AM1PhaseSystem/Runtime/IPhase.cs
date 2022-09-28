@@ -34,7 +34,7 @@ namespace AM1.PhaseSystem
         /// <summary>
         /// フェーズを終了する時に呼び出して終了処理を実行
         /// </summary>
-        void Teminate();
+        void Terminate();
 
     }
 }

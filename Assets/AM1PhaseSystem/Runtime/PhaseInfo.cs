@@ -6,9 +6,9 @@ using UnityEngine.Events;
 namespace AM1.PhaseSystem
 {
     /// <summary>
-    /// フェーズ切り替え要求を記録するクラス
+    /// フェーズ切り替えやインスタンスを記録するクラス
     /// </summary>
-    public class PhaseChangeRequest
+    public class PhaseInfo
     {
         /// <summary>
         /// 切り替え処理
