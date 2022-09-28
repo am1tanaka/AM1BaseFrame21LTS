@@ -1,10 +1,11 @@
-# AM1BaseFrame21LTS
+# AM1BaseFrame
 Unity2021LTS向けにまとめた自家製フレームワークです。1週間ゲームジャムなどでの利用や設計の勉強を目的として開発しています。
 
 そのまま使っていただいても構いませんし、改造や反面教師とするなどご自由にご利用ください。
 
 ## 対応バージョン
-- Unity2020LTS以降
+- 開発 Unity2021.3.10f1
+- 対応 Unity2020LTS以降
 
 ## 機能
 以下の機能を提供します。
@@ -23,9 +24,10 @@ Unity2021LTS向けにまとめた自家製フレームワークです。1週間�
 1. フレームワークを組み込みたいUnityプロジェクトを開きます
 1. WindowメニューからPackage Managerを開きます
 1. + をクリックして Add package from git URL... を選択します
-1. `https://github.com/am1tanaka/AM1BaseFrame.git` を入力して、Addをクリックします
+1. `https://github.com/am1tanaka/AM1BaseFrame21LTS.git?path=/Assets/AM1Utils` と入力して、Addをクリックします
+1. `https://github.com/am1tanaka/AM1BaseFrame21LTS.git?path=/Assets/AM1BaseFrame` と入力して、Addをクリックします
 
-以上でインポートが始まります。
+以上でパッケージのインポート完了です。
 
 ## 最初の設定
 必要なアセットをインポートします。

@@ -14,9 +14,6 @@
     "twitter": "@am1tanaka",
     "url": "https://am1.jp/"
   },
-  "dependencies": {
-    "jp.am1.utils": "0.1.0"
-  },
   "samples": [
     {
       "displayName": "Sample",
