@@ -9,6 +9,8 @@ public class PhaseTestBench : PhaseBase
     public int updateCount;
     public int fixedUpdateCount;
     public int terminateCount;
+    public int pauseCount;
+    public int resumeCount;
 
     public override bool CanChange => canChange;
     public override bool IsTerminated => isTerminated;
@@ -29,6 +31,8 @@ public class PhaseTestBench : PhaseBase
         updateCount = 0;
         fixedUpdateCount = 0;
         terminateCount = 0;
+        pauseCount = 0;
+        resumeCount = 0;
     }
 
     public override void Init()
@@ -53,6 +57,15 @@ public class PhaseTestBench : PhaseBase
         terminateCount++;
     }
 
+    public override void Pause()
+    {
+        pauseCount++;
+    }
+
+    public override void Resume()
+    {
+        resumeCount++;
+    }
 
 
 }

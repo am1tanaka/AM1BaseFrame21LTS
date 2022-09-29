@@ -38,12 +38,12 @@ namespace AM1.PhaseSystem
         /// <summary>
         /// 状態
         /// </summary>
-        public State CurrentState { get; protected set; }
+        public State CurrentState { get; protected set; } = State.Standby;
 
         /// <summary>
         /// スタックの初期上限
         /// </summary>
-        static int StackMax => 8;
+        public static int StackMax => 8;
 
         /// <summary>
         /// フェーズスタック
@@ -58,7 +58,7 @@ namespace AM1.PhaseSystem
         /// <summary>
         /// 要求インスタンス
         /// </summary>
-        public readonly Stack<PhaseInfo> phaseInfoPool = new Stack<PhaseInfo>(StackMax);
+        public readonly Stack<PhaseInfo> phaseInfoPool = new Stack<PhaseInfo>(StackMax*2);
 
         /// <summary>
         /// 現在のフェーズ情報のインスタンス
@@ -68,7 +68,7 @@ namespace AM1.PhaseSystem
         private void Awake()
         {
             // 要求用データを生成
-            for (int i = 0; i < StackMax; i++)
+            for (int i = 0; i < StackMax * 2; i++)
             {
                 phaseInfoPool.Push(new PhaseInfo());
             }

@@ -17,9 +17,9 @@ namespace AM1.PhaseSystem
 
         public virtual void Init() { }
 
-        public void Pause() { }
+        public virtual void Pause() { }
 
-        public void Resume() { }
+        public virtual void Resume() { }
 
         public virtual void Terminate() { }
 
