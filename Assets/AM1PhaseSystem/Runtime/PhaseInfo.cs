@@ -13,7 +13,7 @@ namespace AM1.PhaseSystem
         /// <summary>
         /// フェーズを切り替える処理
         /// </summary>
-        public UnityAction<IPhase> changeAction;
+        public UnityAction<PhaseInfo> changeAction;
 
         /// <summary>
         /// 他のフェーズへ切り替える前に呼び出す終了か中断の呼び出し
@@ -31,7 +31,7 @@ namespace AM1.PhaseSystem
         /// <param name="act">フェーズ切り替え処理</param>
         /// <param name="chg">次へ切り替える時に呼び出す処理</param>
         /// <param name="ph">フェーズインスタンス</param>
-        public void Set(UnityAction<IPhase> act, UnityAction chg, IPhase ph)
+        public void Set(UnityAction<PhaseInfo> act, UnityAction chg, IPhase ph)
         {
             changeAction = act;
             toNextAction = chg;

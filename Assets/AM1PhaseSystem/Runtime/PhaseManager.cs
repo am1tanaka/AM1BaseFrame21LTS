@@ -158,8 +158,8 @@ namespace AM1.PhaseSystem
         /// </summary>
         void ChangeAction()
         {
-            var peek = requestQueue.Peek();
-            peek.changeAction(peek.phase);
+            var info = requestQueue.Dequeue();
+            info.changeAction(info);
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace AM1.PhaseSystem
         /// <param name="ph">切り替え対象のフェーズのインスタンス</param>
         /// <param name="reserve">切り替え中の時に失敗させずに切り替え予約したい時はtrue</param>
         /// <returns>切り替え要求が通ったらtrue</returns>
-        bool Request(UnityAction<IPhase> action, UnityAction toNext, IPhase ph, bool reserve)
+        bool Request(UnityAction<PhaseInfo> action, UnityAction toNext, IPhase ph, bool reserve)
         {
             if (!CanRequest(reserve))
             {
@@ -249,7 +249,7 @@ namespace AM1.PhaseSystem
         /// <param name="act">切り替え処理</param>
         /// <param name="toNext">次へ切り替える時の処理</param>
         /// <param name="ph">切り替えフェーズのインスタンス</param>
-        void EnqueueRequest(UnityAction<IPhase> act, UnityAction toNext, IPhase ph)
+        void EnqueueRequest(UnityAction<PhaseInfo> act, UnityAction toNext, IPhase ph)
         {
             var req = phaseInfoPool.Pop();
             req.Set(Change, toNext, ph);
@@ -285,44 +285,44 @@ namespace AM1.PhaseSystem
         /// <summary>
         /// 現在のフェーズを指定のフェーズへ切り替えます。
         /// </summary>
-        /// <param name="phase">切り替え先のフェーズ</param>
-        void Change(IPhase phase)
+        /// <param name="phaseInfo">切り替え情報のインスタンス</param>
+        void Change(PhaseInfo phaseInfo)
         {
             CurrentState = State.Running;
 
-            // 現在のフェーズがあるなら書き換え
+            // 現在のフェーズがあるならプールに戻す
             if (CurrentPhaseInfo != null)
             {
-                CurrentPhaseInfo.Set(null, null, phase);
-                phase.Init();
+                var stack = phaseStack.Pop();
+                phaseInfoPool.Push(stack);
             }
-            else
-            {
-                // 現在のフェーズがなければプッシュ
-                Push(phase);
-            }
+
+            Push(phaseInfo);
         }
 
         /// <summary>
         /// プールからインスタンスを取り出して、スタックにフェーズを積んで初期化を実行します。
         /// </summary>
-        /// <param name="phase">切り替えたいフェーズ</param>
-        void Push(IPhase phase)
+        /// <param name="phaseInfo">切り替えたいフェーズ</param>
+        void Push(PhaseInfo phaseInfo)
         {
             CurrentState = State.Running;
-            CurrentPhaseInfo = phaseInfoPool.Pop();
-            CurrentPhaseInfo.Set(null, null, phase);
-            phaseStack.Push(CurrentPhaseInfo);
-            phase.Init();
+            CurrentPhaseInfo = phaseInfo;
+            phaseStack.Push(phaseInfo);
+            phaseInfo.phase.Init();
         }
 
         /// <summary>
         /// 現在のフェーズをプールに戻して、一つ前のフェーズに戻します。
         /// </summary>
-        /// <param name="phase">null</param>
-        void Pop(IPhase phase)
+        /// <param name="phaseInfo">null</param>
+        void Pop(PhaseInfo phaseInfo)
         {
             CurrentState = State.Running;
+            if (phaseInfo != null)
+            {
+                phaseInfoPool.Push(phaseInfo);
+            }
 
             // スタックが1つ以下の時は戻せないので何もしない
             if (phaseStack.Count <= 1) return;
@@ -336,9 +336,14 @@ namespace AM1.PhaseSystem
         /// <summary>
         /// ルートまで戻す処理を開始します。
         /// </summary>
-        /// <param name="phase"></param>
-        void PopAll(IPhase phase = null)
+        /// <param name="phaseInfo">フェーズ情報</param>
+        void PopAll(PhaseInfo phaseInfo = null)
         {
+            if (phaseInfo != null)
+            {
+                phaseInfoPool.Push(phaseInfo);
+            }
+
             // phaseStackが1つ以下の時はこのメソッドは呼ばれないはずだが念のため
             if (phaseStack.Count <= 1)
             {
