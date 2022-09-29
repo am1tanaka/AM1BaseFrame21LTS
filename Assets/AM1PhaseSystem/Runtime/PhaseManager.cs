@@ -18,21 +18,21 @@ namespace AM1.PhaseSystem
         public enum State
         {
             /// <summary>
+            /// 待機中
+            /// </summary>
+            Standby,
+            /// <summary>
             /// 通常動作中
             /// </summary>
             Running,
             /// <summary>
-            /// フェーズ切り替え処理中
+            /// 終了待ち
             /// </summary>
-            Changing,
+            WaitTerminate,
             /// <summary>
             /// ルートまで戻す
             /// </summary>
             PopAll,
-            /// <summary>
-            /// 終了待ち
-            /// </summary>
-            WaitTerminate,
         }
 
         /// <summary>
@@ -110,31 +110,28 @@ namespace AM1.PhaseSystem
 
             switch(CurrentState)
             {
+                // 未処理時
+                case State.Standby:
+                    ChangeAction();
+                    break;
+
                 // 処理中の時
                 case State.Running:
                     // 現在の状態が切り替え不可なら待機
-                    if (CurrentPhaseInfo != null)
+                    if (!CurrentPhaseInfo.phase.CanChange)
                     {
-                        if (!CurrentPhaseInfo.phase.CanChange)
-                        {
-                            break;
-                        }
+                        break;
+                    }
 
-                        // 終了呼び出し
-                        CurrentPhaseInfo.phase.Terminate();
-                        if (CurrentPhaseInfo.phase.IsTerminated)
-                        {
-                            ChangeAction();
-                        }
-                        else
-                        {
-                            CurrentState = State.WaitTerminate;
-                        }
+                    // 終了呼び出し
+                    CurrentPhaseInfo.toNextAction?.Invoke();
+                    if (CurrentPhaseInfo.phase.IsTerminated)
+                    {
+                        ChangeAction();
                     }
                     else
                     {
-                        // 現在の状態がないのでそのまま切り替え
-                        ChangeAction();
+                        CurrentState = State.WaitTerminate;
                     }
                     break;
 
@@ -142,8 +139,15 @@ namespace AM1.PhaseSystem
                 case State.WaitTerminate:
                     if (CurrentPhaseInfo.phase.IsTerminated)
                     {
-                        CurrentState = State.Running;
                         ChangeAction();
+                    }
+                    break;
+
+                // ルートまで戻す
+                case State.PopAll:
+                    if (CurrentPhaseInfo.phase.IsTerminated)
+                    {
+                        PopAll();
                     }
                     break;
             }
@@ -155,7 +159,6 @@ namespace AM1.PhaseSystem
         void ChangeAction()
         {
             var peek = requestQueue.Peek();
-            CurrentState = State.Changing;
             peek.changeAction(peek.phase);
         }
 
@@ -163,10 +166,11 @@ namespace AM1.PhaseSystem
         /// 切り替え可能かを確認して、可能なら指定の処理を登録します。
         /// </summary>
         /// <param name="action">切り替え処理</param>
+        /// <param name="toNext">次の処理に切り替える処理</param>
         /// <param name="ph">切り替え対象のフェーズのインスタンス</param>
         /// <param name="reserve">切り替え中の時に失敗させずに切り替え予約したい時はtrue</param>
         /// <returns>切り替え要求が通ったらtrue</returns>
-        bool Request(UnityAction<IPhase> action, IPhase ph, bool reserve)
+        bool Request(UnityAction<IPhase> action, UnityAction toNext, IPhase ph, bool reserve)
         {
             if (!CanRequest(reserve))
             {
@@ -175,7 +179,7 @@ namespace AM1.PhaseSystem
             }
 
             // リクエスト可能
-            EnqueueRequest(action, ph);
+            EnqueueRequest(action, toNext, ph);
             return true;
         }
 
@@ -186,7 +190,11 @@ namespace AM1.PhaseSystem
         /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
         public bool ChangeRequest(IPhase ph, bool reserve = false)
         {
-            return Request(Change, ph, reserve);
+            if (CurrentPhaseInfo == null)
+            {
+                return Request(Change, null, ph, reserve);
+            }
+            return Request(Change, CurrentPhaseInfo.phase.Terminate, ph, reserve);
         }
 
         /// <summary>
@@ -194,9 +202,13 @@ namespace AM1.PhaseSystem
         /// </summary>
         /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
         /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool ChangePush(IPhase ph, bool reserve = false)
+        public bool PushRequest(IPhase ph, bool reserve = false)
         {
-            return Request(Push, ph, reserve);
+            if (CurrentPhaseInfo == null)
+            {
+                return Request(Push, null, ph, reserve);
+            }
+            return Request(Push, CurrentPhaseInfo.phase.Pause, ph, reserve);
         }
 
         /// <summary>
@@ -204,9 +216,15 @@ namespace AM1.PhaseSystem
         /// </summary>
         /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
         /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool ChangePop(bool reserve = false)
+        public bool PopRequest(bool reserve = false)
         {
-            return Request(Pop, null, reserve);
+            // 実行フェーズのスタックが1つ以下の時はPopできないので成功させて終わり
+            if (phaseStack.Count <= 1)
+            {
+                return true;
+            }
+
+            return Request(Pop, CurrentPhaseInfo.phase.Terminate, null, reserve);
         }
 
         /// <summary>
@@ -214,20 +232,27 @@ namespace AM1.PhaseSystem
         /// </summary>
         /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
         /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool ChangePopAll(bool reserve = false)
+        public bool PopAllRequest(bool reserve = false)
         {
-            return Request(PopAll, null, reserve);
+            // 実行フェーズのスタックが1つ以下の時はすでに完了しているので成功させて終わり
+            if (phaseStack.Count <= 1)
+            {
+                return true;
+            }
+
+            return Request(PopAll, CurrentPhaseInfo.phase.Terminate, null, reserve);
         }
 
         /// <summary>
         /// 切り替えリクエストを登録します。
         /// </summary>
         /// <param name="act">切り替え処理</param>
+        /// <param name="toNext">次へ切り替える時の処理</param>
         /// <param name="ph">切り替えフェーズのインスタンス</param>
-        void EnqueueRequest(UnityAction<IPhase> act, IPhase ph)
+        void EnqueueRequest(UnityAction<IPhase> act, UnityAction toNext, IPhase ph)
         {
             var req = phaseInfoPool.Pop();
-            req.Set(Change, ph);
+            req.Set(Change, toNext, ph);
             requestQueue.Enqueue(req);
         }
 
@@ -263,10 +288,12 @@ namespace AM1.PhaseSystem
         /// <param name="phase">切り替え先のフェーズ</param>
         void Change(IPhase phase)
         {
+            CurrentState = State.Running;
+
             // 現在のフェーズがあるなら書き換え
             if (CurrentPhaseInfo != null)
             {
-                CurrentPhaseInfo.Set(null, phase);
+                CurrentPhaseInfo.Set(null, null, phase);
                 phase.Init();
             }
             else
@@ -282,8 +309,9 @@ namespace AM1.PhaseSystem
         /// <param name="phase">切り替えたいフェーズ</param>
         void Push(IPhase phase)
         {
+            CurrentState = State.Running;
             CurrentPhaseInfo = phaseInfoPool.Pop();
-            CurrentPhaseInfo.Set(null, phase);
+            CurrentPhaseInfo.Set(null, null, phase);
             phaseStack.Push(CurrentPhaseInfo);
             phase.Init();
         }
@@ -294,22 +322,49 @@ namespace AM1.PhaseSystem
         /// <param name="phase">null</param>
         void Pop(IPhase phase)
         {
+            CurrentState = State.Running;
+
             // スタックが1つ以下の時は戻せないので何もしない
             if (phaseStack.Count <= 1) return;
 
             // スタックが1の時はより大きい時、
             phaseInfoPool.Push(CurrentPhaseInfo);
             CurrentPhaseInfo = phaseStack.Pop();
+            CurrentPhaseInfo.phase.Resume();
         }
 
         /// <summary>
         /// ルートまで戻す処理を開始します。
         /// </summary>
         /// <param name="phase"></param>
-        void PopAll(IPhase phase)
+        void PopAll(IPhase phase = null)
         {
+            // phaseStackが1つ以下の時はこのメソッドは呼ばれないはずだが念のため
+            if (phaseStack.Count <= 1)
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning($"phaseStackが{phaseStack.Count}の状態でPopAll()が呼ばれました。");
+#endif
+                CurrentState = (CurrentPhaseInfo != null) ? State.Running : State.Standby;
+                return;
+            }
 
+            // 状態を1つ戻す
+            phaseInfoPool.Push(CurrentPhaseInfo);
+            CurrentPhaseInfo = phaseStack.Pop();
+
+            // 戻す処理が完了したので復帰
+            if (phaseStack.Count <= 1)
+            {
+                CurrentState = State.Running;
+                CurrentPhaseInfo.phase.Resume();
+            }
+            else
+            {
+                // 戻し処理継続
+                CurrentState = State.PopAll;
+                CurrentPhaseInfo.phase.Terminate();
+            }
         }
-
     }
 }

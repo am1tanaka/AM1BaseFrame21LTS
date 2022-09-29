@@ -36,5 +36,14 @@ namespace AM1.PhaseSystem
         /// </summary>
         void Terminate();
 
+        /// <summary>
+        /// 他のフェーズへのスタック切り替える前の処理
+        /// </summary>
+        void Pause();
+
+        /// <summary>
+        /// 他のフェーズから戻る時の処理
+        /// </summary>
+        void Resume();
     }
 }
