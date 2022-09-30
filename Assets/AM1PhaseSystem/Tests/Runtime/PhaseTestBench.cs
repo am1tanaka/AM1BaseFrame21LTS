@@ -25,6 +25,11 @@ public class PhaseTestBench : PhaseBase
     /// </summary>
     public bool isTerminated;
 
+    /// <summary>
+    /// テスト用に公開。
+    /// </summary>
+    public bool isPaused;
+
     public void ClearCount()
     {
         initCount = 0;

@@ -163,126 +163,6 @@ namespace AM1.PhaseSystem
         }
 
         /// <summary>
-        /// 切り替え可能かを確認して、可能なら指定の処理を登録します。
-        /// </summary>
-        /// <param name="action">切り替え処理</param>
-        /// <param name="toNext">次の処理に切り替える処理</param>
-        /// <param name="ph">切り替え対象のフェーズのインスタンス</param>
-        /// <param name="reserve">切り替え中の時に失敗させずに切り替え予約したい時はtrue</param>
-        /// <returns>切り替え要求が通ったらtrue</returns>
-        bool Request(UnityAction<PhaseInfo> action, UnityAction toNext, IPhase ph, bool reserve)
-        {
-            if (!CanRequest(reserve))
-            {
-                // リクエスト不可
-                return false;
-            }
-
-            // リクエスト可能
-            EnqueueRequest(action, toNext, ph);
-            return true;
-        }
-
-        /// <summary>
-        /// フェーズの切り替えを要求します。
-        /// </summary>
-        /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
-        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool ChangeRequest(IPhase ph, bool reserve = false)
-        {
-            if (CurrentPhaseInfo == null)
-            {
-                return Request(Change, null, ph, reserve);
-            }
-            return Request(Change, CurrentPhaseInfo.phase.Terminate, ph, reserve);
-        }
-
-        /// <summary>
-        /// フェーズをプッシュして切り替えを要求します。
-        /// </summary>
-        /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
-        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool PushRequest(IPhase ph, bool reserve = false)
-        {
-            if (CurrentPhaseInfo == null)
-            {
-                return Request(Push, null, ph, reserve);
-            }
-            return Request(Push, CurrentPhaseInfo.phase.Pause, ph, reserve);
-        }
-
-        /// <summary>
-        /// 一つ前のフェーズに戻します。
-        /// </summary>
-        /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
-        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool PopRequest(bool reserve = false)
-        {
-            // 実行フェーズのスタックが1つ以下の時はPopできないので成功させて終わり
-            if (phaseStack.Count <= 1)
-            {
-                return true;
-            }
-
-            return Request(Pop, CurrentPhaseInfo.phase.Terminate, null, reserve);
-        }
-
-        /// <summary>
-        /// ルートのフェーズまで戻します。
-        /// </summary>
-        /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
-        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool PopAllRequest(bool reserve = false)
-        {
-            // 実行フェーズのスタックが1つ以下の時はすでに完了しているので成功させて終わり
-            if (phaseStack.Count <= 1)
-            {
-                return true;
-            }
-
-            return Request(PopAll, CurrentPhaseInfo.phase.Terminate, null, reserve);
-        }
-
-        /// <summary>
-        /// 切り替えリクエストを登録します。
-        /// </summary>
-        /// <param name="act">切り替え処理</param>
-        /// <param name="toNext">次へ切り替える時の処理</param>
-        /// <param name="ph">切り替えフェーズのインスタンス</param>
-        void EnqueueRequest(UnityAction<PhaseInfo> act, UnityAction toNext, IPhase ph)
-        {
-            var req = phaseInfoPool.Pop();
-            req.Set(Change, toNext, ph);
-            requestQueue.Enqueue(req);
-        }
-
-        /// <summary>
-        /// 要求を実行できるか確認します。
-        /// </summary>
-        /// <param name="reserve">切り替え不可の時に次の処理として予約する場合、true</param>
-        /// <returns>true=切り替え可能</returns>
-        bool CanRequest(bool reserve)
-        {
-            // 要求がオーバーしていたら無条件で切り替え不可
-            if (phaseInfoPool.Count == 0)
-            {
-#if UNITY_EDITOR
-                Debug.LogWarning("フェーズ切り替えの要求数が上限を越えました。切り替えをキャンセルします。");
-#endif
-                return false;
-            }
-
-            // reserveがtrueなら無条件で要求通し
-            if (reserve) return true;
-
-            // requestQueueが0、かつ、
-            // (現在のフェーズが未設定か、現在のフェーズが切り替え可能な時、true
-            return (requestQueue.Count == 0)
-                && (    (phaseStack.Count == 0)
-                    ||  phaseStack.Peek().phase.CanChange);
-        }
-
-        /// <summary>
         /// 現在のフェーズを指定のフェーズへ切り替えます。
         /// </summary>
         /// <param name="phaseInfo">切り替え情報のインスタンス</param>
@@ -370,6 +250,126 @@ namespace AM1.PhaseSystem
                 CurrentState = State.PopAll;
                 CurrentPhaseInfo.phase.Terminate();
             }
+        }
+
+        /// <summary>
+        /// 切り替えリクエストを登録します。
+        /// </summary>
+        /// <param name="act">切り替え処理</param>
+        /// <param name="toNext">次へ切り替える時の処理</param>
+        /// <param name="ph">切り替えフェーズのインスタンス</param>
+        void EnqueueRequest(UnityAction<PhaseInfo> act, UnityAction toNext, IPhase ph)
+        {
+            var req = phaseInfoPool.Pop();
+            req.Set(Change, toNext, ph);
+            requestQueue.Enqueue(req);
+        }
+
+        /// <summary>
+        /// 要求を実行できるか確認します。
+        /// </summary>
+        /// <param name="reserve">切り替え不可の時に次の処理として予約する場合、true</param>
+        /// <returns>true=切り替え可能</returns>
+        bool CanRequest(bool reserve)
+        {
+            // 要求がオーバーしていたら無条件で切り替え不可
+            if ((phaseInfoPool.Count == 0) || (phaseStack.Count >= StackMax) || (requestQueue.Count >= StackMax))
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning("フェーズ切り替えの要求数が上限を越えました。切り替えをキャンセルします。");
+#endif
+                return false;
+            }
+
+            // reserveがtrueなら無条件で要求通し
+            if (reserve) return true;
+
+            // requestQueueが0、かつ、
+            // (現在のフェーズが未設定か、現在のフェーズが切り替え可能な時、true
+            return (requestQueue.Count == 0)
+                && ((phaseStack.Count == 0)
+                    || phaseStack.Peek().phase.CanChange);
+        }
+
+        /// <summary>
+        /// 切り替え可能かを確認して、可能なら指定の処理を登録します。
+        /// </summary>
+        /// <param name="action">切り替え処理</param>
+        /// <param name="toNext">次の処理に切り替える処理</param>
+        /// <param name="ph">切り替え対象のフェーズのインスタンス</param>
+        /// <param name="reserve">切り替え中の時に失敗させずに切り替え予約したい時はtrue</param>
+        /// <returns>切り替え要求が通ったらtrue</returns>
+        bool Request(UnityAction<PhaseInfo> action, UnityAction toNext, IPhase ph, bool reserve)
+        {
+            if (!CanRequest(reserve))
+            {
+                // リクエスト不可
+                return false;
+            }
+
+            // リクエスト可能
+            EnqueueRequest(action, toNext, ph);
+            return true;
+        }
+
+        /// <summary>
+        /// フェーズの切り替えを要求します。
+        /// </summary>
+        /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
+        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
+        public bool ChangeRequest(IPhase ph, bool reserve = false)
+        {
+            if (CurrentPhaseInfo == null)
+            {
+                return Request(Change, null, ph, reserve);
+            }
+            return Request(Change, CurrentPhaseInfo.phase.Terminate, ph, reserve);
+        }
+
+        /// <summary>
+        /// フェーズをプッシュして切り替えを要求します。
+        /// </summary>
+        /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
+        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
+        public bool PushRequest(IPhase ph, bool reserve = false)
+        {
+            if (CurrentPhaseInfo == null)
+            {
+                return Request(Push, null, ph, reserve);
+            }
+            return Request(Push, CurrentPhaseInfo.phase.Pause, ph, reserve);
+        }
+
+        /// <summary>
+        /// 一つ前のフェーズに戻します。
+        /// </summary>
+        /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
+        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
+        public bool PopRequest(bool reserve = false)
+        {
+            // 実行フェーズのスタックが1つ以下の時はPopできないので成功させて終わり
+            if (phaseStack.Count <= 1)
+            {
+                return true;
+            }
+
+            return Request(Pop, CurrentPhaseInfo.phase.Terminate, null, reserve);
+        }
+
+        /// <summary>
+        /// ルートのフェーズまで戻します。
+        /// </summary>
+        /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
+        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
+        public bool PopAllRequest(bool reserve = false)
+        {
+            // 実行フェーズのスタックが1つ以下の時はすでに完了しているので成功させて終わり
+            if (phaseStack.Count <= 1)
+            {
+                return true;
+            }
+
+            return Request(PopAll, CurrentPhaseInfo.phase.Terminate, null, reserve);
         }
     }
 }

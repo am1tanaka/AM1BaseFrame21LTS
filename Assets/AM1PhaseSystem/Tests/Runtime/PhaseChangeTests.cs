@@ -95,10 +95,10 @@ public class PhaseChangeTests
             bench[i].canChange = true;
             yield return null;
             yield return wait;
-            Assert.That(bench[i + 1].initCount, Is.Zero, $"CanChangeを設定したがまだ終了していない {i}");
+            Assert.That(bench[i + 1].initCount, Is.Zero, $"CanChangeを設定した。IsTerminatedは未設定 {i}");
 
-            // 終了させたので、次は初期化完了している
-            bench[i].isTerminated = true;
+            // ポーズを完了させたので、次は初期化完了している
+            bench[i].isPaused = true;
             yield return null;
             yield return wait;
         }

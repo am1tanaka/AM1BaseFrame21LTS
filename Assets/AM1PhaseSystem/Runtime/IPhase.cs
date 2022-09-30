@@ -17,6 +17,11 @@ namespace AM1.PhaseSystem
         bool IsTerminated { get; }
 
         /// <summary>
+        /// 一時停止状態の時、true
+        /// </summary>
+        bool IsPaused { get; }
+
+        /// <summary>
         /// フェーズ開始時の初期化処理
         /// </summary>
         void Init();

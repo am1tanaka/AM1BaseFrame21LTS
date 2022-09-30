@@ -13,6 +13,8 @@ namespace AM1.PhaseSystem
 
         public virtual bool IsTerminated => true;
 
+        public virtual bool IsPaused => true;
+
         public virtual void FixedUpdate() { }
 
         public virtual void Init() { }
