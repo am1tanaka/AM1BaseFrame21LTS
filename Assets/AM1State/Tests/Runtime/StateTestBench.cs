@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using AM1.PhaseSystem;
+using AM1.State;
 
-public class PhaseTestBench : PhaseBase
+public class StateTestBench : AM1StateBase
 {
     public int initCount;
     public int updateCount;
@@ -12,7 +12,7 @@ public class PhaseTestBench : PhaseBase
     public int pauseCount;
     public int resumeCount;
 
-    public override bool CanChange => canChange;
+    public override bool CanChangeToOtherState => canChange;
     public override bool IsTerminated => isTerminated;
 
     /// <summary>

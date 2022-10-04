@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace AM1.PhaseSystem
+namespace AM1.State
 {
     /// <summary>
-    /// フェーズ切り替えやインスタンスを記録するクラス
+    /// 状態切り替えやインスタンスを記録するクラス
     /// </summary>
-    public class PhaseInfo
+    public class AM1StateInfo
     {
         /// <summary>
         /// フェーズを切り替える処理
         /// </summary>
-        public UnityAction<PhaseInfo> changeAction;
+        public UnityAction<AM1StateInfo> changeAction;
 
         /// <summary>
         /// 他のフェーズへ切り替える前に呼び出す終了か中断の呼び出し
@@ -23,7 +23,7 @@ namespace AM1.PhaseSystem
         /// <summary>
         /// 切り替えフェーズ
         /// </summary>
-        public IPhase phase;
+        public IAM1State phase;
 
         /// <summary>
         /// 設定
@@ -31,7 +31,7 @@ namespace AM1.PhaseSystem
         /// <param name="act">フェーズ切り替え処理</param>
         /// <param name="chg">次へ切り替える時に呼び出す処理</param>
         /// <param name="ph">フェーズインスタンス</param>
-        public void Set(UnityAction<PhaseInfo> act, UnityAction chg, IPhase ph)
+        public void Set(UnityAction<AM1StateInfo> act, UnityAction chg, IAM1State ph)
         {
             changeAction = act;
             toNextAction = chg;

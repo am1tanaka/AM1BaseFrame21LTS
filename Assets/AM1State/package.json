@@ -1,13 +1,13 @@
 {
-  "name": "jp.am1.phasesystem",
+  "name": "jp.am1.statesystem",
   "version": "0.1.0",
-  "displayName": "AM1 Phase System",
-  "description": "This is a phase system package",
+  "displayName": "AM1 State System",
+  "description": "This is a state system package",
   "unity": "2020.3",
   "keywords": [
     "unity",
     "framework",
-    "phase"
+    "statemachine"
   ],
   "author": {
     "name": "Yu Tanaka",

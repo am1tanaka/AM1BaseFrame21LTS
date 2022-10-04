@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AM1.PhaseSystem
+namespace AM1.State
 {
     /// <summary>
-    /// IPhaseを継承した親クラス
+    /// IAM1Phaseの実装親クラス
     /// </summary>
-    public class PhaseBase : IPhase
+    public abstract class AM1StateBase : IAM1State
     {
-        public virtual bool CanChange => true;
+        public virtual bool CanChangeToOtherState => true;
 
         public virtual bool IsTerminated => true;
 

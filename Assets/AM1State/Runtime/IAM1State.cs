@@ -2,24 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AM1.PhaseSystem
+namespace AM1.State
 {
-    public interface IPhase
+    public interface IAM1State
     {
         /// <summary>
-        /// 他のフェーズへ切り替え可能な時、true
+        /// 他の状態へ切り替え可能な時、true
         /// </summary>
-        bool CanChange { get; }
-
-        /// <summary>
-        /// 処理が完了したらtrue。開始していなかったり、処理中の時はfalse
-        /// </summary>
-        bool IsTerminated { get; }
-
-        /// <summary>
-        /// 一時停止状態の時、true
-        /// </summary>
-        bool IsPaused { get; }
+        bool CanChangeToOtherState { get; }
 
         /// <summary>
         /// フェーズ開始時の初期化処理

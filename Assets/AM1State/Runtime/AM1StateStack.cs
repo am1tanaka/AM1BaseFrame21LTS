@@ -5,15 +5,15 @@ using UnityEditor.TextCore.Text;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace AM1.PhaseSystem
+namespace AM1.State
 {
     /// <summary>
-    /// フェーズ管理クラス。IPhaseのインスタンスを受け取ってフェースを管理します。
-    /// 状態システムと異なり、フェーズシステムは複数のインスタンスで利用できるように
-    /// シングルトンは利用しません。<br></br>
-    /// 更新の実行タイミングを調整したい場合はこのクラスを継承します。
+    /// 状態切り替え管理クラス。IAM1Stateのインスタンスを受け取って状態を管理します。
+    /// 汎用的に利用できるようにシングルトンは利用しません。<br></br>
+    /// 通常は、このクラスを継承して状態管理用のコンポーネントを作り、
+    /// 必要な各状態のインスタンスの初期化と保有を実装して、利用するゲームオブジェクトにアタッチします。
     /// </summary>
-    public class PhaseManager : MonoBehaviour
+    public class AM1StateStack : MonoBehaviour
     {
         public enum State
         {
@@ -48,29 +48,29 @@ namespace AM1.PhaseSystem
         /// <summary>
         /// フェーズスタック
         /// </summary>
-        public readonly Stack<PhaseInfo> phaseStack = new Stack<PhaseInfo>(StackMax);
+        public readonly Stack<AM1StateInfo> phaseStack = new Stack<AM1StateInfo>(StackMax);
 
         /// <summary>
         /// フェーズの要求
         /// </summary>
-        public readonly Queue<PhaseInfo> requestQueue = new Queue<PhaseInfo>(StackMax);
+        public readonly Queue<AM1StateInfo> requestQueue = new Queue<AM1StateInfo>(StackMax);
 
         /// <summary>
         /// 要求インスタンス
         /// </summary>
-        public readonly Stack<PhaseInfo> phaseInfoPool = new Stack<PhaseInfo>(StackMax*2);
+        public readonly Stack<AM1StateInfo> phaseInfoPool = new Stack<AM1StateInfo>(StackMax*2);
 
         /// <summary>
         /// 現在のフェーズ情報のインスタンス
         /// </summary>
-        public PhaseInfo CurrentPhaseInfo { get; protected set; }
+        public AM1StateInfo CurrentPhaseInfo { get; protected set; }
 
         private void Awake()
         {
             // 要求用データを生成
             for (int i = 0; i < StackMax * 2; i++)
             {
-                phaseInfoPool.Push(new PhaseInfo());
+                phaseInfoPool.Push(new AM1StateInfo());
             }
         }
 
@@ -79,6 +79,7 @@ namespace AM1.PhaseSystem
         /// </summary>
         protected virtual void Update()
         {
+            /*
             // 切り替え処理
             UpdateChangeRequest();
 
@@ -94,10 +95,12 @@ namespace AM1.PhaseSystem
         /// </summary>
         protected virtual void FixedUpdate()
         {
+            /*
             if ((CurrentPhaseInfo != null) && (!CurrentPhaseInfo.phase.IsTerminated))
             {
                 CurrentPhaseInfo.phase.FixedUpdate();
             }
+            */
         }
 
         /// <summary>
@@ -105,6 +108,7 @@ namespace AM1.PhaseSystem
         /// </summary>
         void UpdateChangeRequest()
         {
+            /*
             // リクエストがないか、処理中以外の時は次のフェーズへは遷移しない
             if (requestQueue.Count == 0) return;
 
@@ -118,7 +122,7 @@ namespace AM1.PhaseSystem
                 // 処理中の時
                 case State.Running:
                     // 現在の状態が切り替え不可なら待機
-                    if (!CurrentPhaseInfo.phase.CanChange)
+                    if (!CurrentPhaseInfo.phase.CanChangeToOtherState)
                     {
                         break;
                     }
@@ -151,6 +155,7 @@ namespace AM1.PhaseSystem
                     }
                     break;
             }
+            */
         }
 
         /// <summary>
@@ -166,7 +171,7 @@ namespace AM1.PhaseSystem
         /// 現在のフェーズを指定のフェーズへ切り替えます。
         /// </summary>
         /// <param name="phaseInfo">切り替え情報のインスタンス</param>
-        void Change(PhaseInfo phaseInfo)
+        void Change(AM1StateInfo phaseInfo)
         {
             CurrentState = State.Running;
 
@@ -184,7 +189,7 @@ namespace AM1.PhaseSystem
         /// プールからインスタンスを取り出して、スタックにフェーズを積んで初期化を実行します。
         /// </summary>
         /// <param name="phaseInfo">切り替えたいフェーズ</param>
-        void Push(PhaseInfo phaseInfo)
+        void Push(AM1StateInfo phaseInfo)
         {
             CurrentState = State.Running;
             CurrentPhaseInfo = phaseInfo;
@@ -196,7 +201,7 @@ namespace AM1.PhaseSystem
         /// 現在のフェーズをプールに戻して、一つ前のフェーズに戻します。
         /// </summary>
         /// <param name="phaseInfo">null</param>
-        void Pop(PhaseInfo phaseInfo)
+        void Pop(AM1StateInfo phaseInfo)
         {
             CurrentState = State.Running;
             if (phaseInfo != null)
@@ -217,7 +222,7 @@ namespace AM1.PhaseSystem
         /// ルートまで戻す処理を開始します。
         /// </summary>
         /// <param name="phaseInfo">フェーズ情報</param>
-        void PopAll(PhaseInfo phaseInfo = null)
+        void PopAll(AM1StateInfo phaseInfo = null)
         {
             if (phaseInfo != null)
             {
@@ -258,7 +263,7 @@ namespace AM1.PhaseSystem
         /// <param name="act">切り替え処理</param>
         /// <param name="toNext">次へ切り替える時の処理</param>
         /// <param name="ph">切り替えフェーズのインスタンス</param>
-        void EnqueueRequest(UnityAction<PhaseInfo> act, UnityAction toNext, IPhase ph)
+        void EnqueueRequest(UnityAction<AM1StateInfo> act, UnityAction toNext, IAM1State ph)
         {
             var req = phaseInfoPool.Pop();
             req.Set(Change, toNext, ph);
@@ -288,7 +293,7 @@ namespace AM1.PhaseSystem
             // (現在のフェーズが未設定か、現在のフェーズが切り替え可能な時、true
             return (requestQueue.Count == 0)
                 && ((phaseStack.Count == 0)
-                    || phaseStack.Peek().phase.CanChange);
+                    || phaseStack.Peek().phase.CanChangeToOtherState);
         }
 
         /// <summary>
@@ -299,7 +304,7 @@ namespace AM1.PhaseSystem
         /// <param name="ph">切り替え対象のフェーズのインスタンス</param>
         /// <param name="reserve">切り替え中の時に失敗させずに切り替え予約したい時はtrue</param>
         /// <returns>切り替え要求が通ったらtrue</returns>
-        bool Request(UnityAction<PhaseInfo> action, UnityAction toNext, IPhase ph, bool reserve)
+        bool Request(UnityAction<AM1StateInfo> action, UnityAction toNext, IAM1State ph, bool reserve)
         {
             if (!CanRequest(reserve))
             {
@@ -317,7 +322,7 @@ namespace AM1.PhaseSystem
         /// </summary>
         /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
         /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool ChangeRequest(IPhase ph, bool reserve = false)
+        public bool ChangeRequest(IAM1State ph, bool reserve = false)
         {
             if (CurrentPhaseInfo == null)
             {
@@ -331,7 +336,7 @@ namespace AM1.PhaseSystem
         /// </summary>
         /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
         /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool PushRequest(IPhase ph, bool reserve = false)
+        public bool PushRequest(IAM1State ph, bool reserve = false)
         {
             if (CurrentPhaseInfo == null)
             {

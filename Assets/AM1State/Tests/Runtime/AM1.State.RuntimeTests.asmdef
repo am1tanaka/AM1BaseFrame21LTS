@@ -1,10 +1,9 @@
 {
-    "name": "AM1.PhaseSystem.RuntimeTests",
+    "name": "AM1.State.RuntimeTests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
-        "AM1.PhaseSystem"
+        "AM1.State"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

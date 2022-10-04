@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using AM1.PhaseSystem;
+using AM1.State;
 using System.Diagnostics.Tracing;
 
-public class PhaseChangeTests
+public class StateChangeTests
 {
     [UnityTest]
-    public IEnumerator ChangePhaseReserveTests()
+    public IEnumerator ChangeStateReserveTests()
     {
         var go = new GameObject();
-        go.AddComponent<PhaseManager>();
-        var phaseManager = go.GetComponent<PhaseManager>();
-        PhaseTestBench[] bench = new PhaseTestBench[PhaseManager.StackMax + 1];
+        go.AddComponent<AM1StateStack>();
+        var phaseManager = go.GetComponent<AM1StateStack>();
+        StateTestBench[] bench = new StateTestBench[AM1StateStack.StackMax + 1];
         for (int i = 0; i < bench.Length; i++)
         {
-            bench[i] = new PhaseTestBench();
+            bench[i] = new StateTestBench();
         }
 
         for (int i=0;i<bench.Length-1;i++)
@@ -51,7 +51,7 @@ public class PhaseChangeTests
             yield return wait;
         }
 
-        int index = PhaseManager.StackMax - 1;
+        int index = AM1StateStack.StackMax - 1;
         Assert.That(bench[index].initCount, Is.GreaterThan(0), $"初期化確認 ラスト");
         yield return null;
         Assert.That(bench[index].updateCount, Is.GreaterThan(0), $"Update ラスト");
@@ -63,12 +63,12 @@ public class PhaseChangeTests
     public IEnumerator PushAndPopReserveTests()
     {
         var go = new GameObject();
-        go.AddComponent<PhaseManager>();
-        var phaseManager = go.GetComponent<PhaseManager>();
-        PhaseTestBench[] bench = new PhaseTestBench[PhaseManager.StackMax + 1];
+        go.AddComponent<AM1StateStack>();
+        var phaseManager = go.GetComponent<AM1StateStack>();
+        StateTestBench[] bench = new StateTestBench[AM1StateStack.StackMax + 1];
         for (int i = 0; i < bench.Length; i++)
         {
-            bench[i] = new PhaseTestBench();
+            bench[i] = new StateTestBench();
         }
 
         // Push
@@ -103,7 +103,7 @@ public class PhaseChangeTests
             yield return wait;
         }
 
-        int index = PhaseManager.StackMax - 1;
+        int index = AM1StateStack.StackMax - 1;
         Assert.That(bench[index].initCount, Is.GreaterThan(0), $"初期化確認 ラスト");
         yield return null;
         Assert.That(bench[index].updateCount, Is.GreaterThan(0), $"Update ラスト");
@@ -112,7 +112,7 @@ public class PhaseChangeTests
 
         // Pop
         Assert.That(phaseManager.requestQueue.Count, Is.Zero, $"Pushリクエスト消化");
-        Assert.That(phaseManager.phaseStack.Count, Is.EqualTo(PhaseManager.StackMax), $"Stackが{PhaseManager.StackMax}つ");
+        Assert.That(phaseManager.phaseStack.Count, Is.EqualTo(AM1StateStack.StackMax), $"Stackが{AM1StateStack.StackMax}つ");
 
         for (int i = 0; i < bench.Length - 1; i++)
         {
@@ -150,13 +150,13 @@ public class PhaseChangeTests
     }
 
     [UnityTest]
-    public IEnumerator PhaseChangeTestsWithEnumeratorPasses()
+    public IEnumerator StateChangeTestsWithEnumeratorPasses()
     {
         var go = new GameObject();
-        go.AddComponent<PhaseManager>();
-        var phaseManager = go.GetComponent<PhaseManager>();
-        var bench = new PhaseTestBench();
-        var bench2 = new   PhaseTestBench();
+        go.AddComponent<AM1StateStack>();
+        var phaseManager = go.GetComponent<AM1StateStack>();
+        var bench = new StateTestBench();
+        var bench2 = new   StateTestBench();
 
         Assert.That(phaseManager.ChangeRequest(bench), Is.True, "切り替え要求");
         yield return null;
