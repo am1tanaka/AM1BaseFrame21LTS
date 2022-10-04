@@ -4,12 +4,19 @@ using UnityEngine;
 
 namespace AM1.State
 {
+    public delegate IEnumerator StateChangeAction(IAM1State nextState);
+
     public interface IAM1State
     {
         /// <summary>
         /// 他の状態へ切り替え可能な時、true
         /// </summary>
         bool CanChangeToOtherState { get; }
+
+        /// <summary>
+        /// 状態の切り替えコルーチン
+        /// </summary>
+        StateChangeAction ChangeAction { get; set; }
 
         /// <summary>
         /// フェーズ開始時の初期化処理

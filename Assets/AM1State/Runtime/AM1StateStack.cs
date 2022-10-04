@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEditor.TextCore.Text;
 using UnityEngine;
 using UnityEngine.Events;
+using static Codice.CM.Common.CmCallContext;
 
 namespace AM1.State
 {
@@ -15,79 +16,36 @@ namespace AM1.State
     /// </summary>
     public class AM1StateStack : MonoBehaviour
     {
-        public enum State
-        {
-            /// <summary>
-            /// 待機中
-            /// </summary>
-            Standby,
-            /// <summary>
-            /// 通常動作中
-            /// </summary>
-            Running,
-            /// <summary>
-            /// 終了待ち
-            /// </summary>
-            WaitTerminate,
-            /// <summary>
-            /// ルートまで戻す
-            /// </summary>
-            PopAll,
-        }
-
-        /// <summary>
-        /// 状態
-        /// </summary>
-        public State CurrentState { get; protected set; } = State.Standby;
-
         /// <summary>
         /// スタックの初期上限
         /// </summary>
-        public static int StackMax => 8;
+        public static int DefaultStackMax => 8;
 
         /// <summary>
         /// フェーズスタック
         /// </summary>
-        public readonly Stack<AM1StateInfo> phaseStack = new Stack<AM1StateInfo>(StackMax);
+        public readonly Stack<IAM1State> stateStack = new Stack<IAM1State>(DefaultStackMax);
 
         /// <summary>
         /// フェーズの要求
         /// </summary>
-        public readonly Queue<AM1StateInfo> requestQueue = new Queue<AM1StateInfo>(StackMax);
-
-        /// <summary>
-        /// 要求インスタンス
-        /// </summary>
-        public readonly Stack<AM1StateInfo> phaseInfoPool = new Stack<AM1StateInfo>(StackMax*2);
+        public readonly Queue<IAM1State> requestQueue = new Queue<IAM1State>(DefaultStackMax);
 
         /// <summary>
         /// 現在のフェーズ情報のインスタンス
         /// </summary>
-        public AM1StateInfo CurrentPhaseInfo { get; protected set; }
-
-        private void Awake()
-        {
-            // 要求用データを生成
-            for (int i = 0; i < StackMax * 2; i++)
-            {
-                phaseInfoPool.Push(new AM1StateInfo());
-            }
-        }
+        public IAM1State CurrentStateInfo { get; protected set; }
 
         /// <summary>
         /// フェーズの切り替えと更新処理の呼び出し
         /// </summary>
         protected virtual void Update()
         {
-            /*
             // 切り替え処理
             UpdateChangeRequest();
 
             // 更新処理
-            if ((CurrentPhaseInfo != null) && (!CurrentPhaseInfo.phase.IsTerminated))
-            {
-                CurrentPhaseInfo.phase.Update();
-            }
+            CurrentStateInfo?.Update();
         }
 
         /// <summary>
@@ -95,240 +53,129 @@ namespace AM1.State
         /// </summary>
         protected virtual void FixedUpdate()
         {
-            /*
-            if ((CurrentPhaseInfo != null) && (!CurrentPhaseInfo.phase.IsTerminated))
-            {
-                CurrentPhaseInfo.phase.FixedUpdate();
-            }
-            */
+            CurrentStateInfo?.FixedUpdate();
         }
 
         /// <summary>
-        /// フェーズの切り替え要求の確認と処理
+        /// 現在の状態を一時停止して、指定の状態をスタックに積んで初期化
+        /// </summary>
+        /// <param name="nextState">切り替え先の状態</param>
+        IEnumerator PushState(IAM1State nextState)
+        {
+            // 現在の状態があれば一時停止
+            if (CurrentStateInfo != null)
+            {
+                CurrentStateInfo.Pause();
+
+                // 切り替え可能になるまで待機
+                while (!CurrentStateInfo.CanChangeToOtherState)
+                {
+                    yield return null;
+                }
+            }
+
+            // 状態をプッシュ
+           stateStack.Push(nextState);
+
+            // 現在のインスタンス
+            CurrentStateInfo = nextState;
+
+            // 初期化
+            CurrentStateInfo.Init();
+        }
+
+        /// <summary>
+        /// 現在の状態を終了して、スタックから前の状態に切り替えて初期化
+        /// </summary>
+        /// <param name="currentState">現在の状態</param>
+        IEnumerator PopState(IAM1State currentState)
+        {
+            // 現在の状態があれば終了
+            if (CurrentStateInfo != null)
+            {
+                CurrentStateInfo.Terminate();
+
+                // 切り替え可能になるまで待機
+                while (!CurrentStateInfo.CanChangeToOtherState)
+                {
+                    yield return null;
+                }
+            }
+
+            // スタックから状態を取り出す
+            CurrentStateInfo = stateStack.Pop();
+
+            // 再開
+            CurrentStateInfo.Resume();
+        }
+
+        /// <summary>
+        /// 状態の切り替え要求の確認と処理
         /// </summary>
         void UpdateChangeRequest()
         {
-            /*
             // リクエストがないか、処理中以外の時は次のフェーズへは遷移しない
-            if (requestQueue.Count == 0) return;
-
-            switch(CurrentState)
-            {
-                // 未処理時
-                case State.Standby:
-                    ChangeAction();
-                    break;
-
-                // 処理中の時
-                case State.Running:
-                    // 現在の状態が切り替え不可なら待機
-                    if (!CurrentPhaseInfo.phase.CanChangeToOtherState)
-                    {
-                        break;
-                    }
-
-                    // 終了呼び出し
-                    CurrentPhaseInfo.toNextAction?.Invoke();
-                    if (CurrentPhaseInfo.phase.IsTerminated)
-                    {
-                        ChangeAction();
-                    }
-                    else
-                    {
-                        CurrentState = State.WaitTerminate;
-                    }
-                    break;
-
-                // 終了待機
-                case State.WaitTerminate:
-                    if (CurrentPhaseInfo.phase.IsTerminated)
-                    {
-                        ChangeAction();
-                    }
-                    break;
-
-                // ルートまで戻す
-                case State.PopAll:
-                    if (CurrentPhaseInfo.phase.IsTerminated)
-                    {
-                        PopAll();
-                    }
-                    break;
-            }
-            */
-        }
-
-        /// <summary>
-        /// 登録されている切り替え処理を呼び出します。
-        /// </summary>
-        void ChangeAction()
-        {
-            var info = requestQueue.Dequeue();
-            info.changeAction(info);
-        }
-
-        /// <summary>
-        /// 現在のフェーズを指定のフェーズへ切り替えます。
-        /// </summary>
-        /// <param name="phaseInfo">切り替え情報のインスタンス</param>
-        void Change(AM1StateInfo phaseInfo)
-        {
-            CurrentState = State.Running;
-
-            // 現在のフェーズがあるならプールに戻す
-            if (CurrentPhaseInfo != null)
-            {
-                var stack = phaseStack.Pop();
-                phaseInfoPool.Push(stack);
-            }
-
-            Push(phaseInfo);
-        }
-
-        /// <summary>
-        /// プールからインスタンスを取り出して、スタックにフェーズを積んで初期化を実行します。
-        /// </summary>
-        /// <param name="phaseInfo">切り替えたいフェーズ</param>
-        void Push(AM1StateInfo phaseInfo)
-        {
-            CurrentState = State.Running;
-            CurrentPhaseInfo = phaseInfo;
-            phaseStack.Push(phaseInfo);
-            phaseInfo.phase.Init();
-        }
-
-        /// <summary>
-        /// 現在のフェーズをプールに戻して、一つ前のフェーズに戻します。
-        /// </summary>
-        /// <param name="phaseInfo">null</param>
-        void Pop(AM1StateInfo phaseInfo)
-        {
-            CurrentState = State.Running;
-            if (phaseInfo != null)
-            {
-                phaseInfoPool.Push(phaseInfo);
-            }
-
-            // スタックが1つ以下の時は戻せないので何もしない
-            if (phaseStack.Count <= 1) return;
-
-            // スタックが1の時はより大きい時、
-            phaseInfoPool.Push(CurrentPhaseInfo);
-            CurrentPhaseInfo = phaseStack.Pop();
-            CurrentPhaseInfo.phase.Resume();
-        }
-
-        /// <summary>
-        /// ルートまで戻す処理を開始します。
-        /// </summary>
-        /// <param name="phaseInfo">フェーズ情報</param>
-        void PopAll(AM1StateInfo phaseInfo = null)
-        {
-            if (phaseInfo != null)
-            {
-                phaseInfoPool.Push(phaseInfo);
-            }
-
-            // phaseStackが1つ以下の時はこのメソッドは呼ばれないはずだが念のため
-            if (phaseStack.Count <= 1)
-            {
-#if UNITY_EDITOR
-                Debug.LogWarning($"phaseStackが{phaseStack.Count}の状態でPopAll()が呼ばれました。");
-#endif
-                CurrentState = (CurrentPhaseInfo != null) ? State.Running : State.Standby;
+            if ((requestQueue.Count == 0)
+                || ((CurrentStateInfo != null) && !CurrentStateInfo.CanChangeToOtherState)) {
                 return;
             }
 
-            // 状態を1つ戻す
-            phaseInfoPool.Push(CurrentPhaseInfo);
-            CurrentPhaseInfo = phaseStack.Pop();
-
-            // 戻す処理が完了したので復帰
-            if (phaseStack.Count <= 1)
-            {
-                CurrentState = State.Running;
-                CurrentPhaseInfo.phase.Resume();
-            }
-            else
-            {
-                // 戻し処理継続
-                CurrentState = State.PopAll;
-                CurrentPhaseInfo.phase.Terminate();
-            }
-        }
-
-        /// <summary>
-        /// 切り替えリクエストを登録します。
-        /// </summary>
-        /// <param name="act">切り替え処理</param>
-        /// <param name="toNext">次へ切り替える時の処理</param>
-        /// <param name="ph">切り替えフェーズのインスタンス</param>
-        void EnqueueRequest(UnityAction<AM1StateInfo> act, UnityAction toNext, IAM1State ph)
-        {
-            var req = phaseInfoPool.Pop();
-            req.Set(Change, toNext, ph);
-            requestQueue.Enqueue(req);
-        }
-
-        /// <summary>
-        /// 要求を実行できるか確認します。
-        /// </summary>
-        /// <param name="reserve">切り替え不可の時に次の処理として予約する場合、true</param>
-        /// <returns>true=切り替え可能</returns>
-        bool CanRequest(bool reserve)
-        {
-            // 要求がオーバーしていたら無条件で切り替え不可
-            if ((phaseInfoPool.Count == 0) || (phaseStack.Count >= StackMax) || (requestQueue.Count >= StackMax))
+            // 要求を一つ取り出して実行
+            var req = requestQueue.Dequeue();
+            if (req.ChangeAction ==null)
             {
 #if UNITY_EDITOR
-                Debug.LogWarning("フェーズ切り替えの要求数が上限を越えました。切り替えをキャンセルします。");
+                Debug.LogError($"状態切り替え要求データ異常:{(req.ChangeAction == null ? "切り替えアクションがnull" : "")}");
 #endif
-                return false;
             }
-
-            // reserveがtrueなら無条件で要求通し
-            if (reserve) return true;
-
-            // requestQueueが0、かつ、
-            // (現在のフェーズが未設定か、現在のフェーズが切り替え可能な時、true
-            return (requestQueue.Count == 0)
-                && ((phaseStack.Count == 0)
-                    || phaseStack.Peek().phase.CanChangeToOtherState);
+            StartCoroutine(req.ChangeAction(req));
         }
 
         /// <summary>
-        /// 切り替え可能かを確認して、可能なら指定の処理を登録します。
+        /// 現在の状態を閉じて、指定の状態へ切り替える要求をします。
+        /// すでに他の切り替えが要求済みだったり、過去に同じ状態があれば失敗します。
         /// </summary>
-        /// <param name="action">切り替え処理</param>
-        /// <param name="toNext">次の処理に切り替える処理</param>
-        /// <param name="ph">切り替え対象のフェーズのインスタンス</param>
-        /// <param name="reserve">切り替え中の時に失敗させずに切り替え予約したい時はtrue</param>
-        /// <returns>切り替え要求が通ったらtrue</returns>
-        bool Request(UnityAction<AM1StateInfo> action, UnityAction toNext, IAM1State ph, bool reserve)
+        /// <param name="nextState">切り替えたい状態</param>
+        /// <returns>要求が成功したらtrue</returns>
+        public bool PopAndPushRequest(IAM1State nextState)
         {
-            if (!CanRequest(reserve))
+            if (requestQueue.Count > 0) return false;
+            return PopAndPushQueueRequest(nextState);
+        }
+
+        /// <summary>
+        /// 現在の状態を閉じて、指定の状態へ切り替える要求をします。
+        /// すでに要求がある場合はキューに登録します。
+        /// </summary>
+        /// <param name="st">切り替えたい状態</param>
+        public bool PopAndPushQueueRequest(IAM1State nextState)
+        {
+            foreach (var state in stateStack)
             {
-                // リクエスト不可
-                return false;
+                if (state == nextState)
+                {
+                    return false;
+                }
             }
 
-            // リクエスト可能
-            EnqueueRequest(action, toNext, ph);
+            foreach (var req in requestQueue)
+            {
+                if (req == nextState)
+                {
+                    return false;
+                }
+            }
+
+            // 現在の状態をPop
+            if (CurrentStateInfo != null)
+            {
+                CurrentStateInfo.ChangeAction = PopState;
+                requestQueue.Enqueue(CurrentStateInfo);
+            }
+            // 要求状態のPush
+            nextState.ChangeAction = PushState;
+            requestQueue.Enqueue(nextState);
             return true;
-        }
-
-        /// <summary>
-        /// フェーズの切り替えを要求します。
-        /// </summary>
-        /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
-        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool ChangeRequest(IAM1State ph, bool reserve = false)
-        {
-            if (CurrentPhaseInfo == null)
-            {
-                return Request(Change, null, ph, reserve);
-            }
-            return Request(Change, CurrentPhaseInfo.phase.Terminate, ph, reserve);
         }
 
         /// <summary>
@@ -338,11 +185,11 @@ namespace AM1.State
         /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
         public bool PushRequest(IAM1State ph, bool reserve = false)
         {
-            if (CurrentPhaseInfo == null)
+            if (CurrentStateInfo == null)
             {
                 return Request(Push, null, ph, reserve);
             }
-            return Request(Push, CurrentPhaseInfo.phase.Pause, ph, reserve);
+            return Request(Push, CurrentStateInfo.state.Pause, ph, reserve);
         }
 
         /// <summary>
@@ -353,12 +200,12 @@ namespace AM1.State
         public bool PopRequest(bool reserve = false)
         {
             // 実行フェーズのスタックが1つ以下の時はPopできないので成功させて終わり
-            if (phaseStack.Count <= 1)
+            if (stateStack.Count <= 1)
             {
                 return true;
             }
 
-            return Request(Pop, CurrentPhaseInfo.phase.Terminate, null, reserve);
+            return Request(Pop, CurrentStateInfo.state.Terminate, null, reserve);
         }
 
         /// <summary>
@@ -369,12 +216,12 @@ namespace AM1.State
         public bool PopAllRequest(bool reserve = false)
         {
             // 実行フェーズのスタックが1つ以下の時はすでに完了しているので成功させて終わり
-            if (phaseStack.Count <= 1)
+            if (stateStack.Count <= 1)
             {
                 return true;
             }
 
-            return Request(PopAll, CurrentPhaseInfo.phase.Terminate, null, reserve);
+            return Request(PopAll, CurrentStateInfo.state.Terminate, null, reserve);
         }
     }
 }

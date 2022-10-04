@@ -22,9 +22,9 @@ public class StateChangeTests
 
         for (int i=0;i<bench.Length-1;i++)
         {
-            Assert.That(phaseManager.ChangeRequest(bench[i], true), Is.True, "予約成功");
+            Assert.That(phaseManager.PopAndPushRequest(bench[i], true), Is.True, "予約成功");
         }
-        Assert.That(phaseManager.ChangeRequest(bench[bench.Length-1], true), Is.False, "予約失敗");
+        Assert.That(phaseManager.PopAndPushRequest(bench[bench.Length-1], true), Is.False, "予約失敗");
         WaitForFixedUpdate wait = new WaitForFixedUpdate();
 
         for (int i = 0; i < bench.Length - 2; i++)
@@ -112,7 +112,7 @@ public class StateChangeTests
 
         // Pop
         Assert.That(phaseManager.requestQueue.Count, Is.Zero, $"Pushリクエスト消化");
-        Assert.That(phaseManager.phaseStack.Count, Is.EqualTo(AM1StateStack.StackMax), $"Stackが{AM1StateStack.StackMax}つ");
+        Assert.That(phaseManager.stateStack.Count, Is.EqualTo(AM1StateStack.StackMax), $"Stackが{AM1StateStack.StackMax}つ");
 
         for (int i = 0; i < bench.Length - 1; i++)
         {
@@ -158,7 +158,7 @@ public class StateChangeTests
         var bench = new StateTestBench();
         var bench2 = new   StateTestBench();
 
-        Assert.That(phaseManager.ChangeRequest(bench), Is.True, "切り替え要求");
+        Assert.That(phaseManager.PopAndPushRequest(bench), Is.True, "切り替え要求");
         yield return null;
         yield return new WaitForFixedUpdate();
         Assert.That(bench.initCount, Is.EqualTo(1), $"初期化を1回実行");
@@ -167,9 +167,9 @@ public class StateChangeTests
         Assert.That(bench.terminateCount, Is.EqualTo(0), $"Terminateはまだ呼ばれていない。");
 
         // 切り替えチェック
-        Assert.That(phaseManager.ChangeRequest(bench2), Is.False, "切り替えフラグがオフなので切り替え不可");
+        Assert.That(phaseManager.PopAndPushRequest(bench2), Is.False, "切り替えフラグがオフなので切り替え不可");
         bench.canChange = true;
-        Assert.That(phaseManager.ChangeRequest(bench2), Is.True, "bench2へ切り替え登録");
+        Assert.That(phaseManager.PopAndPushRequest(bench2), Is.True, "bench2へ切り替え登録");
         yield return null;
         yield return new WaitForFixedUpdate();
         Assert.That(bench2.initCount, Is.EqualTo(0), "前の処理を終了していないので初期化はまだ");
