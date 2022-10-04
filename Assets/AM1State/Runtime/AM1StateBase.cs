@@ -11,9 +11,7 @@ namespace AM1.State
     {
         public virtual bool CanChangeToOtherState => true;
 
-        public virtual bool IsTerminated => true;
-
-        public virtual bool IsPaused => true;
+        public StateChangeAction ChangeAction { get; set; }
 
         public virtual void FixedUpdate() { }
 

@@ -185,11 +185,14 @@ namespace AM1.State
         /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
         public bool PushRequest(IAM1State ph, bool reserve = false)
         {
+            /*
             if (CurrentStateInfo == null)
             {
                 return Request(Push, null, ph, reserve);
             }
             return Request(Push, CurrentStateInfo.state.Pause, ph, reserve);
+            */
+            return false;
         }
 
         /// <summary>
@@ -199,6 +202,7 @@ namespace AM1.State
         /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
         public bool PopRequest(bool reserve = false)
         {
+            /*
             // 実行フェーズのスタックが1つ以下の時はPopできないので成功させて終わり
             if (stateStack.Count <= 1)
             {
@@ -206,6 +210,8 @@ namespace AM1.State
             }
 
             return Request(Pop, CurrentStateInfo.state.Terminate, null, reserve);
+            */
+            return false;
         }
 
         /// <summary>
@@ -215,6 +221,7 @@ namespace AM1.State
         /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
         public bool PopAllRequest(bool reserve = false)
         {
+            /*
             // 実行フェーズのスタックが1つ以下の時はすでに完了しているので成功させて終わり
             if (stateStack.Count <= 1)
             {
@@ -222,6 +229,8 @@ namespace AM1.State
             }
 
             return Request(PopAll, CurrentStateInfo.state.Terminate, null, reserve);
+            */
+            return false;
         }
     }
 }

@@ -13,7 +13,6 @@ public class StateTestBench : AM1StateBase
     public int resumeCount;
 
     public override bool CanChangeToOtherState => canChange;
-    public override bool IsTerminated => isTerminated;
 
     /// <summary>
     /// テスト用に公開。任意のタイミングでテストから設定する
