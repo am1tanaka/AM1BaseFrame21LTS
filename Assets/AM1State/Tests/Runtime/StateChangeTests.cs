@@ -9,6 +9,12 @@ using System.Diagnostics.Tracing;
 public class StateChangeTests
 {
     [UnityTest]
+    public IEnumerator PopTests()
+    {
+        yield return null;
+    }
+
+    [UnityTest]
     public IEnumerator ChangeStateReserveTests()
     {
         var go = new GameObject();
@@ -185,7 +191,5 @@ public class StateChangeTests
         yield return new WaitForFixedUpdate();
         Assert.That(bench2.fixedUpdateCount, Is.GreaterThan(0), $"FixedUpdateを{bench2.fixedUpdateCount}回実行");
         Assert.That(bench2.terminateCount, Is.EqualTo(0), $"Terminateはまだ呼ばれていない。");
-
-
     }
 }
