@@ -33,6 +33,7 @@ public class StateTestBench : AM1StateBase
     {
         initCount++;
         canChange = false;
+        Debug.Log($"Init {initCount}");
     }
 
     public override void Update()
@@ -48,16 +49,22 @@ public class StateTestBench : AM1StateBase
     public override void Terminate()
     {
         terminateCount++;
+        canChange = false;
+        Debug.Log($"Terminate {terminateCount}");
     }
 
     public override void Pause()
     {
         pauseCount++;
+        canChange = false;
+        Debug.Log($"Pause {pauseCount}");
     }
 
     public override void Resume()
     {
         resumeCount++;
+        canChange = false;
+        Debug.Log($"Resume {resumeCount}");
     }
 
 

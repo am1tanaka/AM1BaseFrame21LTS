@@ -15,7 +15,7 @@ public class StateChangeTests
     }
 
     [UnityTest]
-    public IEnumerator ChangeStateReserveTests()
+    public IEnumerator PopAndPushTests()
     {
         var go = new GameObject();
         go.AddComponent<AM1StateStack>();
@@ -39,22 +39,29 @@ public class StateChangeTests
 
         for (int i = 0; i < bench.Length - 2; i++)
         {
+            Debug.Log($"Loop {i}");
+            Assert.That(stateStack.requestQueue.Count, Is.EqualTo(8-i*2), "リクエストキュー");
             // 実行を確認
-            yield return null;
+            yield return null;  // Init実行+canChange=false
             Assert.That(bench[i].initCount, Is.GreaterThan(0), $"初期化確認 {i}");
             Assert.That(bench[i].updateCount, Is.GreaterThan(0), $"Update {i}");
             yield return wait;
             Assert.That(bench[i].fixedUpdateCount, Is.GreaterThan(0), $"FixedUpdate {i}");
 
             // 次は開始していない
-            Assert.That(bench[i + 1].initCount, Is.EqualTo(0), $"次の初期化は未実行");
+            Assert.That(bench[i + 1].initCount, Is.Zero, $"次の初期化は未実行");
 
             // 初期化
-            bench[i].canChange = true;
+            bench[i].canChange = true;  // InitのcanChangeを解除
+            yield return null;  // Pop
+            Assert.That(bench[i].terminateCount, Is.Zero, $"まだTerminateCount {i}");
+            bench[i].canChange = true;  // TerminateのcanChangeを解除
+            Assert.That(stateStack.requestQueue.Count, Is.EqualTo(8 - i * 2), "リクエストキュー2");
             yield return null;
             yield return wait;
+            Assert.That(bench[i].terminateCount, Is.GreaterThan(0), $"TerminateCount {i}");
             Assert.That(bench[i + 1].initCount, Is.EqualTo(1), $"次の初期化確認 {i + 1}");
-            Assert.That(bench[i + 2].initCount, Is.EqualTo(0), $"2つ先の初期化は未確認 {i + 2}");
+            Assert.That(bench[i + 2].initCount, Is.Zero, $"2つ先の初期化は未確認 {i + 2}");
         }
 
         int index = AM1StateStack.DefaultStackMax - 2;
@@ -73,93 +80,92 @@ public class StateChangeTests
         Assert.That(bench[index].fixedUpdateCount, Is.GreaterThan(0), $"FixedUpdate ラスト");
     }
 
+    /// <summary>
+    /// PushとPopをそれぞれテスト
+    /// </summary>
     [UnityTest]
-    public IEnumerator PushAndPopReserveTests()
+    public IEnumerator PushAndPopTests()
     {
         var go = new GameObject();
         go.AddComponent<AM1StateStack>();
-        var phaseManager = go.GetComponent<AM1StateStack>();
-        StateTestBench[] bench = new StateTestBench[AM1StateStack.DefaultStackMax];
+        var stateStack = go.GetComponent<AM1StateStack>();
+        WaitForFixedUpdate wait = new WaitForFixedUpdate();
+        StateTestBench[] bench = new StateTestBench[4];
         for (int i = 0; i < bench.Length; i++)
         {
             bench[i] = new StateTestBench();
         }
 
         // Push
-        for (int i = 0; i < bench.Length; i++)
-        {
-            Assert.That(phaseManager.PushQueueRequest(bench[i]), Is.True, "予約成功");
-        }
-        WaitForFixedUpdate wait = new WaitForFixedUpdate();
-
-        for (int i = 0; i < bench.Length - 1; i++)
-        {
-            // 実行を確認
-            yield return null;
-            Assert.That(bench[i].initCount, Is.GreaterThan(0), $"初期化確認 {i}");
-            Assert.That(bench[i].updateCount, Is.GreaterThan(0), $"Update {i}");
-            yield return wait;
-            Assert.That(bench[i].fixedUpdateCount, Is.GreaterThan(0), $"FixedUpdate {i}");
-
-            // 次は開始していない
-            Assert.That(bench[i + 1].initCount, Is.Zero, $"次の初期化は未実行");
-
-            // 初期化
-            bench[i].canChange = true;
-            yield return null;
-            yield return wait;
-            Assert.That(bench[i + 1].initCount, Is.GreaterThan(0), $"InitでCanChangeがtrue {i}");
-
-            // ポーズを完了させたので、次は初期化完了している
-            yield return null;
-            yield return wait;
-        }
-
-        int index = AM1StateStack.DefaultStackMax - 1;
-        bench[index].canChange = true;
+        Assert.That(stateStack.PushRequest(bench[0]), Is.True, "予約成功");
+        Assert.That(stateStack.PushRequest(bench[1]), Is.False, "登録ありの予約失敗");
         yield return null;
-        Assert.That(bench[index].initCount, Is.GreaterThan(0), $"初期化確認 ラスト");
-        yield return null;
-        Assert.That(bench[index].updateCount, Is.GreaterThan(0), $"Update ラスト");
         yield return wait;
-        Assert.That(bench[index].fixedUpdateCount, Is.GreaterThan(0), $"FixedUpdate ラスト");
+        Assert.That(stateStack.PushRequest(bench[1]), Is.False, "切り替え不可なので登録失敗");
+        bench[0].canChange = true;
+        Assert.That(stateStack.PushRequest(bench[1]), Is.True, "切り替えを許可したので登録成功");
+        yield return null;
+        yield return wait;
+        Assert.That(bench[0].pauseCount, Is.GreaterThan(0), $"一時停止 1");
+        Assert.That(bench[0].resumeCount, Is.Zero, $"復帰はまだ 0");
+        Assert.That(bench[1].initCount, Is.GreaterThan(0), $"初期化確認 1");
+        Assert.That(bench[1].updateCount, Is.GreaterThan(0), $"Update 1");
+        yield return wait;
+        Assert.That(bench[1].fixedUpdateCount, Is.GreaterThan(0), $"FixedUpdate 1");
+        Assert.That(bench[1].pauseCount, Is.Zero, $"一時停止まだ 0");
+        Assert.That(bench[1].resumeCount, Is.Zero, $"復帰はまだ 0");
 
+        // PushQueueRequest
+        for (int i = 2; i < bench.Length; i++)
+        {
+            Assert.That(stateStack.PushQueueRequest(bench[i]), Is.True, "予約成功");
+        }
+
+        // 実行を確認
+        Assert.That(bench[2].initCount, Is.Zero, $"未初期化 {2}");
+        bench[1].canChange = true;
+        yield return null;
+        Assert.That(bench[2].initCount, Is.GreaterThan(0), $"初期化確認 {2}");
+        Assert.That(bench[2].updateCount, Is.GreaterThan(0), $"Update {2}");
+        yield return wait;
+        Assert.That(bench[2].fixedUpdateCount, Is.GreaterThan(0), $"FixedUpdate {2}");
+        Assert.That(bench[2].pauseCount, Is.Zero, $"Pauseまだ {2}");
+        Assert.That(bench[2].resumeCount, Is.Zero, $"Resumeまだ {2}");
+        Assert.That(bench[ 1].pauseCount, Is.GreaterThan(0), $"Pause実行 { 1}");
+        Assert.That(bench[ 1].resumeCount, Is.Zero, $"Resumeまだ {1}");
+
+        // 次は開始していない
+        Assert.That(bench[3].initCount, Is.Zero, $"次の初期化は未実行");
+
+        // 初期化
+        bench[2].canChange = true;
+        yield return null;
+
+        // 最後
+        Assert.That(bench[3].initCount, Is.GreaterThan(0), $"InitでCanChangeがtrue {3}");
+        Assert.That(bench[3].updateCount, Is.GreaterThan(0), $"Update ラスト");
+        yield return wait;
+        Assert.That(bench[3].fixedUpdateCount, Is.GreaterThan(0), $"FixedUpdate ラスト");
+
+        // 既存の状態はプッシュ不可
+        Assert.That(stateStack.PushRequest(bench[0]), Is.False, "既存の状態はプッシュ不可");
+
+        //////////
         // Pop
-        Assert.That(phaseManager.requestQueue.Count, Is.Zero, $"Pushリクエスト消化");
-        Assert.That(phaseManager.stateStack.Count, Is.EqualTo(AM1StateStack.DefaultStackMax), $"Stackが{AM1StateStack.DefaultStackMax}つ");
+        Assert.That(stateStack.requestQueue.Count, Is.Zero, $"Pushリクエスト消化");
+        Assert.That(stateStack.stateStack.Count, Is.EqualTo(bench.Length), $"Stackが{bench.Length}つ");
 
-        for (int i = 0; i < bench.Length - 1; i++)
-        {
-            Assert.That(phaseManager.PopQueueRequest(), Is.True, "予約成功");
-        }
+        // まだ現在の状態を変更下にしてない
+        Assert.That(stateStack.PopRequest(), Is.False, "最後の状態の変更を不許可なのでPop失敗");
+        bench[3].canChange = true;
+        Assert.That(stateStack.PopRequest(), Is.True, "一手戻す");
+        yield return null;
+        yield return wait;
+        Assert.That(stateStack.PopRequest(), Is.False, "最後の状態の変更を不許可なのでPop失敗");
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[2]), "一手戻っている");
+        Assert.That(bench[2].resumeCount, Is.EqualTo(1), "Resume 2");
 
-        /* todo
-        for (int i = 0; i < bench.Length - 2; i++)
-        {
-            // 実行を確認
-            yield return null;
-            var currentPhase = phaseManager.CurrentPhaseInfo.phase as PhaseTestBench;
-            Assert.That(currentPhase.pauseCount, Is.GreaterThan(0), $"Pause確認 {i}");
-            Assert.That(currentPhase.resumeCount, Is.GreaterThan(0), $"Resume確認 {i}");
-            Assert.That(currentPhase.updateCount, Is.GreaterThan(0), $"Update {i}");
-            yield return wait;
-            Assert.That(currentPhase.fixedUpdateCount, Is.GreaterThan(0), $"FixedUpdate {i}");
 
-            // 次は開始していない
-            Assert.That(bench[i + 1].initCount, Is.Zero, $"次の初期化は未実行");
-
-            // 初期化
-            bench[i].canChange = true;
-            yield return null;
-            yield return wait;
-            Assert.That(bench[i + 1].initCount, Is.Zero, $"CanChangeを設定したがまだ終了していない {i}");
-
-            // 終了させたので、次は初期化完了している
-            bench[i].isTerminated = true;
-            yield return null;
-            yield return wait;
-        }
-        */
     }
 
     [UnityTest]
