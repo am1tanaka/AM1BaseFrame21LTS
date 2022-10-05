@@ -43,6 +43,11 @@ namespace AM1.State
         bool IsBusy => (requestQueue.Count > 0) || ((CurrentStateInfo != null) && !CurrentStateInfo.CanChangeToOtherState);
 
         /// <summary>
+        /// 一手戻すキュー用データ
+        /// </summary>
+        protected static AM1StateBase prevCommandState = new AM1StateBase();
+
+        /// <summary>
         /// フェーズの切り替えと更新処理の呼び出し
         /// </summary>
         protected virtual void Update()
@@ -131,11 +136,14 @@ namespace AM1.State
             var req = requestQueue.Dequeue();
             if (req.ChangeAction == null)
             {
-#if UNITY_EDITOR
-                Debug.LogError($"状態切り替え要求データ異常:{(req.ChangeAction == null ? "切り替えアクションがnull" : "")}");
-#endif
+                // 切り替えアクションがnullの時は一手戻し
+                StartCoroutine(PopState(null));
             }
-            StartCoroutine(req.ChangeAction(req));
+            else
+            {
+                // それ以外は設定アクション呼び出し
+                StartCoroutine(req.ChangeAction(req));
+            }
         }
 
         /// <summary>
@@ -169,11 +177,10 @@ namespace AM1.State
                 return false;
             }
 
-            // 現在の状態をPop
+            // 現在の状態があれば一手戻す
             if (CurrentStateInfo != null)
             {
-                CurrentStateInfo.ChangeAction = PopState;
-                requestQueue.Enqueue(CurrentStateInfo);
+                requestQueue.Enqueue(prevCommandState);
             }
             // 要求状態のPush
             nextState.ChangeAction = PushState;
@@ -292,7 +299,14 @@ namespace AM1.State
                 return false;
             }
 
-            var targetState = (backState == null) ? CurrentStateInfo : backState;
+            // 引数なしなら一手戻す
+            if (backState == null)
+            {
+                requestQueue.Enqueue(prevCommandState);
+                return true;
+            }
+
+            // 引数があるなら引数のところまで戻す
             foreach (var stack in stateStack)
             {
                 stack.ChangeAction = PopState;

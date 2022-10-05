@@ -7,7 +7,7 @@ namespace AM1.State
     /// <summary>
     /// IAM1Phaseの実装親クラス
     /// </summary>
-    public abstract class AM1StateBase : IAM1State
+    public class AM1StateBase : IAM1State
     {
         public virtual bool CanChangeToOtherState => true;
 

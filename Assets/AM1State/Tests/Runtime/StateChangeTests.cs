@@ -56,7 +56,7 @@ public class StateChangeTests
             yield return null;  // Pop
             Assert.That(bench[i].terminateCount, Is.Zero, $"まだTerminateCount {i}");
             bench[i].canChange = true;  // TerminateのcanChangeを解除
-            Assert.That(stateStack.requestQueue.Count, Is.EqualTo(8 - i * 2), "リクエストキュー2");
+            Assert.That(stateStack.requestQueue.Count, Is.EqualTo(6 - i * 2), "リクエストキュー2");
             yield return null;
             yield return wait;
             Assert.That(bench[i].terminateCount, Is.GreaterThan(0), $"TerminateCount {i}");
