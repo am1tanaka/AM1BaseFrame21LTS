@@ -19,16 +19,6 @@ public class StateTestBench : AM1StateBase
     /// </summary>
     public bool canChange;
 
-    /// <summary>
-    /// テスト用に公開。任意のタイミングでテストから設定する
-    /// </summary>
-    public bool isTerminated;
-
-    /// <summary>
-    /// テスト用に公開。
-    /// </summary>
-    public bool isPaused;
-
     public void ClearCount()
     {
         initCount = 0;
@@ -43,7 +33,6 @@ public class StateTestBench : AM1StateBase
     {
         initCount++;
         canChange = false;
-        isTerminated = false;
     }
 
     public override void Update()

@@ -37,6 +37,12 @@ namespace AM1.State
         public IAM1State CurrentStateInfo { get; protected set; }
 
         /// <summary>
+        /// 要求を受け取れないかを確認
+        /// </summary>
+        /// <returns>要求がすでにある、あるいは、現在の状態が切り替え不可のとき、true</returns>
+        bool IsBusy => (requestQueue.Count > 0) || ((CurrentStateInfo != null) && !CurrentStateInfo.CanChangeToOtherState);
+
+        /// <summary>
         /// フェーズの切り替えと更新処理の呼び出し
         /// </summary>
         protected virtual void Update()
@@ -75,7 +81,7 @@ namespace AM1.State
             }
 
             // 状態をプッシュ
-           stateStack.Push(nextState);
+            stateStack.Push(nextState);
 
             // 現在のインスタンス
             CurrentStateInfo = nextState;
@@ -116,13 +122,14 @@ namespace AM1.State
         {
             // リクエストがないか、処理中以外の時は次のフェーズへは遷移しない
             if ((requestQueue.Count == 0)
-                || ((CurrentStateInfo != null) && !CurrentStateInfo.CanChangeToOtherState)) {
+                || ((CurrentStateInfo != null) && !CurrentStateInfo.CanChangeToOtherState))
+            {
                 return;
             }
 
             // 要求を一つ取り出して実行
             var req = requestQueue.Dequeue();
-            if (req.ChangeAction ==null)
+            if (req.ChangeAction == null)
             {
 #if UNITY_EDITOR
                 Debug.LogError($"状態切り替え要求データ異常:{(req.ChangeAction == null ? "切り替えアクションがnull" : "")}");
@@ -136,10 +143,10 @@ namespace AM1.State
         /// すでに他の切り替えが要求済みだったり、過去に同じ状態があれば失敗します。
         /// </summary>
         /// <param name="nextState">切り替えたい状態</param>
-        /// <returns>要求が成功したらtrue</returns>
+        /// <returns>要求が成功するか、すでに要求の状態ならtrue</returns>
         public bool PopAndPushRequest(IAM1State nextState)
         {
-            if (requestQueue.Count > 0) return false;
+            if (IsBusy) return false;
             return PopAndPushQueueRequest(nextState);
         }
 
@@ -148,22 +155,18 @@ namespace AM1.State
         /// すでに要求がある場合はキューに登録します。
         /// </summary>
         /// <param name="st">切り替えたい状態</param>
+        /// <returns>要求が成功するか、すでに要求の状態ならtrue</returns>
         public bool PopAndPushQueueRequest(IAM1State nextState)
         {
-            foreach (var state in stateStack)
+            // 要求状態なら何もせずに成功
+            if (CurrentStateInfo == nextState)
             {
-                if (state == nextState)
-                {
-                    return false;
-                }
+                return true;
             }
 
-            foreach (var req in requestQueue)
+            if (ContainsStackOrRequestQueue(nextState))
             {
-                if (req == nextState)
-                {
-                    return false;
-                }
+                return false;
             }
 
             // 現在の状態をPop
@@ -179,58 +182,207 @@ namespace AM1.State
         }
 
         /// <summary>
-        /// フェーズをプッシュして切り替えを要求します。
+        /// 指定のインスタンスがスタックか要求にある時、true
         /// </summary>
-        /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
-        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool PushRequest(IAM1State ph, bool reserve = false)
+        /// <param name="st">確認する状態のインスタンス</param>
+        /// <returns>スタックか要求に含まれているとき、true</returns>
+        bool ContainsStackOrRequestQueue(IAM1State st)
         {
-            /*
-            if (CurrentStateInfo == null)
+            return ContainsStack(st) || ContainsRequestQueue(st);
+        }
+
+        /// <summary>
+        /// 指定の状態がスタックにあることを確認します。
+        /// </summary>
+        /// <param name="st">確認する状態のインスタンス</param>
+        /// <returns>指定の状態が見つかればtrue</returns>
+        bool ContainsStack(IAM1State st)
+        {
+            foreach (var state in stateStack)
             {
-                return Request(Push, null, ph, reserve);
+                if (state == st)
+                {
+                    return true;
+                }
             }
-            return Request(Push, CurrentStateInfo.state.Pause, ph, reserve);
-            */
             return false;
+        }
+
+        /// <summary>
+        /// 指定の状態が要求内にあったらtrue
+        /// </summary>
+        /// <param name="st">確認する状態のインスタンス</param>
+        /// <returns>指定の状態がすでに要求にあったらtrue</returns>
+        bool ContainsRequestQueue(IAM1State st)
+        {
+            foreach (var req in requestQueue)
+            {
+                if (req == st)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 状態をプッシュして切り替えを要求します。
+        /// </summary>
+        /// <param name="nextState">切り替えたい状態のインスタンス</param>
+        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
+        public bool PushRequest(IAM1State nextState)
+        {
+            if (IsBusy) return false;
+            return PushQueueRequest(nextState);
+        }
+
+        /// <summary>
+        /// 状態をプッシュして切り替えを要求します。
+        /// 要求があったり、切り替え中のときは、登録キューに積みます。
+        /// </summary>
+        /// <param name="nextState">切り替えたい状態のインスタンス</param>
+        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
+        public bool PushQueueRequest(IAM1State nextState)
+        {
+            if (CurrentStateInfo == nextState)
+            {
+                return true;
+            }
+            if (ContainsStackOrRequestQueue(nextState))
+            {
+                return false;
+            }
+
+            // 要求状態のPush
+            nextState.ChangeAction = PushState;
+            requestQueue.Enqueue(nextState);
+            return true;
+        }
+
+        /// <summary>
+        /// 指定のフェーズに戻します。
+        /// 予約があったり、切り替え中のときは登録失敗します。
+        /// 指定を省略すると一つ前に戻します。
+        /// 指定のものがない場合は失敗します。
+        /// </summary>
+        /// <returns>要求が成功するか、現在の状態がなければtrue</returns>
+        /// <param name="backState"></param>
+        /// <returns></returns>
+        public bool PopRequest(IAM1State backState = null)
+        {
+            if (IsBusy) return false;
+            return PopQueueRequest(backState);
         }
 
         /// <summary>
         /// 一つ前のフェーズに戻します。
+        /// 予約があったり、切り替え中のときは、キューに処理を積みます。
         /// </summary>
-        /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
-        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool PopRequest(bool reserve = false)
+        /// <returns>要求が成功するか、現在の状態がなければtrue</returns>
+        public bool PopQueueRequest(IAM1State backState = null)
         {
-            /*
-            // 実行フェーズのスタックが1つ以下の時はPopできないので成功させて終わり
-            if (stateStack.Count <= 1)
+            if (CurrentStateInfo == null)
             {
                 return true;
             }
 
-            return Request(Pop, CurrentStateInfo.state.Terminate, null, reserve);
-            */
-            return false;
+            // すでにキューに積まれているか、指定した状態がスタックにないなら失敗
+            if ((backState != null) && (ContainsRequestQueue(backState) || !ContainsStack(backState)))
+            {
+                return false;
+            }
+
+            var targetState = (backState == null) ? CurrentStateInfo : backState;
+            foreach (var stack in stateStack)
+            {
+                stack.ChangeAction = PopState;
+                requestQueue.Enqueue(stack);
+                if (stack == backState)
+                {
+                    break;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
-        /// ルートのフェーズまで戻します。
+        /// ルートの状態まで戻します。すでにルートになっていたり、状態がなければ何もせず成功で終了します。
+        /// 要求があったり、切り替え中のときは失敗します。
         /// </summary>
-        /// <param name="reserve">切り替え中の時に予約するならtrue。失敗させるなら省略</param>
-        /// <returns>要求が成功したらtrue。reserveが省略されていて切り替え中なら失敗でfalse</returns>
-        public bool PopAllRequest(bool reserve = false)
+        /// <returns>要求が成功するか、すでにルートになっていたらtrue。</returns>
+        public bool PopToRootRequest()
         {
-            /*
-            // 実行フェーズのスタックが1つ以下の時はすでに完了しているので成功させて終わり
-            if (stateStack.Count <= 1)
+            if (IsBusy)
+            {
+                return false;
+            }
+            return PopToRootQueueRequest();
+        }
+
+        /// <summary>
+        /// ルートの状態まで戻します。すでにルートになっていたり、状態がなければ何もせず成功で終了します。
+        /// </summary>
+        /// <returns>原則、trueのみ</returns>
+        public bool PopToRootQueueRequest()
+        {
+            int i = stateStack.Count;
+            foreach (var state in stateStack)
+            {
+                // ルートか状態がないので成功して終わり
+                i--;
+                if (i <= 0)
+                {
+                    break;
+                }
+
+                state.ChangeAction = PopState;
+                requestQueue.Enqueue(state);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 状態を全て戻します。最初から状態がなければ何もせず成功で終了します。
+        /// 要求があったり、切り替え中のときは失敗します。
+        /// </summary>
+        /// <returns>要求が成功するか、すでに状態がなければtrue。</returns>
+        public bool PopAllRequest()
+        {
+            if (IsBusy)
+            {
+                return false;
+            }
+            return PopAllQueueRequest();
+        }
+
+        /// <summary>
+        /// 全ての状態を戻して状態なしにします。
+        /// </summary>
+        /// <returns>true</returns>
+        public bool PopAllQueueRequest()
+        {
+            if (stateStack.Count == 0)
             {
                 return true;
             }
 
-            return Request(PopAll, CurrentStateInfo.state.Terminate, null, reserve);
-            */
-            return false;
+            foreach (var state in stateStack)
+            {
+                state.ChangeAction = PopState;
+                requestQueue.Enqueue(state);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// リクエストキューを削除します。
+        /// </summary>
+        public void ClearRequestQueue()
+        {
+            requestQueue.Clear();
         }
     }
 }
