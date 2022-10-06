@@ -203,7 +203,7 @@ namespace AM1.State
         IEnumerator PopState(IAM1State targetState)
         {
             // スタックに指定の状態がなければ即終了
-            if (ContainsStack(targetState))
+            if (!ContainsStack(targetState))
             {
                 isChanging = false;
                 yield break;
@@ -360,6 +360,7 @@ namespace AM1.State
             }
             if (CurrentStateInfo != null)
             {
+                Log($"PopRequest set back state.");
                 PopQueueRequest(backState);
             }
 
@@ -375,11 +376,13 @@ namespace AM1.State
             // 引数なしなら一手戻す
             if (backState == null)
             {
+                Log($"PopQueueRequest-prev");
                 requestQueue.Enqueue(prevCommandState);
             }
             else
             {
                 // 引数があるなら引数のところまで戻す
+                Log($"PopQueueRequest-target");
                 backState.ChangeAction = PopState;
                 requestQueue.Enqueue(backState);
             }

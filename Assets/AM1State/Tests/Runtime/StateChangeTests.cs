@@ -26,12 +26,17 @@ public class StateChangeTests
 
         // 通常の要求
         // 1つ戻す
+        Debug.Log($"--1つ戻す");
+        yield return null;
         stateStack.PopRequest();
         yield return WaitChangeDone(stateStack);
         Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[4]), "通常 1つ戻す");
 
         // 2つ戻す
-        stateStack.PopRequest(bench[2]);
+        Debug.Log($"--2つ戻す");
+        yield return null;
+        Assert.That(stateStack.PopRequest(bench[2]), Is.True, "2つ戻す要求");
+        Assert.That(stateStack.IsBusy, Is.True, "切り替え要求発動");
         yield return WaitChangeDone(stateStack);
         Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[2]), "通常 2つ戻す");
 
@@ -82,18 +87,15 @@ public class StateChangeTests
 
     IEnumerator WaitChangeDone(AM1StateStack stack)
     {
-        Debug.Log($"WaitChangeDone");
         while (stack.IsBusy)
         {
             if (stack.CurrentStateInfo != null)
             {
                 StateTestBench stb = (stack.CurrentStateInfo as StateTestBench);
-                Debug.Log($"  canChange={stb.canChange}");
                 stb.canChange = true;
             }
             yield return null;
         }
-        Debug.Log($"WaitChangeDone Done");
     }
 
     [UnityTest]
