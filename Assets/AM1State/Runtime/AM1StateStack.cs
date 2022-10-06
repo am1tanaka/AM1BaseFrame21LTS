@@ -44,7 +44,7 @@ namespace AM1.State
         /// 要求を受け取れないかを確認
         /// </summary>
         /// <returns>要求がすでにある、あるいは、現在の状態が切り替え不可のとき、true</returns>
-        bool IsBusy => (requestQueue.Count > 0) || ((CurrentStateInfo != null) && !CurrentStateInfo.CanChangeToOtherState);
+        public bool IsBusy => (requestQueue.Count > 0) || ((CurrentStateInfo != null) && !CurrentStateInfo.CanChangeToOtherState);
 
         /// <summary>
         /// 一手戻すキュー用データ

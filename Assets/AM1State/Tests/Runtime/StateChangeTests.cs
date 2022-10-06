@@ -5,13 +5,95 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using AM1.State;
 using System.Diagnostics.Tracing;
+using UnityEditor.VersionControl;
+using System.Linq;
 
 public class StateChangeTests
 {
     [UnityTest]
     public IEnumerator PopTests()
     {
-        yield return null;
+        // Popのデータ作成
+        var go = new GameObject();
+        go.AddComponent<AM1StateStack>();
+        var stateStack = go.GetComponent<AM1StateStack>();
+        StateTestBench[] bench = new StateTestBench[6];
+        for (int i = 0; i < bench.Length; i++)
+        {
+            bench[i] = new StateTestBench();
+        }
+        yield return SetStackFull(stateStack, bench);
+
+        // 通常の要求
+        // 1つ戻す
+        stateStack.PopRequest();
+        yield return WaitChangeDone(stateStack);
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[4]), "通常 1つ戻す");
+
+        // 2つ戻す
+        stateStack.PopRequest(bench[2]);
+        yield return WaitChangeDone(stateStack);
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[2]), "通常 2つ戻す");
+
+        // ルートまで戻す
+        stateStack.PopToRootRequest();
+        yield return WaitChangeDone(stateStack);
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[0]), "通常 ルートまで戻す");
+
+        // 全部戻す
+        yield return SetStackFull(stateStack, bench);
+        Assert.That(stateStack.stateStack.Count, Is.EqualTo(bench.Length), "スタック満タン");
+        stateStack.PopAllRequest();
+        yield return WaitChangeDone(stateStack);
+        Assert.That(stateStack.CurrentStateInfo, Is.Null, "通常 全て戻す");
+        Assert.That(stateStack.stateStack.Count, Is.Zero, "通常 スタックなし");
+
+        // キューに積む
+        // 1つ戻す
+
+        // 2つ戻す
+
+        // ルートまで戻す
+
+        // 全部戻す
+
+
+    }
+
+    /// <summary>
+    /// 与えられたスタックに、与えられた状態を全て積み上げます。
+    /// </summary>
+    /// <param name="stateStack"></param>
+    /// <param name="bench"></param>
+    /// <returns></returns>
+    IEnumerator SetStackFull(AM1StateStack stateStack, StateTestBench[] bench)
+    {
+        for (int i = stateStack.stateStack.Count; i < bench.Length; i++)
+        {
+            stateStack.PushQueueRequest(bench[i]);
+        }
+
+        // ４つ登録が終わるまで待つ
+        while (stateStack.requestQueue.Count > 0)
+        {
+            yield return WaitChangeDone(stateStack);
+        }
+    }
+
+    IEnumerator WaitChangeDone(AM1StateStack stack)
+    {
+        Debug.Log($"WaitChangeDone");
+        while (stack.IsBusy)
+        {
+            if (stack.CurrentStateInfo != null)
+            {
+                StateTestBench stb = (stack.CurrentStateInfo as StateTestBench);
+                Debug.Log($"  canChange={stb.canChange}");
+                stb.canChange = true;
+            }
+            yield return null;
+        }
+        Debug.Log($"WaitChangeDone Done");
     }
 
     [UnityTest]
