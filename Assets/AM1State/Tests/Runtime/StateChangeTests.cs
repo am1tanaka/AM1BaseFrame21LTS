@@ -90,7 +90,7 @@ public class StateChangeTests
         var go = new GameObject();
         go.AddComponent<AM1StateStack>();
         var stateStack = go.GetComponent<AM1StateStack>();
-        WaitForFixedUpdate wait = new WaitForFixedUpdate();
+        WaitForFixedUpdate wait = new();
         StateTestBench[] bench = new StateTestBench[4];
         for (int i = 0; i < bench.Length; i++)
         {
@@ -109,6 +109,9 @@ public class StateChangeTests
         yield return wait;
         Assert.That(bench[0].pauseCount, Is.GreaterThan(0), $"一時停止 1");
         Assert.That(bench[0].resumeCount, Is.Zero, $"復帰はまだ 0");
+
+        bench[0].canChange = true;
+        yield return null;
         Assert.That(bench[1].initCount, Is.GreaterThan(0), $"初期化確認 1");
         Assert.That(bench[1].updateCount, Is.GreaterThan(0), $"Update 1");
         yield return wait;
@@ -126,6 +129,8 @@ public class StateChangeTests
         Assert.That(bench[2].initCount, Is.Zero, $"未初期化 {2}");
         bench[1].canChange = true;
         yield return null;
+        bench[1].canChange = true;
+        yield return null;
         Assert.That(bench[2].initCount, Is.GreaterThan(0), $"初期化確認 {2}");
         Assert.That(bench[2].updateCount, Is.GreaterThan(0), $"Update {2}");
         yield return wait;
@@ -139,6 +144,8 @@ public class StateChangeTests
         Assert.That(bench[3].initCount, Is.Zero, $"次の初期化は未実行");
 
         // 初期化
+        bench[2].canChange = true;
+        yield return null;
         bench[2].canChange = true;
         yield return null;
 
@@ -163,6 +170,8 @@ public class StateChangeTests
         yield return null;
         yield return wait;
         Assert.That(stateStack.PopRequest(), Is.False, "最後の状態の変更を不許可なのでPop失敗");
+        bench[3].canChange = true;
+        yield return wait;
         Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[2]), "一手戻っている");
         Assert.That(bench[2].resumeCount, Is.EqualTo(1), "Resume 2");
     }
