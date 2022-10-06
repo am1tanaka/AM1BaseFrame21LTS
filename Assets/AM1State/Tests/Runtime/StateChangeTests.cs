@@ -21,6 +21,8 @@ public class StateChangeTests
         for (int i = 0; i < bench.Length; i++)
         {
             bench[i] = new StateTestBench();
+            bench[i].index = i;
+            bench[i].debugtCanChange = true;
         }
         yield return SetStackFull(stateStack, bench);
 
@@ -38,7 +40,7 @@ public class StateChangeTests
         Assert.That(stateStack.PopRequest(bench[2]), Is.True, "2つ戻す要求");
         Assert.That(stateStack.IsBusy, Is.True, "切り替え要求発動");
         yield return WaitChangeDone(stateStack);
-        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[2]), "通常 2つ戻す");
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[2]), $"通常 2つ戻す {(stateStack.CurrentStateInfo as StateTestBench).index}");
 
         // ルートまで戻す
         stateStack.PopToRootRequest();
@@ -53,18 +55,118 @@ public class StateChangeTests
         Assert.That(stateStack.CurrentStateInfo, Is.Null, "通常 全て戻す");
         Assert.That(stateStack.stateStack.Count, Is.Zero, "通常 スタックなし");
 
+        //////////
         // キューに積む
+        yield return SetStackFull(stateStack, bench);
+
+        // キューに積む
+        yield return SetStackFull(stateStack, bench);
+
         // 1つ戻す
+        stateStack.PopQueueRequest();
 
         // 2つ戻す
+        stateStack.PopQueueRequest(bench[2]);
 
         // ルートまで戻す
+        stateStack.PopToRootQueueRequest();
 
+        // 停止フラグを解除
+        bench[4].debugtCanChange = true;
+        bench[3].debugtCanChange = true;
+        bench[2].debugtCanChange = true;
+        bench[1].debugtCanChange = true;
+        bench[0].debugtCanChange = true;
+        // Pop前チェック
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[5]), "未初期化");
+        bench[5].canChange = true;
+        yield return null;
+        bench[5].canChange = true;
+        yield return null;
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[4]), $"1つ戻る {(stateStack.CurrentStateInfo as StateTestBench).index}");
+        yield return null;
+        yield return null;
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[2]), $"2つ戻る {(stateStack.CurrentStateInfo as StateTestBench).index}");
+        yield return null;
+        yield return null;
+        yield return null;
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[0]), $"ルート {(stateStack.CurrentStateInfo as StateTestBench).index}");
+
+        // 再プッシュとルートへ戻る
+        // キューを詰む
+        for (int i = 1; i < bench.Length; i++)
+        {
+            Assert.That(stateStack.PushQueueRequest(bench[i]), Is.True, "再登録 {i}");
+        }
         // 全部戻す
-
+        bench[5].debugtCanChange = true;
+        stateStack.PopAllQueueRequest();
+        yield return WaitChangeDone(stateStack);
+        yield return new WaitWhile(() => stateStack.IsChanging);
+        Assert.That(stateStack.CurrentStateInfo, Is.Null, "全て解消");
 
     }
 
+    [UnityTest]
+    public IEnumerator PopQueryTests()
+    {
+        // Popのデータ作成
+        var go = new GameObject();
+        go.AddComponent<AM1StateStack>();
+        var stateStack = go.GetComponent<AM1StateStack>();
+        StateTestBench[] bench = new StateTestBench[6];
+        for (int i = 0; i < bench.Length; i++)
+        {
+            bench[i] = new StateTestBench();
+            bench[i].index = i;
+        }
+        // キューに積む
+        yield return SetStackFull(stateStack, bench);
+
+        // 1つ戻す
+        stateStack.PopQueueRequest();
+
+        // 2つ戻す
+        stateStack.PopQueueRequest(bench[2]);
+
+        // ルートまで戻す
+        stateStack.PopToRootQueueRequest();
+
+        // 停止フラグを解除
+        bench[4].debugtCanChange = true;
+        bench[3].debugtCanChange = true;
+        bench[2].debugtCanChange = true;
+        bench[1].debugtCanChange = true;
+        bench[0].debugtCanChange = true;
+        // Pop前チェック
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[5]), "未初期化");
+        bench[5].canChange = true;
+        yield return null;
+        bench[5].canChange = true;
+        yield return null;
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[4]), $"1つ戻る {(stateStack.CurrentStateInfo as StateTestBench).index }");
+        yield return null;
+        yield return null;
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[2]), $"2つ戻る {(stateStack.CurrentStateInfo as StateTestBench).index}");
+        yield return null;
+        yield return null;
+        yield return null;
+        Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[0]), $"ルート {(stateStack.CurrentStateInfo as StateTestBench).index}");
+
+        // 再プッシュとルートへ戻る
+        // キューを詰む
+        for (int i = 1; i < bench.Length; i++)
+        {
+            Assert.That(stateStack.PushQueueRequest(bench[i]), Is.True, "再登録 {i}");
+        }
+        // 全部戻す
+        bench[5].debugtCanChange = true;
+        stateStack.PopAllQueueRequest();
+        yield return WaitChangeDone(stateStack);
+        yield return new WaitWhile(() => stateStack.IsChanging);
+        Assert.That(stateStack.CurrentStateInfo, Is.Null, "全て解消");
+
+    }
     /// <summary>
     /// 与えられたスタックに、与えられた状態を全て積み上げます。
     /// </summary>
@@ -87,7 +189,7 @@ public class StateChangeTests
 
     IEnumerator WaitChangeDone(AM1StateStack stack)
     {
-        while (stack.IsBusy)
+        while (stack.IsChanging)
         {
             if (stack.CurrentStateInfo != null)
             {

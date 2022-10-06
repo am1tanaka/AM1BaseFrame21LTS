@@ -5,6 +5,17 @@ using AM1.State;
 
 public class StateTestBench : AM1StateBase
 {
+    /// <summary>
+    /// チェック用
+    /// </summary>
+    public int index;
+
+    /// <summary>
+    /// 初期化、終了、一時停止、再開時にCanChangeToOtherStateに設定する値。
+    /// まとめて戻す時はフリーズしないようにtrueを設定。
+    /// </summary>
+    public bool debugtCanChange = true;
+
     public int initCount;
     public int updateCount;
     public int fixedUpdateCount;
@@ -32,8 +43,8 @@ public class StateTestBench : AM1StateBase
     public override void Init()
     {
         initCount++;
-        canChange = false;
-        Debug.Log($"Init {initCount}");
+        canChange = debugtCanChange;
+        Debug.Log($"{index}:Init {initCount}");
     }
 
     public override void Update()
@@ -49,22 +60,22 @@ public class StateTestBench : AM1StateBase
     public override void Terminate()
     {
         terminateCount++;
-        canChange = false;
-        Debug.Log($"Terminate {terminateCount}");
+        canChange = debugtCanChange;
+        Debug.Log($"{index}:Terminate {terminateCount}");
     }
 
     public override void Pause()
     {
         pauseCount++;
-        canChange = false;
-        Debug.Log($"Pause {pauseCount}");
+        canChange = debugtCanChange;
+        Debug.Log($"{index}:Pause {pauseCount}");
     }
 
     public override void Resume()
     {
         resumeCount++;
-        canChange = false;
-        Debug.Log($"Resume {resumeCount}");
+        canChange = debugtCanChange;
+        Debug.Log($"{index}:Resume {resumeCount}");
     }
 
 

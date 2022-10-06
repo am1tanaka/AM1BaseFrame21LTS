@@ -65,7 +65,7 @@ namespace AM1.State
         /// 状態切り替え中フラグ。切り替えコルーチンの待機時に他の処理が動かないように
         /// このフラグで切り替え処理が完了するまでは他の切り替えが進まないようにブロック
         /// </summary>
-        bool isChanging;
+        public bool IsChanging { get; private set; }
 
         public AM1StateStack()
         {
@@ -102,15 +102,16 @@ namespace AM1.State
             // リクエストがないか、処理中以外の時は次のフェーズへは遷移しない
             if ((requestQueue.Count == 0)
                 || ((CurrentStateInfo != null) && !CurrentStateInfo.CanChangeToOtherState)
-                || isChanging)
+                || IsChanging)
             {
                 return;
             }
 
             // 要求を一つ取り出して実行
-            isChanging = true;
+            IsChanging = true;
             var req = requestQueue.Dequeue();
             // それ以外は設定アクション呼び出し
+            Log($"Start ChangeAction Coroutine {req} change={req.ChangeAction}");
             StartCoroutine(req.ChangeAction(req));
         }
 
@@ -120,10 +121,13 @@ namespace AM1.State
         /// <param name="nextState">切り替え先の状態</param>
         IEnumerator PushState(IAM1State nextState)
         {
+            Log($"PushState()");
+
             // スタックに切り替えたい状態がすでにあったら処理なし
-            if (ContainsStack(nextState))
+            if (stateStack.Contains(nextState))
             {
-                isChanging = false;
+                Log($"  ContainsStack");
+                IsChanging = false;
                 yield break;
             }
 
@@ -148,16 +152,15 @@ namespace AM1.State
 
             // 初期化
             CurrentStateInfo.Init();
-            isChanging = false;
+            IsChanging = false;
         }
 
         /// <summary>
-        /// 一手戻します。
+        /// 一手戻す処理を実行するコルーチン。
         /// </summary>
-        /// <param name="prevState">未使用</param>
-        IEnumerator PopPrevState(IAM1State prevState)
+        IEnumerator PopPrevStateCoroutine()
         {
-            Log($"PopPrevState()");
+            Log($"PopPrevStateCoroutine()");
             // 現在の状態があれば終了
             if (CurrentStateInfo != null)
             {
@@ -171,7 +174,7 @@ namespace AM1.State
             }
 
             // スタックから状態を取り出す
-            Log($"  PopState before pop {stateStack.Count}");
+            Log($"  PopPrevStateCoroutine before pop {stateStack.Count}");
             if (stateStack.Count == 0)
             {
                 // スタックが0なら現在状態をnullへ
@@ -192,8 +195,17 @@ namespace AM1.State
                     CurrentStateInfo.Resume();
                 }
             }
+        }
 
-            isChanging = false;
+        /// <summary>
+        /// 一手戻します。
+        /// </summary>
+        /// <param name="prevState">未使用</param>
+        IEnumerator PopPrevState(IAM1State prevState)
+        {
+            Log($"PopPrevState()");
+            yield return PopPrevStateCoroutine();
+            IsChanging = false;
         }
 
         /// <summary>
@@ -202,18 +214,24 @@ namespace AM1.State
         /// <param name="targetState">現在の状態</param>
         IEnumerator PopState(IAM1State targetState)
         {
+            Log($"PopState start");
+
             // スタックに指定の状態がなければ即終了
-            if (!ContainsStack(targetState))
+            if (!stateStack.Contains(targetState))
             {
-                isChanging = false;
+                Log($"PopState ContainsStack");
+                IsChanging = false;
                 yield break;
             }
 
             while (CurrentStateInfo != targetState)
             {
-                isChanging = true;
-                yield return PopPrevState(null);
+                Log($"PopState PopPrevState");
+                yield return PopPrevStateCoroutine();
             }
+
+            Log($"PopState Done");
+            IsChanging = false;
         }
 
         /// <summary>
@@ -222,11 +240,14 @@ namespace AM1.State
         /// <param name="rootState">未使用</param>
         IEnumerator PopToRootState(IAM1State rootState)
         {
+            Log($"PopToRootState stateStackCount={stateStack.Count}");
             while (stateStack.Count > 1)
             {
-                isChanging = true;
-                yield return PopPrevState(null);
+                Log($"  {stateStack.Count}");
+                yield return PopPrevStateCoroutine();
             }
+            Log($"PopToRootState Done");
+            IsChanging = false;
         }
 
         /// <summary>
@@ -235,11 +256,15 @@ namespace AM1.State
         /// <param name="allState">未使用</param>
         IEnumerator PopAllState(IAM1State allState)
         {
+            Log($"PopAllState stateStackCount={stateStack.Count}");
+
             while (CurrentStateInfo != null)
             {
-                isChanging = true;
-                yield return PopPrevState(null);
+                Log($"  {stateStack.Count}");
+                yield return PopPrevStateCoroutine();
             }
+            Log($"PopAllState Done");
+            IsChanging = false;
         }
 
         /// <summary>
@@ -258,7 +283,7 @@ namespace AM1.State
             {
                 return true;
             }
-            if (ContainsStack(nextState))
+            if (stateStack.Contains(nextState))
             {
                 return false;
             }
@@ -280,31 +305,20 @@ namespace AM1.State
         /// すでに要求がある場合はキューに登録します。切り替えが必要かの判定は実行時に実施します。
         /// </summary>
         /// <param name="st">切り替えたい状態</param>
-        public void PopAndPushQueueRequest(IAM1State nextState)
+        public bool PopAndPushQueueRequest(IAM1State nextState)
         {
+            if (requestQueue.Contains(nextState))
+            {
+                return false;
+            }
+
             // キューに積む場合は常に一手戻しは予約
             requestQueue.Enqueue(prevCommandState);
 
             // 要求状態のPush
             nextState.ChangeAction = PushState;
             requestQueue.Enqueue(nextState);
-        }
-
-        /// <summary>
-        /// 指定の状態がスタックにあることを確認します。
-        /// </summary>
-        /// <param name="st">確認する状態のインスタンス</param>
-        /// <returns>指定の状態が見つかればtrue</returns>
-        bool ContainsStack(IAM1State st)
-        {
-            foreach (var state in stateStack)
-            {
-                if (state == st)
-                {
-                    return true;
-                }
-            }
-            return false;
+            return true;
         }
 
         /// <summary>
@@ -322,12 +336,13 @@ namespace AM1.State
             {
                 return true;
             }
-            if (ContainsStack(nextState))
+            if (stateStack.Contains(nextState))
             {
                 return false;
             }
 
-            PushQueueRequest(nextState);
+            nextState.ChangeAction = PushState;
+            requestQueue.Enqueue(nextState);
             return true;
         }
 
@@ -337,11 +352,18 @@ namespace AM1.State
         /// </summary>
         /// <param name="nextState">切り替えたい状態のインスタンス</param>
         /// <returns>要求が成功したらtrue</returns>
-        public void PushQueueRequest(IAM1State nextState)
+        public bool PushQueueRequest(IAM1State nextState)
         {
+            // 同じ状態が要求済みなら失敗
+            if (requestQueue.Contains(nextState))
+            {
+                return false;
+            }
+
             // 要求状態のPush
             nextState.ChangeAction = PushState;
             requestQueue.Enqueue(nextState);
+            return true;
         }
 
         /// <summary>
@@ -371,7 +393,7 @@ namespace AM1.State
         /// 一つ前のフェーズに戻します。
         /// 予約があったり、切り替え中のときは、キューに処理を積みます。
         /// </summary>
-        public void PopQueueRequest(IAM1State backState = null)
+        public bool PopQueueRequest(IAM1State backState = null)
         {
             // 引数なしなら一手戻す
             if (backState == null)
@@ -381,11 +403,18 @@ namespace AM1.State
             }
             else
             {
+                if (requestQueue.Contains(backState))
+                {
+                    Log($"PopQueueRequest 登録があるので失敗");
+                    return false;
+                }
+
                 // 引数があるなら引数のところまで戻す
                 Log($"PopQueueRequest-target");
                 backState.ChangeAction = PopState;
                 requestQueue.Enqueue(backState);
             }
+            return true;
         }
 
         /// <summary>
@@ -447,7 +476,7 @@ namespace AM1.State
         public void ClearRequestQueue()
         {
             requestQueue.Clear();
-            isChanging = false;
+            IsChanging = false;
         }
 
         [System.Diagnostics.Conditional("DEBUG_LOG")]
