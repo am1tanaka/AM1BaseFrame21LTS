@@ -2,7 +2,6 @@ using AM1.State;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class TestState1 : TestState
 {

@@ -18,9 +18,8 @@ public abstract class TestState : AM1StateBase
     }
 
     /// <summary>
-    /// 前の次の状態を設定。
+    /// 次の状態を設定。
     /// </summary>
-    /// <param name="pr">前の状態</param>
     /// <param name="nx">次の状態</param>
     public void SetNext(AM1StateBase nx)
     {
@@ -36,6 +35,7 @@ public abstract class TestState : AM1StateBase
     public override void Update()
     {
         base.Update();
+
         if (IsRunning)
         {
             Counter++;
