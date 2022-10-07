@@ -1,124 +1,67 @@
-# フェーズシステム仕様
+# 状態システム仕様
 
 ## 基本情報
-- PhaseManagerスクリプトをシーン内のオブジェクトにアタッチします
-- フェーズは`PhaseBase`クラスを継承して実装します
-- PhaseManager、および、PhaseBaseは各ゲームオブジェクトで独立して利用できるようにstaticは採用しません。利用するゲームオブジェクトのスクリプト上で必要なインスタンスをnewで生成して利用します
-- フェーズを切り替える時は、PhaseManagerのインスタンスの???Request()メソッドに、フェーズ処理クラスのインスタンスを渡して要求します
-- フェーズの切り替えは以下の4種類があります
-  - 現在のフェーズを入れ替えるChangeRequest()
-  - 現在のフェーズを待機させて新しいフェーズを開始するPushRequest()
-  - 現在のフェーズを破棄して前のフェーズに戻すPopRequest()
-  - ルートのフェーズまで戻すPopAllRequest()
-- デフォルトのRequestは、実行フェーズが切り替えを許可していない(CanChangeがfalse)の時は、要求を失敗させて受け付けません
-- 切り替え禁止の解除後に切り替えを予約する場合は、Request()メソッドのreserveフラグにtrueを設定して呼び出します
+- AM1StateStackクラスそのものか、継承したクラスをシーン内のオブジェクトにアタッチします
+- 各状態は`AM1StateBase`クラスを継承して実装します
+- AM1StateStack、および、AM1StateBaseは各ゲームオブジェクトで独立して利用できるようにstaticによるインスタンス管理はしません。利用するゲームオブジェクト上で必要なインスタンスを生成して利用します
+- 状態への切り替えには以下のAM1StateStackのインスタンスメソッドを利用します。通常は、状態の切り替え中の更なる状態切り替えは失敗扱いにしますが、イベント処理などで連続した遷移が必要な場合は、Queueがついたメソッドを利用することでキューへ予約して、連続切り替えができます
+  - PopAndPushRequest() / PopAndPushQueueRequest()
+    - 現在の状態を切り替えます
+  - PushRequest() / PushQueueRequest()
+    - 現在の状態を一時中止して、新しい状態に切り替えます
+  - PopRequest() / PopQueueRequest()
+    - 前の状態に戻します。状態を指定するとその状態まで、未指定だと１つ前に戻します
+  - PopToRootRequest() / PopToRootQueueRequest()
+    - 一番最初の状態まで戻します
+  - PopAllRequest() / PopAllQueueRequest()
+    - 全ての状態を戻して、実行中の状態をなくします
+- 各状態(AM1StateBase)には以下のメソッドを実装できます
+  - Init()
+    - 開始時に呼ばれます
+  - Update()とFixedUpdate()
+    - 実行中にMonoBehaviourから呼ばれます
+  - Pause()
+    - 他の状態に一時的に遷移する前に呼ばれます
+  - Resume()
+    - 他の状態から復帰する時に呼ばれます
+  - Terminate()
+    - 状態を終了する時に呼ばれます
+
 
 ## 切り替え条件
-フェーズには、登録、自身への切り替え、他のフェーズへの切り替えの可否の制御が必要です。状況を整理します。
+状態切り替えの登録、切り替え実効の可否の判断基準です。
 
-- CanRequest 自身のフェーズをRequestできるか
-  - すでに実行中であったり、切り替えを開始しているフェーズはリクエストできません
-  - Undoボタンでは履歴がないと呼べないなど、フェーズごとの独自の条件もこのフラグで判定します
-- CanRequestOtherPhase 他のフェーズへのリクエストを受けつけるか
-  - アニメ中などで他のフェーズへすぐに移行できないかを判定するフラグ
-  - この状態の時は、自分含め、他フェーズへのRequestもデフォルトでは失敗します
-  - 移行先のCanRequestがtrueなら、このフラグがfalseでも予約登録は可能
-- CanChangeOtherPhase 他のフェーズへ移行できるか
-  - リクエストキューをすぐに反映させるかを判断
-  - 開くアニメや閉じる演出などが終わるまで他のフェーズへの移行を待ちたい時、このフラグをfalseにする
+### 登録
+- 通常のRequest()は、すでに他の状態が登録されていたり、状態の切り替え中の時は、登録に失敗します
+- QueueRequest()は、すでに同じ状態が要求されていたら失敗します。それ以外の時は登録キューに登録して、前の処理が完了したら続けて切り替えを開始します
 
-### 想定シナリオ
-ゲームフェーズからゲームメニュー＞システムメニューを開いて、戻す。
-
-1. 初期状態
-  - 全フェーズ(CanRequest=true, CanRequestOtherPhase=true, CanChangeOtherPhase=true, IsRunning=false)
-  - ゲームフェーズをリクエスト
-    - CanRequestがtrueなので要求成功
-    - キューがあるので、以降、他のリクエストは予約が未指定なら予約失敗。予約があればキューに積む。この例ではキューに積む
-1. フェーズ切り替え判定
-  1. 現在のフェーズがないので現在フェーズのチェックはなし
-  1. ゲームフェーズを現在のフェーズに切り替えて初期化呼び出し。IsRunningをtrueにして、UpdateとFixedUpdateから呼び出し開始
-1. 次フレームの切り替え
-  1. 現在のフェーズがあり、要求キューがあり、ゲームフェーズのCanChangeOtherPhaseがtrueなので次の切り替え開始
-  1. ゲームフェーズのPauseを呼ぶ
-  1. ゲームフェーズのCanChangeOtherPhaseがtrueになるまで待機。ゲームは待機不要なのですぐにtrueになる。ゲームフェーズは状態を変更しつつ、内部処理は続けたいのでIsRunningはtrueのまま
-  1. ゲームメニューをスタックに積んで、現在フェーズを切り替えて、Initを呼び出す
+### 切り替え処理
+- AM1StateStackのUpdate()で確認します
+- 現在の状態のCanChangeToOtherStateフラグがfalseか、あるいは、前の切り替え処理が実行中(IsChangingがtrue)の時は、切り替え処理を次フレームに延期します
 
 
+## AM1StateStackの処理
 
-
-## PhaseManagerの処理の流れ
-
-### phaseStackが空(CurrentPhaseInfo==null)のとき
+### stateStackが空(CurrentState==null)のとき
 - 何もしない
-- 変更要求
-  - 無条件で登録可能
+- 変更要求は無条件で登録可能
 
-### phaseStackが実行中の時(CurrentPhaseInfo != null)
-- CurrentPhaseInfo.IsTerminatedがfalseなら、Update()とFixedUpdate()を実行
+### stateStackで状態を処理中(CurrentState != null)
+- 現在の状態のUpdate()とFixedUpdate()を実行
 - 変更要求
   - ???Request()を各箇所から呼び出してrequestQueueに積む
-- Update()の先頭でUpdateChangeRequest()を呼び出して切り替えチェックや処理
+- stateStack.Update()の先頭でUpdateChangeRequest()を呼び出して切り替えチェックや処理
 - UpdateChangeRequest()
-  - CurrentStateで状態分け
-    - Stadby フェーズがない状態
-      - requestQueueの最初のフェーズのInitを呼び出して、状態をRunningにして切り替え完了
-    - Running
-      - 現在のフェーズのCanChangeがfalse
-        - 要求を蓄積したまま次の更新に持ち越し
-      - 現在のフェーズのCanChangeがtrue
-        - toNextActionを呼び出してPauseかTerminateを実行
-        - IsTerminatedがtrue
-          - フェーズの切り替えを実行してInitを呼び出す
-        - IsTerminatedがfalse
-          - CurrentStateをWaitTerminateに設定
-    - WaitTerminate
-      - IsTerminatedがtrueになったら、フェーズの切り替えを実行。CurrentStateはRunningかPopAllへ
-    - PopAll
-      - IsTerminatedがtrueになったらPopAll()を呼ぶ
-      - PopAll()内で必要に応じて現在の状態をRunningへ戻すか、PopAllに設定
-
-### PopAllの流れ
-- PopAllRequest()を呼ぶ
-  - フェーズスタックが1つ以下の時はこれ以上戻せないので何もせずに成功で完了
-  - フェーズスタックが2つ以上の時、PopAll()と現在処理の終了を登録
-- UpdateChangeRequest
-  - RunningでtoNextAction(Terminate)を実行
-  - IsTerminatedがtrue
-    - PopAll()を呼び出す
-  - IsTerminatedがfalse
-    - WaitTerminateで終了を待った後、PopAll()を呼び出す
-    - CurrentStateはPopAllへ変更
-- PopAll()
-  - 現在のPhaseInfoをプールに戻してphaseStackをPop
-  - phaseStackの残りが1つ
-    - 切り替えたフェーズのResume()を呼び出して状態をRunningへ
-  - phaseStackの残りが2つ以上
-    - PopAll状態にして、現在のフェーズのTerminateを呼ぶ
-
-## PhaseManager
-- State Standby, Running, WaitTerminate
-- ChangeRequest(IPhase ph, bool reserve=false)
-  - 現在の階層のフェーズを切り替えるようPhaseManagerへ要求します
-- PushRequest(IPhase ph, bool reserve=false)
-  - 現在のフェーズに戻れるようにスタックに積んで切り替え要求します
-- PopRequest(bool reserve=false)
-  - 一つ前のフェーズに戻す要求をします
-- PopAllRequest(bool reserve=false)
-  - ルートのフェーズまで戻すよう要求します
-
-## IPhase
-- enum State.None, Init, Update, Terminate
-- State CurrentState
-- bool CanChange
-  - 他のフェーズに切り替え可能な状態ならtrue
-- bool IsTerminated
-  - 終了処理が完了していたらtrue
-- void Init()
-  - フェーズ開始時の初期化処理
-- void Update()
-  - フェーズシステムのUpdate()から呼び出す処理
-- void FixedUpdate()
-  - フェーズシステムのFixedUpdateから呼び出す処理
-- void Terminate()
-  - フェーズの終了開始を要求する処理
+  - 要求があり、切り替え中ではなく、現在の状態のCanChangeToOtherStateフラグがfalseの時、状態切り替えキューから要求を一つ取り出して、ChangeActionをコルーチンで開始
+  - ChangeActionは、IEnumeratorを返して、IAM1Stateを受け取るデリゲート。受け取ったIAM1Stateに切り替えるための処理を実行
+  - 登録する処理は、以下の通りPushState,
+    - PushState
+      - 現在の状態があれば一時停止してから、スタックに要求の状態を積んでInit呼び出し
+    - PopPrevState
+      - 一手戻す
+    - PopState
+      - 指定の状態まで戻す
+    - PopToRootState
+      - スタックの先頭の状態まで戻す
+    - PopAllState
+      - スタックを全て戻して状態をなしにする

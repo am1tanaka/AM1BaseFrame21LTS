@@ -36,15 +36,15 @@ namespace AM1.State
         public readonly Queue<IAM1State> requestQueue = new Queue<IAM1State>(DefaultStackMax);
 
         /// <summary>
-        /// 現在のフェーズ情報のインスタンス
+        /// 現在の状態のインスタンス
         /// </summary>
-        public IAM1State CurrentStateInfo { get; protected set; }
+        public IAM1State CurrentState { get; protected set; }
 
         /// <summary>
         /// 要求を受け取れないかを確認
         /// </summary>
         /// <returns>要求がすでにある、あるいは、現在の状態が切り替え不可のとき、true</returns>
-        public bool IsBusy => (requestQueue.Count > 0) || ((CurrentStateInfo != null) && !CurrentStateInfo.CanChangeToOtherState);
+        public bool IsBusy => (requestQueue.Count > 0) || ((CurrentState != null) && !CurrentState.CanChangeToOtherState);
 
         /// <summary>
         /// 一手戻すキュー用データ
@@ -83,7 +83,7 @@ namespace AM1.State
             UpdateChangeRequest();
 
             // 更新処理
-            CurrentStateInfo?.Update();
+            CurrentState?.Update();
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace AM1.State
         /// </summary>
         protected virtual void FixedUpdate()
         {
-            CurrentStateInfo?.FixedUpdate();
+            CurrentState?.FixedUpdate();
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace AM1.State
         {
             // リクエストがないか、処理中以外の時は次のフェーズへは遷移しない
             if ((requestQueue.Count == 0)
-                || ((CurrentStateInfo != null) && !CurrentStateInfo.CanChangeToOtherState)
+                || ((CurrentState != null) && !CurrentState.CanChangeToOtherState)
                 || IsChanging)
             {
                 return;
@@ -132,12 +132,12 @@ namespace AM1.State
             }
 
             // 現在の状態があれば一時停止
-            if (CurrentStateInfo != null)
+            if (CurrentState != null)
             {
-                CurrentStateInfo.Pause();
+                CurrentState.Pause();
 
                 // 切り替え可能になるまで待機
-                while (!CurrentStateInfo.CanChangeToOtherState)
+                while (!CurrentState.CanChangeToOtherState)
                 {
                     yield return null;
                 }
@@ -148,10 +148,10 @@ namespace AM1.State
             Log($"PushState after push {stateStack.Count}");
 
             // 現在のインスタンス
-            CurrentStateInfo = nextState;
+            CurrentState = nextState;
 
             // 初期化
-            CurrentStateInfo.Init();
+            CurrentState.Init();
             IsChanging = false;
         }
 
@@ -162,12 +162,12 @@ namespace AM1.State
         {
             Log($"PopPrevStateCoroutine()");
             // 現在の状態があれば終了
-            if (CurrentStateInfo != null)
+            if (CurrentState != null)
             {
-                CurrentStateInfo.Terminate();
+                CurrentState.Terminate();
 
                 // 切り替え可能になるまで待機
-                while (!CurrentStateInfo.CanChangeToOtherState)
+                while (!CurrentState.CanChangeToOtherState)
                 {
                     yield return null;
                 }
@@ -178,7 +178,7 @@ namespace AM1.State
             if (stateStack.Count == 0)
             {
                 // スタックが0なら現在状態をnullへ
-                CurrentStateInfo = null;
+                CurrentState = null;
             }
             else
             {
@@ -186,13 +186,13 @@ namespace AM1.State
                 if (stateStack.Count == 0)
                 {
                     // スタックが0なら現在状態をnullへ
-                    CurrentStateInfo = null;
+                    CurrentState = null;
                 }
                 else
                 {
-                    CurrentStateInfo = stateStack.Peek();
+                    CurrentState = stateStack.Peek();
                     // 再開
-                    CurrentStateInfo.Resume();
+                    CurrentState.Resume();
                 }
             }
         }
@@ -224,7 +224,7 @@ namespace AM1.State
                 yield break;
             }
 
-            while (CurrentStateInfo != targetState)
+            while (CurrentState != targetState)
             {
                 Log($"PopState PopPrevState");
                 yield return PopPrevStateCoroutine();
@@ -258,7 +258,7 @@ namespace AM1.State
         {
             Log($"PopAllState stateStackCount={stateStack.Count}");
 
-            while (CurrentStateInfo != null)
+            while (CurrentState != null)
             {
                 Log($"  {stateStack.Count}");
                 yield return PopPrevStateCoroutine();
@@ -279,7 +279,7 @@ namespace AM1.State
             {
                 return false;
             }
-            if (CurrentStateInfo == nextState)
+            if (CurrentState == nextState)
             {
                 return true;
             }
@@ -289,7 +289,7 @@ namespace AM1.State
             }
 
             // 一手戻しとプッシュを予約
-            if (CurrentStateInfo != null)
+            if (CurrentState != null)
             {
                 requestQueue.Enqueue(prevCommandState);
             }
@@ -332,7 +332,7 @@ namespace AM1.State
             {
                 return false;
             }
-            if (CurrentStateInfo == nextState)
+            if (CurrentState == nextState)
             {
                 return true;
             }
@@ -380,7 +380,7 @@ namespace AM1.State
             {
                 return false;
             }
-            if (CurrentStateInfo != null)
+            if (CurrentState != null)
             {
                 Log($"PopRequest set back state.");
                 PopQueueRequest(backState);
@@ -455,7 +455,7 @@ namespace AM1.State
             {
                 return false;
             }
-            if (CurrentStateInfo != null)
+            if (CurrentState != null)
             {
                 PopAllQueueRequest();
             }

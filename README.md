@@ -11,7 +11,7 @@
 このプロジェクトは各種パッケージの開発用です。各パッケージの利用方法は以下を参照ください。
 
 - [自家製フレームワーク](./Assets/AM1BaseFrame/README.md)
-- [フェーズシステム](./Assets/AM1PhaseSystem/README.md)
+- [状態切り替えシステム](./Assets/AM1State/README.md)
 - [共用ライブラリ](./Assets/AM1Utils/README.md)
 
 ## ライセンス
@@ -21,7 +21,7 @@
 
 Copyright (c) 2022 Yu Tanaka
 
-### デモ使用アセット
+### デモで使用しているアセット
 以下、いずれもCC0。
 
 - キャラクター、マップチップ、背景
