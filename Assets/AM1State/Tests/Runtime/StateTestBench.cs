@@ -14,7 +14,7 @@ public class StateTestBench : AM1StateBase
     /// 初期化、終了、一時停止、再開時にCanChangeToOtherStateに設定する値。
     /// まとめて戻す時はフリーズしないようにtrueを設定。
     /// </summary>
-    public bool debugtCanChange = true;
+    public bool debugCanChange = false;
 
     public int initCount;
     public int updateCount;
@@ -43,7 +43,7 @@ public class StateTestBench : AM1StateBase
     public override void Init()
     {
         initCount++;
-        canChange = debugtCanChange;
+        canChange = debugCanChange;
         Debug.Log($"{index}:Init {initCount}");
     }
 
@@ -60,21 +60,21 @@ public class StateTestBench : AM1StateBase
     public override void Terminate()
     {
         terminateCount++;
-        canChange = debugtCanChange;
+        canChange = debugCanChange;
         Debug.Log($"{index}:Terminate {terminateCount}");
     }
 
     public override void Pause()
     {
         pauseCount++;
-        canChange = debugtCanChange;
+        canChange = debugCanChange;
         Debug.Log($"{index}:Pause {pauseCount}");
     }
 
     public override void Resume()
     {
         resumeCount++;
-        canChange = debugtCanChange;
+        canChange = debugCanChange;
         Debug.Log($"{index}:Resume {resumeCount}");
     }
 

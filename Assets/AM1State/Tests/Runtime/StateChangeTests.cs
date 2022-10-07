@@ -22,7 +22,7 @@ public class StateChangeTests
         {
             bench[i] = new StateTestBench();
             bench[i].index = i;
-            bench[i].debugtCanChange = true;
+            bench[i].debugCanChange = true;
         }
         yield return SetStackFull(stateStack, bench);
 
@@ -31,7 +31,7 @@ public class StateChangeTests
         Debug.Log($"--1つ戻す");
         yield return null;
         stateStack.PopRequest();
-        yield return WaitChangeDone(stateStack);
+        yield return WaitBusyDone(stateStack);
         Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[4]), "通常 1つ戻す");
 
         // 2つ戻す
@@ -39,19 +39,19 @@ public class StateChangeTests
         yield return null;
         Assert.That(stateStack.PopRequest(bench[2]), Is.True, "2つ戻す要求");
         Assert.That(stateStack.IsBusy, Is.True, "切り替え要求発動");
-        yield return WaitChangeDone(stateStack);
+        yield return WaitBusyAndChangeDone(stateStack);
         Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[2]), $"通常 2つ戻す {(stateStack.CurrentStateInfo as StateTestBench).index}");
 
         // ルートまで戻す
         stateStack.PopToRootRequest();
-        yield return WaitChangeDone(stateStack);
+        yield return WaitBusyAndChangeDone(stateStack);
         Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[0]), "通常 ルートまで戻す");
 
         // 全部戻す
         yield return SetStackFull(stateStack, bench);
         Assert.That(stateStack.stateStack.Count, Is.EqualTo(bench.Length), "スタック満タン");
         stateStack.PopAllRequest();
-        yield return WaitChangeDone(stateStack);
+        yield return WaitBusyAndChangeDone(stateStack);
         Assert.That(stateStack.CurrentStateInfo, Is.Null, "通常 全て戻す");
         Assert.That(stateStack.stateStack.Count, Is.Zero, "通常 スタックなし");
 
@@ -72,11 +72,11 @@ public class StateChangeTests
         stateStack.PopToRootQueueRequest();
 
         // 停止フラグを解除
-        bench[4].debugtCanChange = true;
-        bench[3].debugtCanChange = true;
-        bench[2].debugtCanChange = true;
-        bench[1].debugtCanChange = true;
-        bench[0].debugtCanChange = true;
+        bench[4].debugCanChange = true;
+        bench[3].debugCanChange = true;
+        bench[2].debugCanChange = true;
+        bench[1].debugCanChange = true;
+        bench[0].debugCanChange = true;
         // Pop前チェック
         Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[5]), "未初期化");
         bench[5].canChange = true;
@@ -99,10 +99,9 @@ public class StateChangeTests
             Assert.That(stateStack.PushQueueRequest(bench[i]), Is.True, "再登録 {i}");
         }
         // 全部戻す
-        bench[5].debugtCanChange = true;
+        bench[5].debugCanChange = true;
         stateStack.PopAllQueueRequest();
-        yield return WaitChangeDone(stateStack);
-        yield return new WaitWhile(() => stateStack.IsChanging);
+        yield return WaitBusyAndChangeDone(stateStack);
         Assert.That(stateStack.CurrentStateInfo, Is.Null, "全て解消");
 
     }
@@ -133,11 +132,11 @@ public class StateChangeTests
         stateStack.PopToRootQueueRequest();
 
         // 停止フラグを解除
-        bench[4].debugtCanChange = true;
-        bench[3].debugtCanChange = true;
-        bench[2].debugtCanChange = true;
-        bench[1].debugtCanChange = true;
-        bench[0].debugtCanChange = true;
+        bench[4].debugCanChange = true;
+        bench[3].debugCanChange = true;
+        bench[2].debugCanChange = true;
+        bench[1].debugCanChange = true;
+        bench[0].debugCanChange = true;
         // Pop前チェック
         Assert.That(stateStack.CurrentStateInfo, Is.EqualTo(bench[5]), "未初期化");
         bench[5].canChange = true;
@@ -160,9 +159,9 @@ public class StateChangeTests
             Assert.That(stateStack.PushQueueRequest(bench[i]), Is.True, "再登録 {i}");
         }
         // 全部戻す
-        bench[5].debugtCanChange = true;
+        bench[5].debugCanChange = true;
         stateStack.PopAllQueueRequest();
-        yield return WaitChangeDone(stateStack);
+        yield return WaitBusyDone(stateStack);
         yield return new WaitWhile(() => stateStack.IsChanging);
         Assert.That(stateStack.CurrentStateInfo, Is.Null, "全て解消");
 
@@ -183,13 +182,26 @@ public class StateChangeTests
         // ４つ登録が終わるまで待つ
         while (stateStack.requestQueue.Count > 0)
         {
-            yield return WaitChangeDone(stateStack);
+            yield return WaitBusyDone(stateStack);
         }
     }
 
-    IEnumerator WaitChangeDone(AM1StateStack stack)
+    IEnumerator WaitBusyDone(AM1StateStack stack)
     {
-        while (stack.IsChanging)
+        while (stack.IsBusy)
+        {
+            if (stack.CurrentStateInfo != null)
+            {
+                StateTestBench stb = (stack.CurrentStateInfo as StateTestBench);
+                stb.canChange = true;
+            }
+            yield return null;
+        }
+    }
+
+    IEnumerator WaitBusyAndChangeDone(AM1StateStack stack)
+    {
+        while (stack.IsChanging || stack.IsBusy)
         {
             if (stack.CurrentStateInfo != null)
             {
