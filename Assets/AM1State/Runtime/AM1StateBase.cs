@@ -13,15 +13,17 @@ namespace AM1.State
 
         public StateChangeAction ChangeAction { get; set; }
 
+        public bool IsRunning { get; protected set; }
+
         public virtual void FixedUpdate() { }
 
-        public virtual void Init() { }
+        public virtual void Init() { IsRunning = true; }
 
-        public virtual void Pause() { }
+        public virtual void Pause() { IsRunning = false; }
 
-        public virtual void Resume() { }
+        public virtual void Resume() { IsRunning = true; }
 
-        public virtual void Terminate() { }
+        public virtual void Terminate() { IsRunning = false; }
 
         public virtual void Update() { }
     }
