@@ -81,7 +81,7 @@ crashlytics-build.properties
 *.cd
 
 /Assets/AM1BaseFrameSamples.win*
-/Assets/AM1PhaseSystemSamples.win*
+/Assets/AM1StateSamples.win*
 
 !/Assets/AM1BaseFrame/Samples~*
 !/Assets/AM1BaseFrame/Package Resources/*.unitypackage
