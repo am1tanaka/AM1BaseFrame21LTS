@@ -1,6 +1,6 @@
 {
   "name": "jp.am1.statesystem",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "AM1 State System",
   "description": "This is a state system package",
   "unity": "2020.3",

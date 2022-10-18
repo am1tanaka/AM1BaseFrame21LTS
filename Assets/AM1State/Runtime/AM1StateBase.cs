@@ -19,6 +19,8 @@ namespace AM1.State
 
         public virtual void Init() { IsRunning = true; }
 
+        public virtual void LateUpdate() { }
+
         public virtual void Pause() { IsRunning = false; }
 
         public virtual void Resume() { IsRunning = true; }

@@ -34,6 +34,11 @@ namespace AM1.State
         void FixedUpdate();
 
         /// <summary>
+        /// LateUpdate
+        /// </summary>
+        void LateUpdate();
+
+        /// <summary>
         /// フェーズを終了する時に呼び出して終了処理を実行
         /// </summary>
         void Terminate();

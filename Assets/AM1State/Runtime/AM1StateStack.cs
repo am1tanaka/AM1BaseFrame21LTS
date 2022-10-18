@@ -95,6 +95,14 @@ namespace AM1.State
         }
 
         /// <summary>
+        /// カメラなどの更新処理
+        /// </summary>
+        protected virtual void LateUpdate()
+        {
+            CurrentState?.LateUpdate();
+        }
+
+        /// <summary>
         /// 状態の切り替え要求の確認と処理
         /// </summary>
         void UpdateChangeRequest()
