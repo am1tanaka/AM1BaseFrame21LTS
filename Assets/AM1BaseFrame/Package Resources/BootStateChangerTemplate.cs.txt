@@ -22,6 +22,7 @@ public class BootStateChanger : StateChangerBase<BootStateChanger>, IStateChange
         BGMSourceAndClips.Instance.SetVolumeSetting(VolumeSetting.volumeSettings[(int)VolumeType.BGM]);
         new VolumeSetting((int)VolumeType.SE, new SEVolumeSaverWithPlayerPrefs());
         SESourceAndClips.Instance.SetVolumeSetting(VolumeSetting.volumeSettings[(int)VolumeType.SE]);
+        VolumeSlider.initEvents.Invoke();
 
         // 遅延再生初期化
         SESourceAndClips.Instance.InitDelaySEPlayer(System.Enum.GetValues(typeof(SEPlayer.SE)).Length, SEPlayer.DelaySeconds, SEPlayer.DelayMax);

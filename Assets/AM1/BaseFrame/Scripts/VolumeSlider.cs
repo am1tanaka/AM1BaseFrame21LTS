@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 namespace AM1.BaseFrame.Assets
 {
@@ -16,13 +17,21 @@ namespace AM1.BaseFrame.Assets
         [Tooltip("このスライダーが担当するボリュームの種類"), SerializeField]
         VolumeType volumeType = default;
 
+        /// <summary>
+        /// ボリュームスライダーのリスト
+        /// </summary>
+        public static readonly UnityEvent initEvents = new ();
+
         Slider slider;
         VolumeSetting currentVolumeSetting;
 
-        void Start()
+        private void Awake()
         {
-            if (!StateChanger.IsReady) return;
+            initEvents.AddListener(Init);
+        }
 
+        void Init()
+        {
             slider = GetComponent<Slider>();
             slider.onValueChanged.AddListener(OnChangeValue);
 
@@ -38,6 +47,8 @@ namespace AM1.BaseFrame.Assets
 #endif
             currentVolumeSetting = VolumeSetting.volumeSettings[(int)volumeType];
             slider.value = currentVolumeSetting.Volume;
+
+            initEvents.RemoveListener(Init);
         }
 
         private void OnDestroy()
@@ -51,7 +62,7 @@ namespace AM1.BaseFrame.Assets
         /// <summary>
         /// スライダーの変更を反映
         /// </summary>
-        /// <param name="newval"></param>
+        /// <param name="newval">新しい値</param>
         void OnChangeValue(float newval)
         {
             int newValInt = Mathf.RoundToInt(newval);
