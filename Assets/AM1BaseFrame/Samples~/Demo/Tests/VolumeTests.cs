@@ -59,6 +59,7 @@ public class VolumeTests : AM1BaseFrameTestBase
         var seVolume = new SEVolumeSaverWithPlayerPrefs();
         bgmVolume.Save(4);
         seVolume.Save(1);
+        WaitForFixedUpdate wait = new WaitForFixedUpdate();
 
         yield return BootTitle();
 
@@ -67,7 +68,7 @@ public class VolumeTests : AM1BaseFrameTestBase
         Assert.That(bgmSlider, Is.Not.Null, "BGMスライダー取得");
         Assert.That(seSlider, Is.Not.Null, "SEスライダー取得");
 
-        yield return null;
+        yield return wait;
         // 値チェック
         Assert.That(bgmSlider.value, Is.EqualTo(4).Within(0.01f), "BGMボリューム設定");
         Assert.That(seSlider.value, Is.EqualTo(1).Within(0.01f), "SEボリューム設定");
@@ -75,7 +76,7 @@ public class VolumeTests : AM1BaseFrameTestBase
         // 設定チェック
         bgmSlider.value = 5;
         seSlider.value = 0;
-        yield return null;
+        yield return wait;
         Assert.That(bgmVolume.Load(3), Is.EqualTo(5), "BGMスライダーでボリューム変更");
         Assert.That(seVolume.Load(3), Is.EqualTo(0), "SEスライダーでボリューム変更");
     }

@@ -73,7 +73,7 @@ namespace AM1.BaseFrame
             }
 
             // ボリュームを反映
-            UpdateVolumeWithFade();
+            UpdateVolumeWithFade(currentFadeVolume);
         }
 
         /// <summary>
@@ -152,14 +152,6 @@ namespace AM1.BaseFrame
             currentIndex = index;
             audioSource.clip = audioClips[index];
             audioSource.Play();
-        }
-
-        /// <summary>
-        /// BGMのボリューム設定と現在のフェードボリュームを合算したdBをAudioMixerに設定する
-        /// </summary>
-        protected override void UpdateVolumeWithFade()
-        {
-            UpdateVolumeWithFade(currentFadeVolume);
         }
 
         /// <summary>

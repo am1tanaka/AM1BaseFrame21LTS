@@ -11,6 +11,8 @@ public class BGMPlayTests : AM1BaseFrameTestBase
     [UnityTest]
     public IEnumerator BGMPlayTestsWithEnumeratorPasses()
     {
+        WaitForFixedUpdate wait = new WaitForFixedUpdate();
+
         // 設定ファイルをリセット
         BGMVolumeSaverWithPlayerPrefs.prefix = "debug";
         var bgmSaver = new BGMVolumeSaverWithPlayerPrefs();
@@ -75,7 +77,7 @@ public class BGMPlayTests : AM1BaseFrameTestBase
         yield return new WaitForSeconds(0.25f);
         Assert.That(BGMdB, Is.LessThan(lastdB), "フェードアウト開始dB");
         BGMPlayer.Play(BGMPlayer.BGM.Game, 1);
-        yield return null;
+        yield return wait;
         Assert.That(BGMdB, Is.LessThan(BGMSourceAndClips.GetdB(0.1f)), "ゲームBGM再生で小ボリューム");
         yield return new WaitForSeconds(0.2f);
         lastdB = BGMdB;
@@ -83,7 +85,7 @@ public class BGMPlayTests : AM1BaseFrameTestBase
 
         // フェードイン中からフェードアウト
         BGMSourceAndClips.Instance.Stop(1f);
-        yield return null;
+        yield return wait;
         Assert.That(BGMdB, Is.InRange(BGMSourceAndClips.GetdB(0.01f), lastdB), "ボリュームが0以上、さっきより小さい");
         yield return new WaitForSeconds(0.5f);
         Assert.That(BGMSourceAndClips.Instance.AudioSourceInstance.isPlaying, Is.False, "時間内だがボリューム的に曲停止");

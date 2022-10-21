@@ -27,7 +27,14 @@ namespace AM1.BaseFrame.Assets
 
         private void Awake()
         {
-            initEvents.AddListener(Init);
+            if (StateChanger.IsReady)
+            {
+                Init();
+            }
+            else
+            {
+                initEvents.AddListener(Init);
+            }
         }
 
         void Init()
