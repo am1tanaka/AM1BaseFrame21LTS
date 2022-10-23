@@ -78,7 +78,7 @@ namespace AM1.BaseFrame
         /// ボリューム設定のインスタンスを受け取る。受け取ったらボリューム更新処理を相手に渡す。
         /// </summary>
         /// <param name="vs">対応する処理のインスタンス</param>
-        public void SetVolumeSetting(VolumeSetting vs)
+        public virtual void SetVolumeSetting(VolumeSetting vs)
         {
             volumeSetting = vs;
             volumeSetting.ChangeVolumeEvent.AddListener(UpdateVolumeWithFade);
