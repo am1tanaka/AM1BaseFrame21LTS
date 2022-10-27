@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace AM1.BaseFrame.Assets
 {
@@ -29,6 +30,23 @@ namespace AM1.BaseFrame.Assets
             anim.SetBool("IsImmediate", true);
             anim.SetBool("Cover", false);
             ScreenTransitionRegistry.Register((int)type, this);
+        }
+
+        /// <summary>
+        /// 色変更つき処理
+        /// </summary>
+        /// <param name="cover">覆いたい時、true</param>
+        /// <param name="col">色</param>
+        /// <param name="sec">秒数</param>
+        /// <returns>成功した時true</returns>
+        public bool StartCover(bool cover, Color col, float sec = 0)
+        {
+            var image = GetComponent<Image>();
+            if (image != null)
+            {
+                image.color = col;
+            }
+            return StartCover(cover, sec);
         }
 
         public bool StartCover(bool cover, float sec = 0)

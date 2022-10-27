@@ -37,11 +37,28 @@ namespace AM1.BaseFrame
         {
             if (IsTransitioning())
             {
-
                 return false;
             }
 
             GetInstance(type).StartCover(true, time);
+            return true;
+        }
+
+        /// <summary>
+        /// 色つきフェード開始
+        /// </summary>
+        /// <param name="type">切り替える種類</param>
+        /// <param name="color">覆う色</param>
+        /// <param name="time">切り替え時間。省略か0で即時</param>
+        /// <returns>開始成功時true。すでになにか切り替え中ならfalseで遷移キャンセル</returns>
+        public static bool StartCover(int type, Color color, float time = 0)
+        {
+            if (IsTransitioning())
+            {
+                return false;
+            }
+
+            GetInstance(type).StartCover(true, color, time);
             return true;
         }
 
@@ -116,7 +133,7 @@ namespace AM1.BaseFrame
                 i++;
             }
 
-            for (i=0;i<sctr.Length;i++)
+            for (i = 0; i < sctr.Length; i++)
             {
                 if (sctr[i] != null)
                 {

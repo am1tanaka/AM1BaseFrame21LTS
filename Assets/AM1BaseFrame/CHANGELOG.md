@@ -1,5 +1,8 @@
 # AM1BaseFrame Change Log
 
+## Ver0.6.5(2022/10/27)
+- ScreenTransitionに色指定付きメソッドを追加
+
 ## Ver0.6.4(2022/10/27)
 - StateChangerの完了待ちメソッドを外部から利用できるように公開
 
