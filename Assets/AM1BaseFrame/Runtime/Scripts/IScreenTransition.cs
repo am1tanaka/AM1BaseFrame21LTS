@@ -19,6 +19,15 @@ namespace AM1.BaseFrame
         bool StartCover(bool cover, float sec = 0);
 
         /// <summary>
+        /// 色つきフェード
+        /// </summary>
+        /// <param name="cover"></param>
+        /// <param name="color"></param>
+        /// <param name="sec"></param>
+        /// <returns></returns>
+        bool StartCover(bool cover, Color color, float sec = 0);
+
+        /// <summary>
         /// 切り替え待ち。0秒の時は即時終了
         /// </summary>
         IEnumerator Wait();

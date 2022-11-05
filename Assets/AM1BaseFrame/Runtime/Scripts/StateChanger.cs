@@ -154,7 +154,7 @@ namespace AM1.BaseFrame
         /// <param name="target">切り替えたい状態への切り替え処理インスタンス</param>
         /// <param name="canQueue">切り替え中や要求が出ている時の追加要求をキューに詰む場合はtrue。デフォルトfalse</param>
         /// <returns>切り替え要求を受け取ったらtrue</returns>
-        public static bool ChangeRequest(IStateChanger target, bool canQueue=false)
+        public static bool ChangeRequest(IStateChanger target, bool canQueue = false)
         {
             // すでに変更中だったり、変更要望を受け取っていたらキャンセル
             if (!canQueue && IsRequestOrChanging) return false;
@@ -254,7 +254,7 @@ namespace AM1.BaseFrame
         /// <summary>
         /// 全てのシーンの読み込みと解放待ち
         /// </summary>
-        static IEnumerator WaitAsyncAndAwake()
+        public static IEnumerator WaitAsyncAndAwake()
         {
             DebugLog($"WaitAsyncAndAwake()");
 
@@ -271,7 +271,7 @@ namespace AM1.BaseFrame
         /// <summary>
         /// シーンのActivateを開始して、シーンが全て解放されるまで待つ。
         /// </summary>
-        static IEnumerator WaitUnloadScenes()
+        public static IEnumerator WaitUnloadScenes()
         {
             if (disallowActiveInstance != null)
             {
