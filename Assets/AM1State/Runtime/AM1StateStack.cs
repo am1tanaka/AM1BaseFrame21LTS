@@ -1,14 +1,8 @@
 //#define DEBUG_LOG
 
-using Codice.Client.BaseCommands.CheckIn.CodeReview;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using UnityEditor.Build.Content;
-using UnityEditor.TextCore.Text;
 using UnityEngine;
-using UnityEngine.Events;
-using static Codice.CM.Common.CmCallContext;
 
 namespace AM1.State
 {
