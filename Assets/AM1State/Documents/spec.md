@@ -10,7 +10,7 @@
 - 各状態はStack、Queueと共用の`AM1StateBase`クラスを継承して実装します
 - AM1StateQueue、および、AM1StateBaseは各ゲームオブジェクトで独立して利用できるようにシングルトンにはしません。利用するゲームオブジェクト上で必要なインスタンスを生成して利用します
 - 状態の切り替えはAM1StateQueueのインスタンスメソッドを利用します。切り替え要求はその場では優先度を受け取って記録のみして、次のフレームの先頭で優先度からキューの並びや登録を決定します
-  - Request(IAM1State, int priority)
+  - Enqueue(IAM1State, int priority=0)
     - 状態の切り替え要求を登録します
 - 状態を切り替える時には、各状態の`CanChangeToOtherState`を`true`にします
 - ステージクリアの状態などの優先度の低い処理をキャンセルしたい場合は`Cancel(int priority)`を実行します
