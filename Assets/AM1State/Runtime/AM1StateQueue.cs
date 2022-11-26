@@ -15,6 +15,67 @@ namespace AM1.State
         public readonly LinkedList<AM1StateQueueBase> stateQueue = new LinkedList<AM1StateQueueBase>();
 
         /// <summary>
+        /// 現在の状態
+        /// </summary>
+        public AM1StateQueueBase CurrentState { get; protected set; }
+
+        /// <summary>
+        /// キューの更新処理
+        /// </summary>
+        private void Update()
+        {
+            // キューに登録がある時
+            if (stateQueue.Count > 0)
+            {
+                // 切り替え可能フラグを確認
+                if ((CurrentState != null) && CurrentState.CanChangeToOtherState)
+                {
+                    // 現在の処理を終了
+                    CurrentState.Terminate();
+                    CurrentState = null;
+                }
+
+                // 現在の処理がなければ無条件に切り替え
+                if (CurrentState == null)
+                {
+                    CurrentState = stateQueue.First.Value;
+                    stateQueue.RemoveFirst();
+                    CurrentState.Init();
+                }
+            }
+
+            // 更新処理
+            CurrentState?.Update();
+        }
+
+        private void OnDestroy()
+        {
+            CurrentState?.Terminate();
+        }
+
+        private void FixedUpdate()
+        {
+            CurrentState?.FixedUpdate();
+        }
+
+        private void LateUpdate()
+        {
+            CurrentState?.LateUpdate();
+        }
+
+        private void OnApplicationPause(bool pause)
+        {
+            if (pause)
+            {
+                CurrentState?.Pause();
+            }
+            else
+            {
+                CurrentState?.Resume();
+            }
+        }
+
+        /// <summary>
         /// 指定の状態をプライオリティを指定して登録。プライオリティは大きいほど優先される。
         /// </summary>
         /// <param name="state">IAM1Stateのインスタンス</param>
