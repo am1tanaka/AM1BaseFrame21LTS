@@ -1,8 +1,25 @@
 # 状態システム仕様
 
+　状態の管理をスタックで行うAM1StateStackと優先度付きキューで行うAM1StateQueueを提供します。
+
 ## 基本情報
+
+### AM1StackQueue
+- シーンやプレイヤーの行動、シナリオ進行などの優先度付きの状態管理をする時に利用します
+- AM1StateQueueクラスそのものか、継承したクラスをシーン内のオブジェクトにアタッチします
+- 各状態はStack、Queueと共用の`AM1StateBase`クラスを継承して実装します
+- AM1StateQueue、および、AM1StateBaseは各ゲームオブジェクトで独立して利用できるようにシングルトンにはしません。利用するゲームオブジェクト上で必要なインスタンスを生成して利用します
+- 状態の切り替えはAM1StateQueueのインスタンスメソッドを利用します。切り替え要求はその場では優先度を受け取って記録のみして、次のフレームの先頭で優先度からキューの並びや登録を決定します
+  - Request(IAM1State, int priority)
+    - 状態の切り替え要求を登録します
+- 状態を切り替える時には、各状態の`CanChangeToOtherState`を`true`にします
+- ステージクリアの状態などの優先度の低い処理をキャンセルしたい場合は`Cancel(int priority)`を実行します
+  - void Cancel(int priority)
+
+### AM1StateStack
+- メニューやウィンドウなどの状態を戻す必要がある時に利用します
 - AM1StateStackクラスそのものか、継承したクラスをシーン内のオブジェクトにアタッチします
-- 各状態は`AM1StateBase`クラスを継承して実装します
+- 各状態はStack、Queueと共用の`AM1StateBase`クラスを継承して実装します
 - AM1StateStack、および、AM1StateBaseは各ゲームオブジェクトで独立して利用できるようにstaticによるインスタンス管理はしません。利用するゲームオブジェクト上で必要なインスタンスを生成して利用します
 - 状態への切り替えには以下のAM1StateStackのインスタンスメソッドを利用します。通常は、状態の切り替え中の更なる状態切り替えは失敗扱いにしますが、イベント処理などで連続した遷移が必要な場合は、Queueがついたメソッドを利用することでキューへ予約して、連続切り替えができます
   - PopAndPushRequest() / PopAndPushQueueRequest()
@@ -15,20 +32,40 @@
     - 一番最初の状態まで戻します
   - PopAllRequest() / PopAllQueueRequest()
     - 全ての状態を戻して、実行中の状態をなくします
-- 各状態(AM1StateBase)には以下のメソッドを実装できます
-  - Init()
-    - 開始時に呼ばれます
-  - Update()とFixedUpdate()
-    - 実行中にMonoBehaviourから呼ばれます
-  - Pause()
-    - 他の状態に一時的に遷移する前に呼ばれます
-  - Resume()
-    - 他の状態から復帰する時に呼ばれます
-  - Terminate()
-    - 状態を終了する時に呼ばれます
+
+### AM1StateBase
+QueueとStackの双方で利用する状態のAM1StateBaseには以下の基本メソッドがあります。
+
+- bool CanChangeToOtherState
+  - 他の状態へ切り替えてよいことをシステムに知らせるフラグ
+- StateChangeAction ChangeAction
+  - PushやPopなどの切り替えコルーチンを設定するデリゲート。キューでは未使用
+- Init()
+  - 状態を開始する時にUpdateに先立って呼ばれます
+- Update(), FixedUpdate(), LateUpdate()
+  - 実行中にMonoBehaviourから呼ばれます
+- Pause()
+  - 他の状態に一時的に遷移する前に呼ばれます
+  - アプリの一時中断の時にも呼ばれます
+- Resume()
+  - 他の状態から復帰する時に呼ばれます
+  - アプリの一時中断からの回復の時にも呼ばれます
+- Terminate()
+  - 状態を終了する時に呼ばれます
+
+## StateQueueの切り替え
+キューは、登録は優先度とインスタンスを受け取って無条件で受け付けます。登録時に優先度に応じて並び替えながらキューに積みます。切り替えはUpdate()時に以下のようなチェックをします。
+
+- 実行中の状態がない時
+  - キューから状態を取り出して切り替え
+- 実行中の状態がある時
+  - CanChangeToOtherStateがfalseなら切り替えなし
+  - CanChangeToOtherStateがtrueなら現在の処理を終了させて、キューの状態を取り出して切り替え
+
+次の状態への切り替えの前に時間がかかる終了処理が必要な場合は、Terminate()ではなく、Update()などの更新処理内で終了処理を完了させてからCanChangeToOtherStateをtrueにします。
 
 
-## 切り替え条件
+## StateStackの切り替え条件
 状態切り替えの登録、切り替え実効の可否の判断基準です。
 
 ### 登録
