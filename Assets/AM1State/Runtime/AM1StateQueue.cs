@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.IonicZip;
 using UnityEngine;
 
 namespace AM1.State
@@ -81,19 +82,18 @@ namespace AM1.State
         /// <param name="state">IAM1Stateのインスタンス</param>
         public void Enqueue(AM1StateQueueBase state)
         {
-            var current = stateQueue.First;
-            while (current != null && current.Value.Priority >= state.Priority)
+            for (var current = stateQueue.First; current != null; current = current.Next)
             {
-                current = current.Next;
+                // 登録中のキューの優先度が指定の優先度を下回ったらその前に登録
+                if (current.Value.Priority < state.Priority)
+                {
+                    stateQueue.AddBefore(current, state);
+                    return;
+                }
             }
-            if (current == null)
-            {
-                stateQueue.AddFirst(state);
-            }
-            else
-            {
-                stateQueue.AddAfter(current, state);
-            }
+
+            // 最後に追加
+            stateQueue.AddLast(state);
         }
 
         /// <summary>

@@ -64,6 +64,8 @@ QueueとStackの双方で利用する状態のAM1StateBaseには以下の基本�
 
 次の状態への切り替えの前に時間がかかる終了処理が必要な場合は、Terminate()ではなく、Update()などの更新処理内で終了処理を完了させてからCanChangeToOtherStateをtrueにします。
 
+CanChangeToOtherStateを最初からtrueにしておくと、同時に他の登録があったら何もせずに次の状態へ切り替えます。初期化や更新を1回は実行したい場合はCanChangeToOtherStateをfalseにしておく。
+
 
 ## StateStackの切り替え条件
 状態切り替えの登録、切り替え実効の可否の判断基準です。
