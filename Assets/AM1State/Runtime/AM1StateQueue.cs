@@ -36,12 +36,26 @@ namespace AM1.State
                     CurrentState = null;
                 }
 
-                // 現在の処理がなければ無条件に切り替え
+                // 現在の処理がなければ切り替え
                 if (CurrentState == null)
                 {
-                    CurrentState = stateQueue.First.Value;
-                    stateQueue.RemoveFirst();
-                    CurrentState.Init();
+                    var cur = stateQueue.First;
+                    while (cur != null)
+                    {
+                        // 最後の1つか、切り替え不許可の時、現在の状態に設定
+                        if ((stateQueue.Count == 1) || !cur.Value.CanChangeToOtherState)
+                        {
+                            CurrentState = cur.Value;
+                            stateQueue.RemoveFirst();
+                            CurrentState.Init();
+                            break;
+                        }
+                        else
+                        {
+                            cur = cur.Next;
+                            stateQueue.RemoveFirst();
+                        }
+                    }
                 }
             }
 
