@@ -111,7 +111,7 @@ namespace AM1.State
         }
 
         /// <summary>
-        /// 指定の優先度以下の状態を削除
+        /// 指定の優先度以下の状態を削除。現在の状態はそのまま。
         /// </summary>
         /// <param name="priority">この値以下の優先度の状態を削除</param>
         public void Cancel(int priority)
