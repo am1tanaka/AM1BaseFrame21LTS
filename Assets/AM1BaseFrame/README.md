@@ -21,13 +21,31 @@ Unity2021LTS向けにまとめた自家製フレームワークです。1週間�
 ## インポート手順
 以下、フレームワークのインポート手順です。Unity2021.3.14f1での手順を示しています。別バージョンの場合は手順が異なるかも知れません。
 
+### Package Managerを使う場合
 1. フレームワークを組み込みたいUnityプロジェクトを開きます
 1. WindowメニューからPackage Managerを開きます
 1. + をクリックして Add package from git URL... を選択します
 1. `https://github.com/am1tanaka/AM1BaseFrame21LTS.git?path=/Assets/AM1Utils` と入力して、Addをクリックします
 1. `https://github.com/am1tanaka/AM1BaseFrame21LTS.git?path=/Assets/AM1BaseFrame` と入力して、Addをクリックします
 
+### manifest.jsonの依存関係を使う場合
+
+1. フレームワークを組み込みたいUnityプロジェクトを開きます
+1. ProjectビューのAssetsを右クリックして Open C# Project を選択
+1. ソリューションエクスプローラーのホームの隣の ソリューションと利用可能なビューとの切り替え をクリックして フォルダービュー にします
+1. Packages/manifest.json を開きます
+1. dependenciesに以下を追加します
+
+```
+    "jp.am1.baseframe": "https://github.com/am1tanaka/AM1BaseFrame21LTS.git?path=/Assets/AM1BaseFrame",
+    "jp.am1.utils": "https://github.com/am1tanaka/AM1BaseFrame21LTS.git?path=/Assets/AM1Utils"
+```
+
+上書き保存してUnityに切り替えたら自動的にインストールが始まります。
+
 以上でパッケージのインポート完了です。
+
+最後の要素は最後の`,`は不要です。よく分からない場合はPackage Managerをご利用ください。
 
 ## 最初の設定
 必要なアセットをインポートします。
