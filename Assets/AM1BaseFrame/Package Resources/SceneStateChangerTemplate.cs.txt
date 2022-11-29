@@ -8,7 +8,7 @@ using AM1.BaseFrame.Assets;
 /// :StateName:状態への切り替え
 /// Request > Init > (前のシーンのTerminate) > (シーンの解放待ち) > OnHideScreen > OnAwakeDoneの順にStateChanger.csから呼ばれます。
 /// </summary>
-public class :StateName:StateChanger : StateChangerBase<:StateName:StateChanger>, IStateChanger
+public class :StateName:SceneStateChanger : SceneStateChangerBase<:StateName:SceneStateChanger>, ISceneStateChanger
 {
     /// <summary>
     /// 画面を覆う演出の開始や、この状態に必要なシーンの非同期読み込みの開始など。

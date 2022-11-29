@@ -1,10 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using AM1.BaseFrame.Assets;
 using UnityEngine.SceneManagement;
-using System.IO;
 
 namespace AM1.BaseFrame.Assets.Editor
 {
@@ -59,7 +56,7 @@ namespace AM1.BaseFrame.Assets.Editor
             bool res = false;
             existsSystemObjects.Clear();
 
-            var stateChanger = FindObjectsOfType<StateChanger>();
+            var stateChanger = FindObjectsOfType<SceneStateChanger>();
             res |= ExistsActiveScene(stateChanger, "状態切り替え管理スクリプト StateChanger");
 
             var bgm = FindObjectsOfType<BGMSourceAndClips>();
@@ -98,7 +95,7 @@ namespace AM1.BaseFrame.Assets.Editor
             var target = SceneManager.GetActiveScene();
 
             CreateBooter();
-            AddPrefab("StateChanger");
+            AddPrefab("SceneStateChanger");
             AddPrefab("AudioPlayer");
             AddPrefab("FadeCanvas");
         }

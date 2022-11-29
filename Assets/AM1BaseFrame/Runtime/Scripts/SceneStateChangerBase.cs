@@ -6,10 +6,10 @@ using AM1.Utils;
 namespace AM1.BaseFrame
 {
     /// <summary>
-    /// 状態切り替え処理の親クラス
+    /// シーン状態切り替え処理の親クラス
     /// Request > Init > (前のシーンのTerminate) > (シーンの解放待ち) > OnHideScreen > OnAwakeDone
     /// </summary>
-    public abstract class StateChangerBase<T> : SimpleSingleton<T> where T : IStateChanger, new()
+    public abstract class SceneStateChangerBase<T> : SimpleSingleton<T> where T : ISceneStateChanger, new()
     {
         /// <summary>
         /// このシーンに切り替えることを要求。<br></br>
@@ -19,7 +19,7 @@ namespace AM1.BaseFrame
         /// <returns>成功したらtrue / 失敗=false</returns>
         public virtual bool Request(bool canQueue=false)
         {
-            return StateChanger.ChangeRequest(Instance, canQueue);
+            return SceneStateChanger.ChangeRequest(Instance, canQueue);
         }
 
         /// <summary>

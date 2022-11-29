@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 namespace AM1.BaseFrame.Demo
 {
-    public class ResultStateChanger : StateChangerBase<ResultStateChanger>, IStateChanger
+    public class ResultStateChanger : SceneStateChangerBase<ResultStateChanger>, ISceneStateChanger
     {
         public enum ResultType
         {
@@ -23,7 +23,7 @@ namespace AM1.BaseFrame.Demo
 
         public override void Init()
         {
-            StateChanger.LoadSceneAsync(nameof(SceneType.DemoGameResult), false);
+            SceneStateChanger.LoadSceneAsync(nameof(SceneType.DemoGameResult), false);
             BGMSourceAndClips.Instance.Stop(FadeOutSeconds);
         }
 
@@ -46,8 +46,8 @@ namespace AM1.BaseFrame.Demo
 
         public override void Terminate()
         {
-            StateChanger.UnloadSceneAsync(nameof(SceneType.DemoGame));
-            StateChanger.UnloadSceneAsync(nameof(SceneType.DemoGameResult));
+            SceneStateChanger.UnloadSceneAsync(nameof(SceneType.DemoGame));
+            SceneStateChanger.UnloadSceneAsync(nameof(SceneType.DemoGameResult));
         }
     }
 }

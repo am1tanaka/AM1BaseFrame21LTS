@@ -31,7 +31,7 @@ namespace AM1.BaseFrame.Demo
             }
 #endif
             BootDemoStateChanger.Instance.Request();
-            yield return new WaitWhile(() => StateChanger.IsRequestOrChanging);
+            yield return new WaitWhile(() => SceneStateChanger.IsRequestOrChanging);
 
             var gos = gameObject.GetComponents<MonoBehaviour>();
             if (gos.Length > 1)

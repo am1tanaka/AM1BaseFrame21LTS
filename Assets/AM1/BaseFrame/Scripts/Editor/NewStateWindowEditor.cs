@@ -1,10 +1,9 @@
+using AM1.BaseFrame.Editor;
+using System.IO;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
-using System.IO;
-using AM1.BaseFrame.Assets;
-using AM1.BaseFrame.Editor;
 
 namespace AM1.BaseFrame.Assets.Editor
 {
@@ -22,13 +21,13 @@ namespace AM1.BaseFrame.Assets.Editor
         /// <summary>
         /// 状態切り替えのファイル名
         /// </summary>
-        string StateChangerScriptFileName => $"{stateName.text}StateChanger.cs";
+        string StateChangerScriptFileName => $"{stateName.text}SceneStateChanger.cs";
 
-        [MenuItem("Tools/AM1/New State", false, 20)]
-        public static void ShowNewState()
+        [MenuItem("Tools/AM1/New SceneState", false, 20)]
+        public static void ShowNewSceneState()
         {
             NewStateWindowEditor wnd = GetWindow<NewStateWindowEditor>();
-            wnd.titleContent = new GUIContent("New State Window");
+            wnd.titleContent = new GUIContent("New SceneState Window");
         }
 
         public void CreateGUI()
@@ -213,7 +212,7 @@ namespace AM1.BaseFrame.Assets.Editor
             {
                 // シーン作成
                 string loadCode = "// シーンの非同期読み込み開始\r\n";
-                loadCode += $"            StateChanger.LoadSceneAsync(\"{sceneName.text}\", true);\r\n";
+                loadCode += $"        SceneStateChanger.LoadSceneAsync(\"{sceneName.text}\", true);\r\n";
                 tempText = tempText.Replace(":LoadScene:", loadCode);
             }
             else
@@ -229,8 +228,8 @@ namespace AM1.BaseFrame.Assets.Editor
             if (transitionEnum.text != "None")
             {
                 string uncover = "// 画面の覆いを解除\r\n";
-                uncover += $"            ScreenTransitionRegistry.StartUncover({transitionSec.value}f);\r\n";
-                uncover += $"            yield return ScreenTransitionRegistry.WaitAll();\r\n";
+                uncover += $"        ScreenTransitionRegistry.StartUncover({transitionSec.value}f);\r\n";
+                uncover += $"        yield return ScreenTransitionRegistry.WaitAll();\r\n";
                 tempText = tempText.Replace(":OnAwakeDone:", uncover);
             }
 
@@ -238,7 +237,7 @@ namespace AM1.BaseFrame.Assets.Editor
             if (makeSceneToggle.value)
             {
                 string terminate = "// シーンの解放\r\n";
-                terminate += $"            StateChanger.UnloadSceneAsync(\"{sceneName.text}\");\r\n";
+                terminate += $"        SceneStateChanger.UnloadSceneAsync(\"{sceneName.text}\");\r\n";
                 tempText = tempText.Replace(":Terminate:", terminate);
             }
             else

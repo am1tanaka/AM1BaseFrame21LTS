@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 namespace AM1.BaseFrame
 {
     /// <summary>
-    /// 非同期リスト用データ
+    /// シーン読み込みや解放時の非同期リスト用データ
     /// </summary>
     public struct AsyncData
     {
@@ -33,7 +33,7 @@ namespace AM1.BaseFrame
     /// <summary>
     /// シーン切り替えを管理するクラス。
     /// </summary>
-    public class StateChanger : MonoBehaviour
+    public class SceneStateChanger : MonoBehaviour
     {
         /// <summary>
         /// 開始の準備が整ったらtrue。
@@ -61,22 +61,22 @@ namespace AM1.BaseFrame
         /// <summary>
         /// 次のフレームで切り替えたい状態のインスタンス
         /// </summary>
-        static Queue<IStateChanger> nextStates = new Queue<IStateChanger>();
+        static Queue<ISceneStateChanger> nextStates = new Queue<ISceneStateChanger>();
 
         /// <summary>
         /// 現在の状態
         /// </summary>
-        public static IStateChanger CurrentState { get; private set; }
+        public static ISceneStateChanger CurrentState { get; private set; }
 
         /// <summary>
         /// 前回の状態
         /// </summary>
-        public static IStateChanger LastState { get; private set; }
+        public static ISceneStateChanger LastState { get; private set; }
 
         /// <summary>
         /// シーン切り替えのプログレスバーの管理インスタンス
         /// </summary>
-        static IStateChangeProgress sceneChangeProgress;
+        static ISceneStateChangeProgress sceneChangeProgress;
 
         static List<AsyncData> asyncLoadOperationList = new List<AsyncData>();
         static List<AsyncOperation> asyncUnloadOperationList = new List<AsyncOperation>();
@@ -106,7 +106,7 @@ namespace AM1.BaseFrame
             StartCoroutine(ChangeScene(sc));
         }
 
-        IEnumerator ChangeScene(IStateChanger next)
+        IEnumerator ChangeScene(ISceneStateChanger next)
         {
             disallowActiveInstance = null;
 
@@ -154,7 +154,7 @@ namespace AM1.BaseFrame
         /// <param name="target">切り替えたい状態への切り替え処理インスタンス</param>
         /// <param name="canQueue">切り替え中や要求が出ている時の追加要求をキューに詰む場合はtrue。デフォルトfalse</param>
         /// <returns>切り替え要求を受け取ったらtrue</returns>
-        public static bool ChangeRequest(IStateChanger target, bool canQueue = false)
+        public static bool ChangeRequest(ISceneStateChanger target, bool canQueue = false)
         {
             // すでに変更中だったり、変更要望を受け取っていたらキャンセル
             if (!canQueue && IsRequestOrChanging) return false;
@@ -169,7 +169,7 @@ namespace AM1.BaseFrame
         /// </summary>
         /// <param name="target">目的の状態</param>
         /// <returns>切り替え処理が完了していて、指定の状態ならtrue</returns>
-        public static bool IsStateStarted(IStateChanger target)
+        public static bool IsStateStarted(ISceneStateChanger target)
         {
             if (IsRequestOrChanging) return false;
 
@@ -246,7 +246,7 @@ namespace AM1.BaseFrame
         /// プログレスバーのインスタンスを渡す
         /// </summary>
         /// <param name="pr"></param>
-        public static void SetProgressInterface(IStateChangeProgress pr)
+        public static void SetProgressInterface(ISceneStateChangeProgress pr)
         {
             sceneChangeProgress = pr;
         }

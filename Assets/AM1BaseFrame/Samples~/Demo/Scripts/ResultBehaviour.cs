@@ -21,10 +21,10 @@ namespace AM1.BaseFrame.Demo
 
         private void Awake()
         {
-            if (!StateChanger.IsReady) return;
+            if (!SceneStateChanger.IsReady) return;
 
             Instance = this;
-            StateChanger.AwakeDone(gameObject.scene.name);
+            SceneStateChanger.AwakeDone(gameObject.scene.name);
         }
 
         void Update()

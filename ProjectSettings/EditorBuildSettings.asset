@@ -9,9 +9,6 @@ EditorBuildSettings:
     path: Assets/AM1BaseFrameSamples.win/Demo/Scenes/DemoSystem.unity
     guid: b34249999db1650428dfef20f38bd9db
   - enabled: 1
-    path: Assets/AM1/Temp/TempSystem.unity
-    guid: 976ed3434b2b0b843a4d9b69a56307be
-  - enabled: 1
     path: Assets/AM1BaseFrameSamples.win/Demo/Scenes/DemoGame.unity
     guid: 22d652d47c6d2114b9435d6f7b5074d0
   - enabled: 1

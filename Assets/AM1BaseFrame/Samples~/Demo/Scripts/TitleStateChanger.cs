@@ -6,13 +6,13 @@ using AM1.BaseFrame.Assets;
 
 namespace AM1.BaseFrame.Demo
 {
-    public class TitleStateChanger : StateChangerBase<TitleStateChanger>, IStateChanger
+    public class TitleStateChanger : SceneStateChangerBase<TitleStateChanger>, ISceneStateChanger
     {
         static float TransitionSeconds => 0.5f;
 
         public override void Init()
         {
-            StateChanger.LoadSceneAsync(nameof(SceneType.DemoTitle), true);
+            SceneStateChanger.LoadSceneAsync(nameof(SceneType.DemoTitle), true);
         }
 
         public override IEnumerator OnAwakeDone()
@@ -34,7 +34,7 @@ namespace AM1.BaseFrame.Demo
         public override void Terminate()
         {
             VolumeSetting.volumeSettings[(int)VolumeType.SE].ChangeVolumeEvent.RemoveListener(OnChangeSEVolume);
-            StateChanger.UnloadSceneAsync(nameof(SceneType.DemoTitle));
+            SceneStateChanger.UnloadSceneAsync(nameof(SceneType.DemoTitle));
         }
     }
 }

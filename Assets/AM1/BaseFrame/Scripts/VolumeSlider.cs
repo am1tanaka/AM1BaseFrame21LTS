@@ -27,7 +27,7 @@ namespace AM1.BaseFrame.Assets
 
         private void Awake()
         {
-            if (StateChanger.IsReady)
+            if (SceneStateChanger.IsReady)
             {
                 Init();
             }

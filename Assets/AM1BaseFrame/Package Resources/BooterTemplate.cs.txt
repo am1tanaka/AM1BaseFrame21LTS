@@ -34,8 +34,8 @@ public class Booter : MonoBehaviour
         }
 #endif
 
-        BootStateChanger.Instance.Request();
-        yield return new WaitWhile(() => StateChanger.IsRequestOrChanging);
+        BootSceneStateChanger.Instance.Request();
+        yield return new WaitWhile(() => SceneStateChanger.IsRequestOrChanging);
 
         var gos = gameObject.GetComponents<MonoBehaviour>();
         if (gos.Length > 1)

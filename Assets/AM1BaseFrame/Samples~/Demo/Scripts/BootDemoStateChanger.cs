@@ -9,7 +9,7 @@ namespace AM1.BaseFrame.Demo
     /// <summary>
     /// 各種初期化や起動処理を行う。
     /// </summary>
-    public class BootDemoStateChanger : StateChangerBase<BootDemoStateChanger>, IStateChanger
+    public class BootDemoStateChanger : SceneStateChangerBase<BootDemoStateChanger>, ISceneStateChanger
     {
         public override void Init()
         {

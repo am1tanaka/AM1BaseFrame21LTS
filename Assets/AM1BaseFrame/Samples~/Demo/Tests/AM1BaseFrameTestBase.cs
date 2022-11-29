@@ -11,12 +11,12 @@ public class AM1BaseFrameTestBase
 {
     protected IEnumerator BootTitle()
     {
-        StateChanger.ResetStatics();
+        SceneStateChanger.ResetStatics();
         SceneManager.LoadScene("DemoSystem");
 
         // タイトルが起動するのを待つ
         float time = 3f;
-        while ((time > 0) && (!StateChanger.IsStateStarted(TitleStateChanger.Instance)))
+        while ((time > 0) && (!SceneStateChanger.IsStateStarted(TitleStateChanger.Instance)))
         {
             time -= Time.unscaledDeltaTime;
             yield return null;

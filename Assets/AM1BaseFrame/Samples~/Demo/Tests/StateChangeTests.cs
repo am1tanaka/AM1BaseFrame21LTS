@@ -19,21 +19,21 @@ public class StateChangeTests : AM1BaseFrameTestBase
         yield return null;
         TitleBehaviour.Instance.OnStartButtonClicked();
         yield return WaitSecondsOrChangeDone(3f);
-        Assert.That(StateChanger.IsStateStarted(GameStateChanger.Instance), Is.True, $"ゲーム確認: {StateChanger.CurrentState}");
+        Assert.That(SceneStateChanger.IsStateStarted(GameStateChanger.Instance), Is.True, $"ゲーム確認: {SceneStateChanger.CurrentState}");
         Assert.That(GameBehaviour.Instance, Is.Not.Null, "ゲームインスタンス");
         yield return WaitSecondsOrSceneStarted(3f, GameBehaviour.Instance);
 
         // クリア
         GameBehaviour.Instance.ToClear();
         yield return WaitSecondsOrChangeDone(3f);
-        Assert.That(StateChanger.IsStateStarted(ResultStateChanger.Instance), Is.True, "結果確認");
+        Assert.That(SceneStateChanger.IsStateStarted(ResultStateChanger.Instance), Is.True, "結果確認");
         Assert.That(ResultStateChanger.Instance, Is.Not.Null, "結果インスタンス");
         yield return WaitSecondsOrSceneStarted(3f, ResultBehaviour.Instance);
 
         //タイトルへ
         ResultBehaviour.Instance.ToTitle();
         yield return WaitSecondsOrChangeDone(3f);
-        Assert.That(StateChanger.IsStateStarted(TitleStateChanger.Instance), Is.True, $"タイトル確認2 {StateChanger.CurrentState}");
+        Assert.That(SceneStateChanger.IsStateStarted(TitleStateChanger.Instance), Is.True, $"タイトル確認2 {SceneStateChanger.CurrentState}");
         Assert.That(TitleBehaviour.Instance, Is.Not.Null, "タイトルインスタンス2");
         yield return WaitSecondsOrSceneStarted(3f, TitleBehaviour.Instance);
 
@@ -42,21 +42,21 @@ public class StateChangeTests : AM1BaseFrameTestBase
         yield return null;
         TitleBehaviour.Instance.OnStartButtonClicked();
         yield return WaitSecondsOrChangeDone(3f);
-        Assert.That(StateChanger.IsStateStarted(GameStateChanger.Instance), Is.True, "ゲーム確認2");
+        Assert.That(SceneStateChanger.IsStateStarted(GameStateChanger.Instance), Is.True, "ゲーム確認2");
         Assert.That(GameBehaviour.Instance, Is.Not.Null, "ゲームインスタンス2");
         yield return WaitSecondsOrSceneStarted(3f, GameBehaviour.Instance);
 
         // ミス
         GameBehaviour.Instance.ToGameover();
         yield return WaitSecondsOrChangeDone(3f);
-        Assert.That(StateChanger.IsStateStarted(ResultStateChanger.Instance), Is.True, "結果確認");
+        Assert.That(SceneStateChanger.IsStateStarted(ResultStateChanger.Instance), Is.True, "結果確認");
         Assert.That(ResultStateChanger.Instance, Is.Not.Null, "結果インスタンス");
         yield return WaitSecondsOrSceneStarted(3f, ResultBehaviour.Instance);
 
         //タイトル
         ResultBehaviour.Instance.ToTitle();
         yield return WaitSecondsOrChangeDone(3f);
-        Assert.That(StateChanger.IsStateStarted(TitleStateChanger.Instance), Is.True, "タイトル確認2");
+        Assert.That(SceneStateChanger.IsStateStarted(TitleStateChanger.Instance), Is.True, "タイトル確認2");
         Assert.That(TitleBehaviour.Instance, Is.Not.Null, "タイトルインスタンス2");
         yield return WaitSecondsOrSceneStarted(3f, TitleBehaviour.Instance);
 
@@ -65,7 +65,7 @@ public class StateChangeTests : AM1BaseFrameTestBase
         yield return null;
         TitleBehaviour.Instance.OnStartButtonClicked();
         yield return WaitSecondsOrChangeDone(3f);
-        Assert.That(StateChanger.IsStateStarted(GameStateChanger.Instance), Is.True, "ゲーム確認2");
+        Assert.That(SceneStateChanger.IsStateStarted(GameStateChanger.Instance), Is.True, "ゲーム確認2");
         Assert.That(GameBehaviour.Instance, Is.Not.Null, "ゲームインスタンス2");
         yield return WaitSecondsOrSceneStarted(3f, GameBehaviour.Instance);
     }
@@ -79,7 +79,7 @@ public class StateChangeTests : AM1BaseFrameTestBase
         float left = sec;
 
         // 切り替え開始待ち
-        while (!StateChanger.IsRequestOrChanging && (left > 0))
+        while (!SceneStateChanger.IsRequestOrChanging && (left > 0))
         {
             left -= Time.unscaledDeltaTime;
             yield return null;
@@ -87,7 +87,7 @@ public class StateChangeTests : AM1BaseFrameTestBase
         if (left <= 0) yield break;
 
         // 切り替え待ち
-        while (StateChanger.IsRequestOrChanging && (left > 0))
+        while (SceneStateChanger.IsRequestOrChanging && (left > 0))
         {
             left -= Time.unscaledDeltaTime;
             yield return null;

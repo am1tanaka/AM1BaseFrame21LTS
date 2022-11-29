@@ -5,10 +5,10 @@ using UnityEngine;
 namespace AM1.BaseFrame
 {
     /// <summary>
-    /// 状態切り替え処理のインターフェース<br></br>
+    /// シーン状態の切り替え処理のインターフェース<br></br>
     /// Request > Init > (前のシーンのTerminate) > (シーンの解放待ち) > OnHideScreen > OnAwakeDone
     /// </summary>
-    public interface IStateChanger
+    public interface ISceneStateChanger
     {
         /// <summary>
         /// このシーンに切り替えることを要求。<br></br>

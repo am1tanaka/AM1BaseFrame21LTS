@@ -5,13 +5,13 @@ using UnityEngine.SceneManagement;
 
 namespace AM1.BaseFrame.Demo
 {
-    public class GameStateChanger : StateChangerBase<GameStateChanger>, IStateChanger
+    public class GameStateChanger : SceneStateChangerBase<GameStateChanger>, ISceneStateChanger
     {
         static float TransitionSeconds => 0.5f;
 
         public override void Init()
         {
-            StateChanger.LoadSceneAsync(nameof(SceneType.DemoGame), true);
+            SceneStateChanger.LoadSceneAsync(nameof(SceneType.DemoGame), true);
             BGMSourceAndClips.Instance.Stop(TransitionSeconds);
         }
 

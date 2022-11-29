@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3282207401679317004}
-  - component: {fileID: 3282207401679317107}
+  - component: {fileID: 3644750332158650613}
   m_Layer: 2
-  m_Name: StateChanger
+  m_Name: SceneStateChanger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32,7 +32,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3282207401679317107
+--- !u!114 &3644750332158650613
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,6 +41,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 3282207401679317005}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1568de05bd74adc40bd8fc98d4c72018, type: 3}
+  m_Script: {fileID: 11500000, guid: cf29c5c55e693fe40a81e29eae1d4631, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

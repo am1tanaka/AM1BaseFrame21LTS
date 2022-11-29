@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
-using UnityEngine;
-using UnityEditor.SceneManagement;
-using UnityEngine.UIElements;
-using System.IO;
 using AM1.BaseFrame.Editor;
+using System.IO;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace AM1.BaseFrame.Assets.Editor
 {

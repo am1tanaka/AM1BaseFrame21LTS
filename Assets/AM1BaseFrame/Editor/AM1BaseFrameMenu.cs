@@ -28,19 +28,19 @@ namespace AM1.BaseFrame.Editor
             CreateBooterScript();
 
             // gitignoreとeditorconfigを作成
-            SaveGitIgnoreAndEditorConfig();
+            CreateGitIgnoreAndEditorConfig();
         }
 
-        [MenuItem("Tools/AM1/Save gitignore and editorconfig", false, 60)]
+        [MenuItem("Tools/AM1/Create gitignore and editorconfig", false, 60)]
         static void SaveGitIgnoreAndEditorConfigMenu()
         {
             if (EditorUtility.DisplayDialog(".gitignoreと.editorconfigの作成", ".gitignoreと.editorconfigを作成しますか？", "作成", "キャンセル"))
             {
-                SaveGitIgnoreAndEditorConfig();
+                CreateGitIgnoreAndEditorConfig();
             }
         }
 
-        static void SaveGitIgnoreAndEditorConfig()
+        static void CreateGitIgnoreAndEditorConfig()
         {
             string projectPath = Path.GetFullPath(Application.dataPath + "/..");
             string editorconfig = Path.Combine(projectPath, ".editorconfig");
@@ -57,7 +57,7 @@ namespace AM1.BaseFrame.Editor
             // Booterスクリプトを作成
             AssetDatabase.Refresh();
             CreateScriptFromTemplate("Booter", booterFolder);
-            CreateScriptFromTemplate("BootStateChanger", booterFolder);
+            CreateScriptFromTemplate("BootSceneStateChanger", booterFolder);
             AssetDatabase.Refresh();
         }
 

@@ -4,7 +4,10 @@ using UnityEngine;
 
 namespace AM1.BaseFrame
 {
-    public interface IStateChangeProgress
+    /// <summary>
+    /// シーン切り替えの進捗を表すインターフェース
+    /// </summary>
+    public interface ISceneStateChangeProgress
     {
         /// <summary>
         /// プログレスバーの表示

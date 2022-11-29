@@ -1,5 +1,8 @@
 # AM1BaseFrame Change Log
 
+## Ver0.7.0(2022/11/29)
+- StateChangerだとStateStackやStateQueueと混乱するので`SceneStateChanger`にリネーム
+
 ## Ver0.6.5(2022/10/27)
 - ScreenTransitionに色指定付きメソッドを追加
 
