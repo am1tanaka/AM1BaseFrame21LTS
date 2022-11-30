@@ -90,11 +90,77 @@ Unity2021LTS向けにまとめた自家製フレームワークです。1週間�
         TitleSceneStateChanger.Instance.Request(true);
 ```
 
+## Assembly Definition
+テストを行うなどでAssembly Definitionをプロジェクトのスクリプトフォルダーに作成する時は、以下への参照を加えてください。
+
+- AM1.BaseFrame
+- AM1.BaseFrame.Assets
+- AM1.Utils
+
+
 ## ボリュームシステム
 執筆予定。
 
 ## 新しいシーンを作ってスクリプトから切り替える
 執筆予定。
+
+## 追加シーンの作成
+例えばタイトルシーンの時に、別のシーンに作成したステージ選択のUIを重ねて表示したいような場合があります。その時には追加シーンを利用します。
+
+本システムでは、シーン内のいずれかのゲームオブジェクトのAwake()で`SceneStateChanger.AwakeDone(gameObject.scene.name);`を呼ぶことでシーンの読み込みが完了したことをシステムに知らせる必要があります。手動で作成したシーンをUnityのSceneManager.LoadScene()やLoadSceneAsync()で呼び出しただけだと、シーンの初期化が完了したかをシステムが判定できないため、シーン切り替え処理が停止してしまいます。
+
+追加シーンを作成するには、Toolsメニューから New BaseFrame Scene を選択してするとシステムに必要な処理を実行するゲームオブジェクトとスクリプトがアタッチされたシーンが作成されます。
+
+なお、手動で作成したシーンの場合は、シーン内のいずれかのゲームオブジェクトにアタッチしたスクリプトのAwake()で以下を実行してください。
+
+```cs
+        private void Awake()
+        {
+            if (SceneStateChanger.IsReady)
+            {
+                SceneStateChanger.AwakeDone(gameObject.scene.name);
+            }
+        }
+```
+
+追加シーンは、任意のタイミングで以下で読み込みを開始できます。
+
+```cs
+    SceneStateChanger.LoadSceneAsync("シーン名", false);
+```
+
+読み込みは非同期で実行されます。処理の完了はコルーチン内で以下で待てます。
+
+```cs
+yield return SceneStateChanger.WaitAsyncAndAwake();
+```
+
+追加シーンは解放も手動でやる必要があります。
+
+```cs
+SceneStateChanger.UnloadSceneAsync("シーン名");
+```
+
+解放待ちは上記の`WaitAsyncAndAwake();`でも待ちますし、解放だけなら以下で待ちます。
+
+```cs
+yield return SceneStateChanger.WaitUnloadscenes();
+```
+
+### シーン状態に連動して追加シーンを読み込んだり解放する
+
+シーン状態に連動して追加シーンを読み込みや解放する場合は、該当するシーン状態の????SceneStateChangerに処理を書きます。本システムでは、画面を覆う演出の開始と同時にシーンの読み込みを非同期に開始することで読み込み時間を削減する作りになっています。
+
+読み込みは、該当するシーン状態の????SceneStateChangerの`Init()`で行うのが通常です。自動的に作成されているシーン読み込みの書き方に習って追加シーンの読み込みを追加してください。画面を覆う処理の途中で読み込みが完了しても大丈夫なように、単独で呼び出す時とは２番目の引数が変わるのでご注意ください。
+
+```cs
+    SceneStateChanger.LoadSceneAsync("シーン名", true);
+```
+
+読み込みの完了待ちはシステム側で自動的に行うのでWaitAsyncAndAwake()で待つ必要はありません。
+
+シーンの解放は、シーン状態の????SceneStateChangerの`Terminate()`で実行します。これもメインのシーンの解放処理が予め書かれているので、それと同じように不要になった追加シーン名を指定してSceneStateChanger.UnloadSceneAsync()で解放を指示します。
+
 
 
 ## サンプル

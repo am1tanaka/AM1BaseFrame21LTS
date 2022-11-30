@@ -1,5 +1,8 @@
 # AM1BaseFrame Change Log
 
+## Ver0.7.1(2022/11/30)
+- gitignoreにローカル設定フォルダーを追加
+
 ## Ver0.7.0(2022/11/29)
 - StateChangerだとStateStackやStateQueueと混乱するので`SceneStateChanger`にリネーム
 
