@@ -43,17 +43,17 @@ namespace AM1.State
         /// <summary>
         /// 一手戻すキュー用データ
         /// </summary>
-        protected readonly AM1StateBase prevCommandState = new();
+        protected readonly AM1StateBase prevCommandState = new AM1StateBase();
 
         /// <summary>
         /// 全て戻すキュー用データ
         /// </summary>
-        protected readonly AM1StateBase popAllCommandState = new();
+        protected readonly AM1StateBase popAllCommandState = new AM1StateBase();
 
         /// <summary>
         /// 最上位の状態まで戻すためのキュー用データ
         /// </summary>
-        protected readonly AM1StateBase popToRootCommandState = new();
+        protected readonly AM1StateBase popToRootCommandState = new AM1StateBase();
 
         /// <summary>
         /// 状態切り替え中フラグ。切り替えコルーチンの待機時に他の処理が動かないように

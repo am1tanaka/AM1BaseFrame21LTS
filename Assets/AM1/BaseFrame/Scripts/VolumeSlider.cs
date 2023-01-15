@@ -20,7 +20,7 @@ namespace AM1.BaseFrame.Assets
         /// <summary>
         /// ボリュームスライダーのリスト
         /// </summary>
-        public static readonly UnityEvent initEvents = new ();
+        public static readonly UnityEvent initEvents = new UnityEvent();
 
         Slider slider;
         VolumeSetting currentVolumeSetting;

@@ -232,7 +232,7 @@ public class StateChangeTests
             stateStack.PopAndPushQueueRequest(bench[i]);
         }
         Assert.That(stateStack.PopAndPushRequest(bench[0]), Is.False, "予約ずみのため失敗");
-        WaitForFixedUpdate wait = new();
+        WaitForFixedUpdate wait = new WaitForFixedUpdate();
 
         for (int i = 0; i < bench.Length - 2; i++)
         {
@@ -288,7 +288,7 @@ public class StateChangeTests
         var go = new GameObject();
         go.AddComponent<AM1StateStack>();
         var stateStack = go.GetComponent<AM1StateStack>();
-        WaitForFixedUpdate wait = new();
+        WaitForFixedUpdate wait = new WaitForFixedUpdate();
         StateTestBench[] bench = new StateTestBench[4];
         for (int i = 0; i < bench.Length; i++)
         {

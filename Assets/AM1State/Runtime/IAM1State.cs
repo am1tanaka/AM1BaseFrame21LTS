@@ -14,7 +14,7 @@ namespace AM1.State
         bool CanChangeToOtherState { get; }
 
         /// <summary>
-        /// 状態の切り替えコルーチン
+        /// AM1StateQueueから状態を切り替える時に実行するコルーチンを登録しておく
         /// </summary>
         StateChangeAction ChangeAction { get; set; }
 

@@ -9,7 +9,11 @@ namespace AM1.State
     /// </summary>
     public class AM1StateQueueBase : IAM1State
     {
-        public AM1StateQueueBase(int priority) { 
+        /// <summary>
+        /// コンストラクタ。優先順位を設定する場合は引数に値を設定。
+        /// </summary>
+        /// <param name="priority">設定したい優先順位。大きいほど優先される。省略すると0</param>
+        public AM1StateQueueBase(int priority = 0) { 
             Priority = priority;
         }
 
@@ -24,6 +28,13 @@ namespace AM1.State
 
         public bool IsRunning { get; protected set; }
 
+        /// <summary>
+        /// Updateが実行された時にdeltaTimeを加算する経過秒数。
+        /// 時間経過に応じた処理を実装したい時などに利用する。
+        /// 任意のタイミングで0を代入して計測し直せる。
+        /// </summary>
+        public float updateTime;
+
         public virtual void FixedUpdate() { }
 
         public virtual void Init() { IsRunning = true; }
@@ -36,6 +47,8 @@ namespace AM1.State
 
         public virtual void Terminate() { IsRunning = false; }
 
-        public virtual void Update() { }
+        public virtual void Update() {
+            updateTime += Time.deltaTime;
+        }
     }
 }
