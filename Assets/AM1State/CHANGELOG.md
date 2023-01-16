@@ -1,5 +1,9 @@
 # AM1State Change Log
 
+## Ver0.3.1()
+- AM1StateQueue.ClearAll()を追加
+- AM1StateQueue.RequestTerminateCurrentState()を追加
+
 ## Ver0.3.0(2022/12/28)
 - AM1StateQueueBaseのコンストラクタで引数を省略すると優先度0にするように機能追加
 - AM1StateBaseとAM1StateQueueBaseに、Updateが呼ばれるごとにTime.deltaTimeを加算するupdateTimeを追加

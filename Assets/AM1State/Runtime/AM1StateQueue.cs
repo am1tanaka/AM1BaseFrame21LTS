@@ -19,14 +19,31 @@ namespace AM1.State
         public AM1StateQueueBase CurrentState { get; protected set; }
 
         /// <summary>
+        /// キューの状態に関わらず、現在の状態を終了したい時
+        /// </summary>
+        bool isTerminateCurrentState;
+
+        /// <summary>
         /// キューの更新処理
         /// </summary>
         private void Update()
         {
+            // 終了要求
+            if (isTerminateCurrentState)
+            {
+                isTerminateCurrentState = false;
+                if (CurrentState != null)
+                {
+                    // 現在の処理を終了
+                    CurrentState.Terminate();
+                    CurrentState = null;
+                }
+            }
+
             // キューに登録がある時
             if (stateQueue.Count > 0)
             {
-                // 切り替え可能フラグを確認
+                // 現在の状態が切り替え可能なら解除
                 if ((CurrentState != null) && CurrentState.CanChangeToOtherState)
                 {
                     // 現在の処理を終了
@@ -120,6 +137,22 @@ namespace AM1.State
                 stateQueue.RemoveLast();
                 current = stateQueue.Last;
             }
+        }
+
+        /// <summary>
+        /// キューの予約を全て削除。
+        /// </summary>
+        public void CancelAll()
+        {
+            stateQueue.Clear();
+        }
+
+        /// <summary>
+        /// 次のフレームで現在の状態の終了を要求する。
+        /// </summary>
+        public void RequestTerminateCurrentState()
+        {
+            isTerminateCurrentState = true;
         }
     }
 }

@@ -1,5 +1,5 @@
 # 状態遷移ライブラリ
-- Ver0.3.0
+- Ver0.3.1
 
 ## 利用例
 以下のような用途で利用できるキューやスタックの状態切り替えシステムです。
@@ -34,7 +34,7 @@
 - `AM1StateQueue.Enqueue(IAM1State)`を呼び出します
 - 実行中のキュー状態の`CanChangeToOtherState`がtrueにならないと他の状態への切り替えは実行されません
 - 登録済みでまだキューに積まれている状態は`AM1StateQueue.Cancel(優先度);`を呼び出して指定の優先度以下のものを削除できます
-
+- 現在の状態を終了して、状態を空にしたい場合は`AM1StateQueue.RequestTerminateCurrentState();`を呼び出します
 
 ### AM1StateStack
 状態スタックへの登録には以下のような各種登録メソッドが用意されています。
