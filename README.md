@@ -32,49 +32,10 @@ Copyright (c) 2022 Yu Tanaka
   - [www.kenney.nl Interface Sounds](www.kenney.nl)
 
 
----
-
-以下、開発用のドキュメントです。
-
-## サンプルフォルダーへのシンボリックリンクの作成
-サンプルフォルダーはUnityの管理外にするため直に参照できない。以下でシンボリックリンクを作成してUnityに認識させる。
-
-### Windows
-参考 https://learn.microsoft.com/ja-jp/powershell/scripting/windows-powershell/wmf/whats-new/new-updated-cmdlets?view=powershell-7.2
-
-- Assetsフォルダーへ移動
-- 以下はPhaseSystemのサンプルへのシンボリックリンクの作成例
-
-```
-New-Item -ItemType SymbolicLink -Path ./AM1PhaseSystemSample.win -Value ./AM1PhaseSystem/Samples~
-```
-
-- .gitignoreに作成したシンボリックリンクを無視するよう設定
-
-### Mac
-
-```
-ln -s ./AM1PhaseSystem/Samples~ .
-```
-
-作成後に`.mac`を付けて名前を変更して、.gitignoreに作成したシンボリックリンクを無視するよう設定。
-
-シンボリックリンクの削除は以下。
-
-```
-unlink シンボリックリンクのパス
-```
+## その他のドキュメント
+- [パッケージ化関連](./Documents/package.md)
+- [企画](./Documents/plan.md)
+- [仕様](./Documents/Spec/spec_contents.md)
 
 
-## 使用アセット
-- キャラクター、マップチップ、背景
-  - [www.kenney.nl Platformer Assets Base](www.kenney.nl)
-- BGM
-  - [www.kenney.nl Music Loops/Retro](www.kenney.nl)
-効果音
-  - [www.kenney.nl Interface Sounds](www.kenney.nl)
-  - jump drop_004.ogg
-  - Start confirmation_001.ogg
-  - Cursor bong_001.ogg
-  - Miss error_007.ogg
-  - Success confirmation_002.ogg
+

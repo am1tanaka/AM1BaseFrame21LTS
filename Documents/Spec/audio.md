@@ -1,12 +1,10 @@
 # オーディオ管理
 BGMとシステム効果音を簡易に鳴らすための簡易オーディオ管理システム。BGM、効果音でそれぞれ別のボリュームを設定でき、スライダーとの連携、インターフェースを実装したクラスを使って設定の読み書き、効果音を同時に鳴らそうとした時に遅延させる機能などを提供する。
 
-効果音などに3Dサウンドを適用する場合は、再生にはここで用意するシステムは使わない。ボリュームの設定は、AudioSourceの出力先をAudio MixerのSEに設定することで共有することができる。
+3Dサウンドを使いたい効果音はこのシステムで再生せずにオブジェクト側で鳴らす。その際、AudioSourceの出力先をAudio MixerのSEに設定することでボリュームの設定を共有できる。
 
 ## 機能
-- BGMのAudioClipをまとめて登録、インデックスによる再生開始、停止
-- 登録したBGMのリストをenumで定義することと、enumの指定でBGMの開始を指定
-- システム効果音のAudioClipをまとめて登録、インデックスによる再生開始、停止
+- BGMとシステム効果音のAudioClipをそれぞれまとめて登録し、列挙子で再生開始、停止
 - システム効果音が同時に鳴ることを抑制して、必要に応じて遅延再生する
 - BGMと効果音のボリューム設定
 - BGMのフェードイン、フェードアウト
@@ -19,56 +17,63 @@ BGMとシステム効果音を簡易に鳴らすための簡易オーディオ�
 - BGMSourceAndClips : AudioSourceAndClipsBase
   - BGM用のAudioClipの登録とBGMの再生開始、停止
   - フェードイン、フェードアウトの管理
-- static Demo.BGMPlayer
-  - enumでBGMClipsに設定したAudioClipの種類を定義して、再生開始をenumで呼び出すメソッドを提供するクラス
+- static AM1.BaseFrame.Assets.BGMPlayer
+  - enumでBGMClipsに設定したAudioClipの種類を定義して、再生開始をenumで呼び出すメソッドを提供するクラス。組み込み先のプロジェクトで書き換え前提のためunitypackageに作成
 
 ## 効果音再生に関するクラスなど
 - SESourceAndClips : AudioSourceAndClipsBase
   - システム効果音のAudioClip登録とインデックスによる再生を担当する
   - 一定時間以内に同じ効果音を鳴らさないようにインデックスごとに最後に再生した時間を記録
   - 遅延再生
-- static Demo.SEPlayer
+- static AM1.BaseFrame.Assets.SEPlayer
   - BGMPlayerと同様
-- DelaySEPlayer PureC#
+- DelaySEPlayer
   - 効果音の遅延再生を行う
-  - 対応するAudioSourceAndClipsでインスタンスをnewして保有して、FixedUpdateからFixedUpdate()を呼び出す
+  - 対応するAudioSourceAndClipsでインスタンスをnewして保有。FixedUpdateからFixedUpdate()を呼び出す
   - 再生秒数、AudioClip、再生先のAudioSource
   - データはQueueで持つ
 
 ## ボリューム関連
-ボリュームの設定はDemoではBGMと効果音のみだが、マスターボリュームなどを拡張できるように考える。BGMと効果音を専用のものとしてまとめずに、ボリューム1つ分を管理する汎用クラスを作り、起動時の初期化などでBGMや効果音のボリュームとして機能するように割り当てる。
+ボリュームの設定はDemoではBGMと効果音のみだが、マスターボリュームなどを拡張できるように設計する。BGMと効果音専用のものを作らずに、ボリューム1つ分を管理する汎用クラスを作り、起動時の初期化などでBGMや効果音のボリュームとして機能するように割り当てる。
 
-### 汎用
+### パッケージに組み込み
+以下はプロジェクトごとの変更が不要。パッケージで組み込む。
+
 - IVolumeSaver
   - VolumeSettingに渡して保存データにアクセスするためのインターフェース
   - Load(int 初期値)
   - Save(int 保存値)
 - VolumeSetting
   - ボリューム値の保持、公開、変更、インターフェースを通した読み書きを汎用的に行うクラス
-  - PureC#
-  - このクラスのインスタンスのリストをstaticで保持する
-  - BootStateChangerなどで初期化と割り当てを行う
-  - SetSaver(IVolumeSaver)
-    - 該当するボリュームの
-  - static int volumeMax = 5
+  - 自クラスのインスタンスのリストをstaticで保持する
+  - BootStateChangerなどで起動時に初期化と割り当てを行う
+  - static int VolumeMax = 5
     - ボリュームの最大値
-    - 初期化前に値を変更すると変更できる
+    - newした時点の値が採用
+    - newした後は値の変更は不可
+  - ChangeVolume(int)
+    - ボリュームを変更
+    - 上限はnew時のvolumeMax
+  - SetSaver(IVolumeSaver)
+    - 管理しているボリュームの読み書き処理を登録。設定時に初期値を読み出す
+
+### Assetsに組み込み
+以下は組み込んだプロジェクトごとに書き換えて使う前提。unitypackageでAssets以下に配置。
+
 - abstract VolumeSaverWithPlayerPrefs : IVolumeSaver
   - PlayerPrefsでボリュームを読み書きするクラスのベースクラス
   - このクラスを継承したクラスに、対応するボリュームのキーをKeyNameでオーバーライド
-- Demo.VolumeSlider : MonoBehaviour
+- VolumeSlider : MonoBehaviour
   - BGMや効果音のボリュームスライダーに割り当てるクラス
   - VolumeSetting.TypeでBGMかSEを設定
   - 初期化時にTypeのインデックスに該当するボリュームを読み込んでスライダーに設定
   - 変更時にTypeのインデックスを指定してボリュームを設定する
   - 設定したVolumeTypeに対応するボリュームにVolumeSetting.volumeSettingsを通してアクセス
-
-### 専用
-- Demo.BGMVolumeSaverWithPlayerPrefs : IVolumeSaver
+- BGMVolumeSaverWithPlayerPrefs : IVolumeSaver
   - BGM用の設定の読み書きをPlayerPrefsから行うための専用クラス
-- Demo.SEVolumeSaverWithPlayerPrefs : IVolumeSaver
+- SEVolumeSaverWithPlayerPrefs : IVolumeSaver
   - 効果音用の設定の読み書きをPlayerPrefsから行うための専用クラス
-- enum Demo.VolumeType
+- enum VolumeType
   - BGMとSEを定義して、ボリュームの指定に使う
 
 
@@ -170,37 +175,3 @@ AudioSourceAndClipsBaseを継承したクラスとDelaySEPlayerを連携して�
 
 AM1RingBufferは内部はListでデータを保持して、あとから要素数を変更できるように実装する。
 
-
-
-  ## クラスやインターフェースの設計と作成
-  これらの作成はテキストで箇条書きをしたり、UMLのクラス図で検討することができるが、Visual Studioのクラスデザイナーを使えばクラス図を作ったり、定義したクラスをクラス図として表示ができるので、設計の検討段階から導入することも便利そうである。
-
-  Visual Studioでクラスデザイナーを利用するには、以下の手順に従ってインストーラーから必要なモジュールを追加する。
-
-  https://docs.microsoft.com/ja-jp/visualstudio/ide/class-designer/how-to-add-class-diagrams-to-projects?view=vs-2022
-
-  Visual Studioにクラスデザイナーをインストールしたら、UnityでC#スクリプトを作成して、それをクラスデザイナーで表示して編集する、という流れになる。
-
-  ### 作業の流れの例
-  以下、Visual Studioのクラスデザイナーを使ってクラスやインターフェースを検討しつつ、定義する作業の流れである。
-
-  1. Unityで必要になりそうなクラスやインターフェースをC#スクリプトを作成
-  1. 作成したスクリプトをVisual Studioで開く
-  1. ネームスペースを利用していたらコードに宣言を追加する
-
-  クラスダイアグラムファイルを作成していない場合は以下の手順で作成する。
-
-  1. ソリューションエクスプローラーでクラス図を作りたいプロジェクトを右クリックして、追加 > 新しい項目 を選択
-  1. 項目から 全般 を選んで、クラスダイアグラム を選択して、任意の名前を入力して追加。例えば`SoundSystemClassDiagram.cd`など
-
-  作成したクラスダイアグラムファイル(.cd)をダブルクリックすると、クラスデザイナーが開く。ツールボックスから必要なものをドラッグ＆ドロップすることで、UMLのクラス図を作成する要領でクラスなどを作成できる。
-
-  また、ソリューションエクスプローラーから既存のC#ファイルをクラスデザイナーにドラッグ&ドロップすれば、自動的にクラス図が追加される。Unityのファイルの場合はMonoBehaviourを継承しているので、UnityでC#スクリプトを作成してから、クラスデザイナーにドラッグ&ドロップすると楽だと思われるが、クラスデザイナー側で作成して、MonoBehaviourを継承しても構わない。
-
-  クラスデザイナー上で編集したいクラスなどをクリックして選択すると、クラスの詳細欄でメソッドやプロパティの選択や編集、追加、削除ができる。
-  ## Todo
-  - [x] BGMと効果音のボリュームテストを通す
-  - [x] 効果音の再生のテスト
-  - [x] 効果音の再生の実装
-  - [x] BGMと効果音のスライダー
-  - [x] DelaySEPlayerクラスを作成

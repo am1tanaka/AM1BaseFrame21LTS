@@ -1,21 +1,17 @@
 # デモゲーム
 
-## todo
-- [x] 横方向移動
-- [x] 状態定義と処理の呼び分け
-- [x] 落下
-- [x] 床判定
-- [x] 横移動時の段差判定
-- [x] ミス
-- [x] アニメ
-- [x] ジャンプ
-- [x] クリア
-
+<img src="../Images/thumbs.jpg" height=160px alt="デモゲーム画面サムネイル">
 
 ## 操作
 クリックかスペースキーのみ。
 
 ## 進行
+
+- クリックやスペースキーで移動開始
+- クリックやスペースでジャンプ
+- 画面右端に到着したらSUCCESS!!
+- 落下したらMISS!!
+- kenney.nlを利用
 
 ### ゲームの状態
 1. WaitStartState 状態開始待ち
@@ -30,14 +26,14 @@
 4. Clear クリア。クリアアニメ
 
 ## プレイヤー制御
-簡易なDemoのためのプレイヤーなので、操作の入れ替えなどは想定せずに、DemoPlayerスクリプト一つで制御する。
+簡易なDemoのためのプレイヤーなので操作の入れ替えは想定せずにDemoPlayerスクリプト一つで制御する。
 
-重力と着地処理はRigidbody2Dに任せず、自前で実装する。そのため、Rigidbody2Dの設定は以下の通りとする。
+重力と着地処理はRigidbody2Dに任せず、自前で実装する。Rigidbody2Dの設定は以下の通りとする。
 
 - Body Type: Kinematic
   - 重力を利用せずにMovePositionで移動
 - Simulated: true
-  - Collider2Dを有効にするためにtrueにする
+  - Collider2Dを有効にしたいのでtrue
 - Use Full Kinematic Contacts: false
   - 接触は不要なのでfalse
 

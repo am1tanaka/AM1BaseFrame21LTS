@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,10 +15,10 @@ namespace AM1.BaseFrame
         }
 
         public List<DelayData> PlayDataList { get; private set; }
-        Queue<DelayData> dataPool;
-        float[] lastPlayTime;
-        float delaySeconds;
-        AudioSource audioSource;
+        readonly Queue<DelayData> dataPool;
+        readonly float[] lastPlayTime;
+        readonly float delaySeconds;
+        readonly AudioSource audioSource;
 
         /// <summary>
         /// 遅延再生クラスの初期化

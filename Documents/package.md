@@ -1,8 +1,45 @@
 # パッケージ化
-本プロジェクトはPackage Managerからインストールするフレームワークパッケージを開発するためのものです。Package Managerに登録するためのパッケージのルートは以下の場所にします。
 
-`Assets/AM1Framework`
+## パッケージ構成
+本プロジェクトはPackage Managerからインストールするフレームワークパッケージを開発するためのものです。`Assets`フォルダー下にパッケージ用のフォルダーを作成します。
 
-この直下に`package.json`を置き、`Runtime`や`Samples~`を置きます。
+`package.json`や`Runtime`、`Samples~`フォルダーは`Assets`フォルダー下に作成した各パッケージ用のフォルダーの直下に置きます。
 
-サンプル用のアセットは`Samples~`以下に置きますが、`~`が付いているとUnityが無視をするので開発ができません。そこで`Samples~`へのシンボリックリンクを、Windows用は`jp.am1.framework.samples.win`、mac用は`jp.am1.framework.samples.mac`という名前で作成して、`Assets`フォルダー内に入れてUnityからアクセスさせます。
+利用先プロジェクトのAssetsフォルダーに展開したいアセットは`Assets/AM1`フォルダー内にフォルダーを作成して管理します。フォルダーをエクスポートしたunitypackageを`Assets/AM1BaseFrame/Package Resources`フォルダー内にコピーします。
+
+サンプル用のアセットは`Samples~`フォルダー以下に置きます。Unityは最後に`~`が付いているフォルダーを無視するので、`Samples~`へのシンボリックリンクを作成します。
+
+## サンプルフォルダーへのシンボリックリンクの作成
+サンプルフォルダーはUnityの管理外にするため直に参照できません。以下でシンボリックリンクを作成してUnityに認識させます。
+
+### Windows
+参考 https://learn.microsoft.com/ja-jp/powershell/scripting/windows-powershell/wmf/whats-new/new-updated-cmdlets?view=powershell-7.2
+
+- PowerShellを起動
+- プロジェクトのAssetsフォルダーへ移動
+- 以下、BaseFrameのサンプルへのシンボリックリンクの作成例
+
+```
+New-Item -ItemType SymbolicLink -Path ./AM1BaseFrameSamples.win -Value ./AM1BaseFrame/Samples~
+```
+
+- .gitignoreに作成したシンボリックリンクを無視するよう設定
+
+### Mac
+
+- ターミナルを起動
+- プロジェクトのAssetsフォルダーへ移動
+- 以下、BaseFrameのサンプルへのシンボリックリンクの作成例
+
+```
+ln -s ./AM1BaseFrame/Samples~ .
+```
+
+作成後に`.mac`を付けて名前を変更して、.gitignoreに作成したシンボリックリンクを無視するよう設定。
+
+シンボリックリンクの削除は以下。
+
+```
+unlink シンボリックリンクのパス
+```
+

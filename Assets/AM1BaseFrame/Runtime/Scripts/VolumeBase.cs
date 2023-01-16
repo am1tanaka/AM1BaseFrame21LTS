@@ -62,7 +62,7 @@ namespace AM1.BaseFrame
             float vol = fadeVolume;
             if (volumeSetting != null)
             {
-                vol *= Mathf.Clamp01(((float)volumeSetting.Volume / (float)VolumeSetting.volumeMax));
+                vol *= Mathf.Clamp01(((float)volumeSetting.Volume / (float)VolumeSetting.VolumeMax));
             }
 
             float newdB = GetdB(vol);
