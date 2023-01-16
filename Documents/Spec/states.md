@@ -1,6 +1,8 @@
-# 状態遷移
+# シーン状態遷移
 
 [目次へ](./spec_contents.md)
+
+Unityのシーンを切り替えるためのシーン状態管理システム(`SceneStateChanger`)。これとは別に、汎用で使える状態スタック(`AM1StateStack`)と優先度付き状態キュー(`AM1StackQueue`)を`AM1State`パッケージで提供している。
 
 ## 切り替え方
 　状態の切り替え処理はIStateChangerインターフェースを実装したスクリプトに実装する。切り替える時は、該当する状態切り替えスクリプトのRequest()を呼ぶ。
@@ -60,11 +62,6 @@
 - 起動が完了するか、指定フレームが経過するのを待つ処理
 - シーンのAwakeが完了したことを確認するフラグ。IStateChangerにプロパティで実装
 - 起動したシーンを確認 SceneChanger.IsScene()でインスタンスを確認
-
-
-
-
-
 
 
 [目次へ](./spec_contents.md)
