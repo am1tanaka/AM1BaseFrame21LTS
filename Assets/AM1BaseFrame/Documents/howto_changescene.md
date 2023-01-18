@@ -1,4 +1,5 @@
 # ƒV[ƒ“‚ÌØ‚è‘Ö‚¦
+(Updated. 2023/1/18)
 
 —ûK—p‚ÌV‹KƒvƒƒWƒFƒNƒg‚ğì‚Á‚ÄA‹N“®‚©‚çƒV[ƒ“‚ÌØ‚è‘Ö‚¦‚ğÀ‘•‚µ‚Ü‚·BˆÈ‰º‚ÌŠÈˆÕ‚ÈƒQ[ƒ€ƒ‹[ƒv‚ğÀ‘•‚µ‚Ü‚·B
 
@@ -223,12 +224,173 @@ Request()ƒƒ\ƒbƒh‚Ìˆø”‚Étrue‚ğ“n‚·‚ÆA‚·‚Å‚É•Ê‚ÌƒV[ƒ“Ø‚è‘Ö‚¦‚Ì—v‹‚ªo‚Ä‚¢‚½‚
 
 ### ƒQ[ƒ€ƒI[ƒo[‚Ö‚ÌØ‚è‘Ö‚¦
 
-`O`ƒL[‚ğ‰Ÿ‚µ‚½‚çƒQ[ƒ€ƒI[ƒo[‚É‚È‚é‚æ‚¤‚É‚µ‚Ü‚·BƒQ[ƒ€ƒI[ƒo[‚ÍƒQ[ƒ€ƒV[ƒ“‚Éd‚Ë‚½‚¢‚Ì‚ÅAØ‚è‘Ö‚¦ˆ—‚Éè‚ğ‰Á‚¦‚é•K—v‚ª‚ ‚è‚Ü‚·B
+`O`ƒL[‚ğ‰Ÿ‚µ‚½‚çƒQ[ƒ€ƒI[ƒo[ƒV[ƒ“‚ğ•\¦‚µ‚Ü‚·BƒQ[ƒ€ƒI[ƒo[‚ÍƒQ[ƒ€ƒV[ƒ“‚Éd‚Ë‚½‚¢‚Ì‚ÅØ‚è‘Ö‚¦ˆ—‚Éè‚ğ‰Á‚¦‚Ü‚·B‰æ–Ê‚ğ‰B‚·ˆ—‚àÈ‚«‚Ü‚·B
 
+1. HierarchyƒEƒBƒ“ƒhƒE‚ÉTitleƒV[ƒ“‚ª‚ ‚Á‚½‚çA‰EƒNƒŠƒbƒN‚µ‚ÄRemove‚µ‚Ü‚·
+1. GameƒV[ƒ“‚ğHierarchyƒEƒBƒ“ƒhƒE‚Éƒhƒ‰ƒbƒO&ƒhƒƒbƒv‚µ‚Ü‚·
+1. ProjectƒEƒBƒ“ƒhƒE‚ÌScriptsƒtƒHƒ‹ƒ_[‚ğ‰EƒNƒŠƒbƒN‚µ‚ÄACreate > C# Script‚ğ‘I‘ğ‚µ‚ÄƒXƒNƒŠƒvƒg‚ğì¬‚µ‚Ü‚·
+1. ì¬‚µ‚½ƒXƒNƒŠƒvƒg‚Ì–¼‘O‚ğ`GameBehaviour`‚É‚µ‚Ü‚·
+1. ProjectƒEƒBƒ“ƒhƒE‚ÌGameBehaviourƒXƒNƒŠƒvƒg‚ğƒhƒ‰ƒbƒO‚µ‚ÄAHierarchyƒEƒBƒ“ƒhƒE‚ÌGameBehaviourƒIƒuƒWƒFƒNƒg‚Éƒhƒƒbƒv‚µ‚ÄƒAƒ^ƒbƒ`‚µ‚Ü‚·
+1. GameBehaviourƒXƒNƒŠƒvƒg‚ğƒ_ƒuƒ‹ƒNƒŠƒbƒN‚µ‚ÄŠJ‚«‚Ü‚·
+1. æ“ª‚Ì•û‚ÉˆÈ‰º‚Ì`using`‚ğ’Ç‰Á‚µ‚Ü‚·
 
+```cs
+using AM1.BaseFrame;
+```
 
+7. Update()ƒƒ\ƒbƒh‚ğˆÈ‰º‚Ì‚æ‚¤‚ÉÀ‘•‚µ‚Ü‚·
 
+```cs
+    void Update()
+    {
+        if (!SceneStateChanger.IsStateStarted(GameSceneStateChanger.Instance)) return;
 
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            GameoverSceneStateChanger.Instance.Request();
+        }
+    }
+```
 
+ˆÈã‚Å‚«‚½‚çã‘‚«•Û‘¶‚ğ‚µ‚ÄPlay‚µ‚Ä‚­‚¾‚³‚¢Bƒ^ƒCƒgƒ‹‚ª‹N“®‚µ‚½‚çƒNƒŠƒbƒN‚ğ‚µ‚ÄƒQ[ƒ€‚ğŠJn‚µ‚ÄAOƒL[‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢Bˆêæ‚¸‰æ–Ê‚ªFilled Radial‚ÅØ‚è‘Ö‚¦‚ç‚ê‚Ä‚©‚çGameƒV[ƒ“‚ª‰ğ•ú‚³‚ê‚ÄAGameoverƒV[ƒ“‚¾‚¯‚ª•\¦‚³‚ê‚Ü‚·B
 
+![Gameover‚Ö‚ÌØ‚è‘Ö‚¦](./Images/gif00_01.gif)
+
+‰æ–Ê‚ÌØ‚è‘Ö‚¦‰‰o‚ğíœ‚µAƒ}ƒ‹ƒ`ƒV[ƒ“‚Å“Ç‚İ‚Ş‚æ‚¤‚É‚µ‚Ü‚·B
+
+1. HierarchyƒEƒBƒ“ƒhƒE‚©‚çGameSceneStateChangerƒXƒNƒŠƒvƒg‚ğƒ_ƒuƒ‹ƒNƒŠƒbƒN‚µ‚ÄŠJ‚«‚Ü‚·
+1. Terminate()ƒƒ\ƒbƒh‚ğˆÈ‰º‚Ì‚æ‚¤‚É‹ó‚É‚µ‚Ü‚·
+
+```cs
+    public override void Terminate() {
+    }
+```
+
+Terminate()ƒƒ\ƒbƒh‚ÍAƒV[ƒ“‚ª‘¼‚ÌƒV[ƒ“‚ÉØ‚è‘Ö‚í‚é‚ÉÀs‚³‚ê‚Ü‚·BƒQ[ƒ€ƒI[ƒo[ƒV[ƒ“‚ÖˆÚs‚·‚éÛ‚É‚ÍGameƒV[ƒ“‚Í‚Ü‚¾Á‚·•K—v‚ª‚È‚¢‚Ì‚Åˆ—‚ğíœ‚µ‚Ü‚µ‚½B‚±‚ê‚ÅPlay‚µ‚Äæ‚Ù‚Ç‚Æ“¯‚¶‚æ‚¤‚É‚·‚ÆAGameƒV[ƒ“‚ªc‚Á‚½‚Ü‚ÜGameover‚ª•\¦‚³‚ê‚Ü‚·B
+
+![GameƒV[ƒ“‚ªc‚Á‚½‚Ü‚ÜGameover‚ª•\¦](./Images/gif00_02.gif)
+
+Ÿ‚ÍGameoverƒV[ƒ“‚Ö‚ÌØ‚è‘Ö‚¦ˆ—‚Éè‚ğ‰Á‚¦‚ÄØ‚è‘Ö‚¦‰‰o‚Ìíœ‚ÆAƒ^ƒCƒgƒ‹‚Ö–ß‚é‚Ì‚É”õ‚¦‚ÄGameƒV[ƒ“‚Ìíœ‚ğ’Ç‰Á‚µ‚Ü‚·B
+
+1. HierarchyƒEƒBƒ“ƒhƒE‚©‚çGameoverSceneStateChangerƒXƒNƒŠƒvƒg‚ğŠJ‚«‚Ü‚·
+1. Init()ƒƒ\ƒbƒh‚©‚ç‰æ–ÊØ‚è‘Ö‚¦‚ÌŒÄ‚Ño‚µ‚ğíœ‚µ‚ÄˆÈ‰º‚Ì‚æ‚¤‚ÉƒV[ƒ“‚Ì“Ç‚İ‚İŠJn‚Ì‚İ‚É‚µ‚Ü‚·
+
+```cs
+    public override void Init()
+    {
+        // ƒV[ƒ“‚Ì”ñ“¯Šú“Ç‚İ‚İŠJn
+        SceneStateChanger.LoadSceneAsync("Gameover", true);
+    }
+```
+
+3. ‰æ–Ê‚Ì•¢‚¢‚Ì‰ğœ‚Í•s—v‚È‚Ì‚ÅAˆÈ‰º‚Ì‚æ‚¤‚ÉOnAwakeDone()ƒƒ\ƒbƒh‚Ì’†g‚ğíœ‚µ‚Ü‚·
+
+```cs
+    public override IEnumerator OnAwakeDone() {
+        yield break;
+    }
+```
+
+4. ƒV[ƒ“Ø‚è‘Ö‚¦‚ÉGameƒV[ƒ“‚Ì‰ğ•ú‚à•K—v‚È‚Ì‚ÅˆÈ‰º‚Ì’Ê‚è’Ç‰Á‚µ‚Ü‚·
+
+```cs
+    public override void Terminate() {
+        // ƒV[ƒ“‚Ì‰ğ•ú
+        SceneStateChanger.UnloadSceneAsync("Gameover");
+        SceneStateChanger.UnloadSceneAsync("Game");
+
+    }
+```
+
+ã‘‚«•Û‘¶‚ğ‚µ‚ÄPlay‚µ‚Ä“®ì‚ğŠm”F‚µ‚Ä‚­‚¾‚³‚¢B—\’è’Ê‚è‚Ì“®ì‚ª‚Å‚«‚Ü‚µ‚½B
+
+![Gameover‚Ì•\¦](./Images/gif00_03.gif)
+
+¡‚Í“®ìŠm”F‚Ì‚½‚ßGAME OVER‚ğ‚»‚Ì‚Ü‚Ü•\¦‚µ‚Ä‚¢‚Ü‚·‚ªA•\¦ƒAƒjƒ[ƒVƒ‡ƒ“‚ğ‚Â‚¯‚ê‚Î­‚µƒV[ƒ“‚Ì“Ç‚İ‚İ‚ª’x‚ê‚Ä‚à‹C‚É‚È‚ç‚È‚­‚È‚è‚Ü‚·B
+
+### ƒ^ƒCƒgƒ‹ƒw–ß‚·
+ÅŒã‚ÉAƒQ[ƒ€ƒI[ƒo[ƒV[ƒ“‚ÅƒNƒŠƒbƒN‚µ‚½‚çƒ^ƒCƒgƒ‹‚ÉØ‚è‘Ö‚í‚é‚æ‚¤‚É‚µ‚Ü‚·BØ‚è‘Ö‚¦‰‰o‚Í1•bŠÔ‚Å•‚­ƒtƒF[ƒh‚³‚¹‚Ü‚·B
+
+1. ProjectƒEƒBƒ“ƒhƒE‚©‚çGameoverƒV[ƒ“‚ğƒhƒ‰ƒbƒO‚µ‚ÄAHierarchyƒEƒBƒ“ƒhƒE‚Éƒhƒƒbƒv‚µ‚Ü‚·
+1. HierarchyƒEƒBƒ“ƒhƒE‚ÌScriptsƒtƒHƒ‹ƒ_[‚ğ‰EƒNƒŠƒbƒN‚µ‚ÄACreate > C# Script‚ğ‘I‘ğ‚µ‚ÄV‚µ‚¢ƒXƒNƒŠƒvƒg‚ğì¬‚µ‚Ü‚·
+1. ì¬‚µ‚½ƒXƒNƒŠƒvƒg–¼‚ğ`GameoverBehaviour`‚É‚µ‚Ü‚·
+1. GameoverBehaviourƒXƒNƒŠƒvƒg‚ğƒhƒ‰ƒbƒO‚µ‚ÄAHierarchyƒEƒBƒ“ƒhƒE‚ÌGameoverBehaviourƒIƒuƒWƒFƒNƒg‚Éƒhƒƒbƒv‚µ‚Ü‚·
+1. GameoverBehaviourƒXƒNƒŠƒvƒg‚ğƒ_ƒuƒ‹ƒNƒŠƒbƒN‚µ‚ÄŠJ‚«‚Ü‚·
+1. Å‰‚Ì•û‚Ì•û‚ÉˆÈ‰º‚Ìusing‚ğ’Ç‰Á‚µ‚Ü‚·
+
+```cs
+using AM1.BaseFrame;
+```
+
+7. Update()ƒƒ\ƒbƒh‚ğˆÈ‰º‚Ì‚æ‚¤‚ÉÀ‘•‚µ‚Ü‚·
+
+```cs
+    void Update()
+    {
+        if (!SceneStateChanger.IsStateStarted(GameoverSceneStateChanger.Instance)) return;
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            TitleSceneStateChanger.Instance.Request();
+        }
+    }
+```
+
+ã‘‚«•Û‘¶‚ğ‚µ‚ÄPlay‚µ‚Ä“®ì‚ğŠm”F‚µ‚Ü‚·BƒQ[ƒ€ƒI[ƒo[ƒV[ƒ“‚ÅƒNƒŠƒbƒN‚·‚é‚ÆAFilled Radial‚Å‰æ–Ê‚ª”’‚­•¢‚í‚ê‚ÄAƒ^ƒCƒgƒ‹‚ÉØ‚è‘Ö‚í‚è‚Ü‚·B‚ ‚Æ‚Í•‚­ƒtƒF[ƒh‚·‚é‰‰o‚É•ÏX‚µ‚Ü‚·B
+
+Ø‚è‘Ö‚¦‚Ì‰‰o‚ÍAV‚µ‚­ŠJ‚­ƒV[ƒ“‚ÅŠÇ—‚·‚é‚Ì‚Åƒ^ƒCƒgƒ‹‚ÌØ‚è‘Ö‚¦‚ğ•ÏX‚µ‚Ü‚·B
+
+1. TitleSceneStateChangerƒXƒNƒŠƒvƒg‚ğƒ_ƒuƒ‹ƒNƒŠƒbƒN‚µ‚ÄŠJ‚«‚Ü‚·
+1. Init()ƒƒ\ƒbƒh‚ğˆÈ‰º‚Ì‚æ‚¤‚É‘‚«Š·‚¦‚Ü‚·
+
+```cs
+    public override void Init()
+    {
+        // ‰æ–Ê‚ğ•¢‚¤
+        if (SceneStateChanger.CurrentState == GameoverSceneStateChanger.Instance)
+        {
+            ScreenTransitionRegistry.StartCover((int)ScreenTransitionType.Fade, Color.black, 1);
+        }
+
+        // ƒV[ƒ“‚Ì”ñ“¯Šú“Ç‚İ‚İŠJn
+        SceneStateChanger.LoadSceneAsync("Title", true);
+
+    }
+```
+
+Ø‚è‘Ö‚¦’†‚Í‘O‚ÌƒV[ƒ“‚ªİ’è‚³‚ê‚Ä‚¢‚é‚Ì‚ÅACurrentState‚ªƒQ[ƒ€ƒI[ƒo[‚¾‚Á‚½AƒQ[ƒ€ƒI[ƒo[‚©‚çØ‚è‘Ö‚í‚é‚Ì‰‰o‚ğŠJn‚µ‚Ü‚·B‹N“®‚Í‹N“®‘¤‚Å‰æ–Ê‚ğ‰B‚µ‚Ä‚¢‚é‚Ì‚Å‰æ–Ê‚ğ‰B‚·ˆ—‚Í•s—v‚Å‚·B
+
+ScreenTransitionRegistry.StartCover()ƒƒ\ƒbƒh‚É‚Í‚±‚ê‚Ü‚Åg‚Á‚Ä‚¢‚½Filled Radial‚ÆAFade‚ªƒTƒ“ƒvƒ‹‚Æ‚µ‚Ä“o˜^‚³‚ê‚Ä‚¢‚Ü‚·B¡‰ñ‚ÍFade‚É‚µ‚ÄAF‚Ìw’è‚Æ•b”‚ğw’è‚µ‚Ü‚µ‚½B‰æ–ÊØ‚è‘Ö‚¦‰‰o‚ÍƒIƒŠƒWƒiƒ‹‚Ì‚à‚Ì‚É·‚µ‘Ö‚¦‚é‚±‚Æ‚ª‚Å‚«‚Ü‚·B
+
+‚ ‚Æ‚Í‰æ–Ê‚ğ•\¦‚·‚é•b”‚à1•b‚É•ÏX‚µ‚Ü‚·B
+
+3. OnAwakeDone()ƒƒ\ƒbƒh“à‚ÌStartUncover()‚Ì•b”w’è‚ğˆÈ‰º‚Ì‚æ‚¤‚É1‚É‚µ‚Ü‚·
+
+```cs
+    public override IEnumerator OnAwakeDone() {
+        // ‰æ–Ê‚Ì•¢‚¢‚ğ‰ğœ
+        ScreenTransitionRegistry.StartUncover(1);
+        yield return ScreenTransitionRegistry.WaitAll();
+
+    }
+```
+
+ã‘‚«•Û‘¶‚µ‚ÄPlay‚µ‚Ä“®ì‚ğŠm”F‚µ‚Ä‚İ‚Ä‚­‚¾‚³‚¢BÅ¬ŒÀ‚ÌƒQ[ƒ€ƒ‹[ƒv‚ª‚Å‚«‚Ü‚µ‚½B
+
+![ƒQ[ƒ€ƒ‹[ƒvŠ®—¹](./Images/gif00_04.gif)
+
+## ‚Ü‚Æ‚ß
+Unity‚ÌV‹KƒvƒƒWƒFƒNƒg‚ÉƒVƒXƒeƒ€‚ğ‘g‚İ‚ñ‚ÅAƒQ[ƒ€‚ÌÅ¬ƒ‹[ƒv‚ğÀ‘•‚µ‚Ü‚µ‚½BUnity‚Å‚ÍƒV[ƒ“Ø‚è‘Ö‚¦‚ÉƒAƒ^ƒbƒ`‚³‚ê‚Ä‚¢‚éƒXƒNƒŠƒvƒg‚ª‰ğ•ú‚³‚ê‚Ä‚µ‚Ü‚¤‚½‚ßAØ‚è‘Ö‚¦‚ğ§Œä‚·‚éŠO•”‚Ìd‘g‚İ‚ğ—pˆÓ‚·‚é‚Æ•Ö—˜‚Å‚·B
+
+–{ƒVƒXƒeƒ€‚Å‚ÍSystemƒV[ƒ“‚©‚ç‹N“®‚µ‚Äí’“‚³‚¹‚é‚±‚Æ‚ÅAƒV[ƒ“‚ğØ‚è‘Ö‚¦‚éˆ—‚âƒQ[ƒ€’†‚É‰i‘±‚³‚¹‚½‚¢‚à‚Ì‚Ì’u‚«ê‚É‚µ‚Ä‚¢‚Ü‚·B‰æ–ÊØ‚è‘Ö‚¦’†‚ÉBGM‚ğ—¬‚µ‚Á‚Ï‚È‚µ‚É‚µ‚½‚¢ê‡‚È‚Ç‚É‚à‚±‚Ìd‘g‚İ‚Í•Ö—˜‚Å‚·B
+
+ƒV[ƒ“‚ÌØ‚è‘Ö‚¦ˆ—‚ÍSystemƒV[ƒ“‚ÌƒIƒuƒWƒFƒNƒg‚ÉƒAƒ^ƒbƒ`‚³‚ê‚Ä‚¢‚éSceneStateChangerƒXƒNƒŠƒvƒg‚ªŠÇ—‚µ‚Ä‚¢‚Ü‚·B‚±‚ÌƒXƒNƒŠƒvƒg‚ÉƒV[ƒ“‚Ì“Ç‚İ‚İó‘Ô‚â‹N“®ó‹µ‚ğŠm”F‚·‚é—lX‚ÈƒT[ƒrƒX‚ª—pˆÓ‚³‚ê‚Ä‚¢‚Ü‚·B
+
+ƒV[ƒ“Ø‚è‘Ö‚¦ˆ—‚ÍA????SceneStateChanger‚Æ‚¢‚¤ƒXƒNƒŠƒvƒg‚ğƒV[ƒ“‚²‚Æ‚Éì¬‚µ‚ÄA‚»‚±‚É—¬‚ê‚ğÀ‘•‚µ‚Ä‚¢‚Ü‚·BÚ‚µ‚­‚Í•ÊƒhƒLƒ…ƒƒ“ƒg‚É‹LÚ‚µ‚Ü‚·B‚±‚ÌƒXƒNƒŠƒvƒg‚ÍSceneStateChanger‚©‚ç“K‹XŒÄ‚Ño‚³‚ê‚ÄAØ‚è‘Ö‚¦‚Ì’iŠK‚É‡‚í‚¹‚½ˆ—‚ğÀ‘•‚Å‚«‚é‚æ‚¤‚É‚È‚Á‚Ä‚¢‚Ü‚·B
+
+ƒV[ƒ“©‘Ì‚Ì‰Šú‰»‚ÍAƒV[ƒ“‚²‚Æ‚É????Behaviour‚Ì‚æ‚¤‚ÈƒXƒNƒŠƒvƒg‚ğƒV[ƒ“‚ÌƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ÉƒAƒ^ƒbƒ`‚µ‚ÄÀs‚·‚é‚±‚Æ‚ğ‘z’è‚µ‚Ä‚¢‚Ü‚·B????SceneStateChanger‚©‚ç•K—v‚É‰‚¶‚Ä????Behaviour‚Ì‰Šú‰»‚âŠJnƒƒ\ƒbƒh‚ğŒÄ‚Ño‚·‚ÆAƒV[ƒ“Ø‚è‘Ö‚¦‚Ì—lX‚È•s‹ï‡‚ğ—\–h‚Å‚«‚Ü‚·B
+
+SceneStateChanger.IsStateStarted()ƒƒ\ƒbƒh‚ÅAˆø”‚Å“n‚µ‚½ƒV[ƒ“‚ªŠJn‚µ‚½‚©‚ğŠm”F‚Å‚«‚Ü‚·B‚±‚Ìˆ—‚ğUpdate()‚È‚Ç‚ÌXVˆ—‚Ì–`“ª‚Åƒ`ƒFƒbƒN‚µ‚Äfalse‚È‚çˆ—‚ğƒLƒƒƒ“ƒZƒ‹‚·‚ê‚ÎA‰æ–ÊØ‚è‘Ö‚¦‰‰o’†‚É‘€ì‚ğó‚¯•t‚¯‚È‚¢‚È‚Ç‚Ìˆ—‚ª‚Å‚«‚Ü‚·B
+
+‰æ–ÊØ‚è‘Ö‚¦‰‰o‚ÍFilled Radial‚ÆFade‚Ì2í—Ş‚ğƒTƒ“ƒvƒ‹‚Æ‚µ‚Ä—pˆÓ‚µ‚Ä‚¢‚Ü‚·BF‚Æ‘¬“x‚ÍŠJn‚ÉƒXƒNƒŠƒvƒg‚Åw’è‚µ‚Ä•Ï‚¦‚é‚±‚Æ‚ª‚Å‚«‚Ü‚·B‚Ü‚½AƒIƒŠƒWƒiƒ‹‚Ì‰‰o‚ğ‰Á‚¦‚é‚±‚Æ‚à‚Å‚«‚Ü‚·B
 
