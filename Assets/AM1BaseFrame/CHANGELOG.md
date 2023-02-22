@@ -1,5 +1,8 @@
 # AM1BaseFrame Change Log
 
+## Ver0.9.2(2023/2/22)
+- .editorconfigの文字エンコードを全ファイル共通に変更
+
 ## Ver0.7.1(2022/11/30)
 - gitignoreにローカル設定フォルダーを追加
 
