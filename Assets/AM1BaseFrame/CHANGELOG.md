@@ -1,5 +1,8 @@
 # AM1BaseFrame Change Log
 
+## Ver0.9.3(2023/6/23)
+- SceneStateChangerのAwakeでstaticをリセットするように修正
+
 ## Ver0.9.2(2023/2/22)
 - .editorconfigの文字エンコードを全ファイル共通に変更
 
