@@ -95,6 +95,11 @@ namespace AM1.BaseFrame
             asyncUnloadOperationList.Clear();
         }
 
+        private void Awake()
+        {
+            ResetStatics();
+        }
+
         private void Update()
         {
             // 切り替え中かnextScenesが空なら何もしない

@@ -1,6 +1,6 @@
 {
   "name": "jp.am1.baseframe",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "displayName": "AM1 Base Framework",
   "description": "This is a base framework package",
   "unity": "2020.3",
