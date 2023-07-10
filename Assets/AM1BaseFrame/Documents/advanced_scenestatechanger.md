@@ -1,19 +1,19 @@
-# SceneStateChanger�̉��p
+# SceneStateChangerの応用
 
-��{�I�ȃV�[���̐؂�ւ����@��[������](howto_changescene.md)�ŏЉ�Ă��܂��B�����ł̓V�[���؂�ւ��V�[�P���X�̗��p�P�[�X���Љ�܂��B
+基本的なシーンの切り替え方法は[こちら](howto_changescene.md)で紹介しています。ここではシーン切り替えシーケンスの利用ケースを紹介します。
 
-## �V�[���؂�ւ��̗���
+## シーン切り替えの流れ
 
-�V�[���؂�ւ���v�����Ă���؂�ւ�肪��������܂ł�Unity�Ƃ̃��C�t�T�C�N���Ƃ�
+シーン切り替えを要求してから切り替わりが完了するまでのUnityとのライフサイクルとの
 
-1. ????SceneStateChanger.Instance.Request()�����s�BSceneStateChanger�̃L���[�ɓo�^
-1. ���̃t���[����SceneStateChanger��Update
-
-
-
-## �ėp�Q�[���V�[���ƃX�e�[�W�̃}���`�V�[���̏�����
+1. ????SceneStateChanger.Instance.Request()を実行。SceneStateChangerのキューに登録
+1. 次のフレームのSceneStateChangerのUpdate
 
 
-## ���g���C�̎���
+
+## 汎用ゲームシーンとステージのマルチシーンの初期化
+
+
+## リトライの実装
 
 

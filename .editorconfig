@@ -1,6 +1,12 @@
 # 上位ディレクトリから .editorconfig 設定を継承する場合は、以下の行を削除します
 root = true
 
+# 全ファイル共通
+
+# 改行とエンコード設定
+end_of_line = crlf
+charset = utf-8
+
 # C# ファイル
 [*.cs]
 
@@ -12,9 +18,7 @@ indent_style = space
 tab_width = 4
 
 # 改行とエンコード設定
-end_of_line = crlf
 insert_final_newline = false
-charset = utf-8
 
 #### .NET コーディング規則 ####
 
