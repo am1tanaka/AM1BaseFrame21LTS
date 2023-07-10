@@ -39,7 +39,6 @@ namespace AM1.BaseFrame.Demo
             if (!SceneStateChanger.IsReady) return;
 
             Instance = this;
-            SceneStateChanger.AwakeDone(gameObject.scene.name);
         }
 
         void Start()

@@ -86,7 +86,6 @@ namespace AM1.BaseFrame.Assets.Editor
             // オブジェクト作成
             var go = new GameObject();
             go.name = $"{scName}Behaviour";
-            go.AddComponent<AwakeReporter>();
             Undo.RegisterCreatedObjectUndo(go, $"Created {scName}Behaviour Object.");
 
             // フォルダー選択

@@ -1,5 +1,8 @@
 # AM1BaseFrame Change Log
 
+## Ver0.9.4(2023/7/10)
+- 読み込み後に1フレーム待つことで、AwakeDoneの呼び出しを不要に変更
+
 ## Ver0.9.3(2023/6/23)
 - SceneStateChangerのAwakeでstaticをリセットするように修正
 

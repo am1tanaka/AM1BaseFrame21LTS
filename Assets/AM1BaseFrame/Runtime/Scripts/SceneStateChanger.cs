@@ -136,7 +136,7 @@ namespace AM1.BaseFrame
             }
 
             // 全てのシーンの読み込みが完了して、読み込んだシーンのAwakeが呼ばれるのを待つ
-            yield return WaitAsyncAndAwake();
+            yield return WaitAsyncLoad();
             if (sceneChangeProgress != null)
             {
                 sceneChangeProgress.Hide();
@@ -230,24 +230,6 @@ namespace AM1.BaseFrame
         }
 
         /// <summary>
-        /// 指定のシーンのAwakeが完了したら呼び出す。
-        /// </summary>
-        /// <param name="sceneName">Awake完了したシーン名</param>
-        public static void AwakeDone(string sceneName)
-        {
-            DebugLog($"AwakeDone({sceneName})");
-
-            for (int i = 0; i < asyncLoadOperationList.Count; i++)
-            {
-                if (asyncLoadOperationList[i].sceneName == sceneName)
-                {
-                    asyncLoadOperationList.RemoveAt(i);
-                    return;
-                }
-            }
-        }
-
-        /// <summary>
         /// プログレスバーのインスタンスを渡す
         /// </summary>
         /// <param name="pr"></param>
@@ -259,18 +241,22 @@ namespace AM1.BaseFrame
         /// <summary>
         /// 全てのシーンの読み込みと解放待ち
         /// </summary>
-        public static IEnumerator WaitAsyncAndAwake()
+        public static IEnumerator WaitAsyncLoad()
         {
-            DebugLog($"WaitAsyncAndAwake()");
+            DebugLog($"WaitAsyncLoad()");
 
-            // 読み込みシーンのAwake待ち
-            while (asyncLoadOperationList.Count > 0)
+            // 読み込みシーンの読み込み完了待ち
+            for (int i=0;i<asyncLoadOperationList.Count;i++)
             {
-                yield return null;
+                yield return new WaitUntil(() => asyncLoadOperationList[i].asyncOperation.isDone);
             }
+            asyncLoadOperationList.Clear();
 
             // 解放待ち
             yield return WaitUnloadScenes();
+
+            // Awakeのために1フレーム待つ
+            yield return null;
         }
 
         /// <summary>
@@ -285,10 +271,7 @@ namespace AM1.BaseFrame
             }
             for (int i = 0; i < asyncUnloadOperationList.Count; i++)
             {
-                while (!asyncUnloadOperationList[i].isDone)
-                {
-                    yield return null;
-                }
+                yield return new WaitUntil(() => asyncUnloadOperationList[i].isDone);
             }
             asyncUnloadOperationList.Clear();
         }
