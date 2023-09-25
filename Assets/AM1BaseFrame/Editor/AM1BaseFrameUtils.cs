@@ -45,6 +45,10 @@ namespace AM1.BaseFrame.Editor
         public void Save()
         {
             var json = JsonUtility.ToJson(this);
+            if (!Directory.Exists(Path.GetDirectoryName(SettingFilePath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(SettingFilePath));
+            }
             File.WriteAllText(SettingFilePath, json);
         }
     }

@@ -12,6 +12,16 @@ namespace AM1.BaseFrame.Editor
     {
         static string booterFolder;
 
+        /// <summary>
+        /// 指定ファイル名用のテンプレートのファイル名を返す。
+        /// </summary>
+        /// <param name="fname">スクリプト名</param>
+        /// <returns>スクリプトテンプレートのファイル名。.cs.txt付き</returns>
+        static string GetScriptTemplateFileName(string fname)
+        {
+            return $"82-AM1BaseFrame Script__{fname} Script-{fname}.cs.txt";
+        }
+
         [MenuItem("Tools/AM1/Import BaseFrame Assets", false, 0)]
         static void ImportBaseFrameAssets()
         {
@@ -66,7 +76,7 @@ namespace AM1.BaseFrame.Editor
         /// 指定したフォルダーへスクリプトファイルとして保存。
         /// </summary>
         /// <param name="fileName">ファイル名(拡張子なし)</param>
-        /// <param name="targetFolder">保存左記フォルダー</param>
+        /// <param name="targetFolder">保存先フォルダー</param>
         static void CreateScriptFromTemplate(string fileName, string targetFolder)
         {
             // すでにファイルがあるなら何もしない
@@ -80,8 +90,8 @@ namespace AM1.BaseFrame.Editor
             }
 
             // テンプレートから指定フォルダーへスクリプトとして保存
-            string booterPath = Path.Combine(AM1BaseFrameUtils.packageRelativePath+"/Package Resources", $"{fileName}Template.cs.txt");
-            string booterText = File.ReadAllText(booterPath);
+            string booterPath = Path.Combine($"{Application.dataPath}/ScriptTemplates", $"{GetScriptTemplateFileName(fileName)}");
+            string booterText = File.ReadAllText(booterPath).Replace("#SCRIPTNAME#", fileName);
             File.WriteAllText(booterSavePath, booterText);
         }
     }

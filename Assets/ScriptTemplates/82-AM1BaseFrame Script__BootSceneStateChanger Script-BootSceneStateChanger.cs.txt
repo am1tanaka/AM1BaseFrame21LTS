@@ -7,7 +7,7 @@ using AM1.BaseFrame.Assets;
 /// <summary>
 /// 各種初期化や起動処理を行う。
 /// </summary>
-public class BootSceneStateChanger : SceneStateChangerBase<BootSceneStateChanger>, ISceneStateChanger
+public class #SCRIPTNAME# : SceneStateChangerBase<BootSceneStateChanger>, ISceneStateChanger
 {
     public override void Init()
     {

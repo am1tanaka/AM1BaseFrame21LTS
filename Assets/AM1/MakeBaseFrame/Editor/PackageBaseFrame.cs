@@ -40,6 +40,7 @@ namespace AM1.PackageBaseFrame.Editor
                     saveFolder = savePath;
                     List<string> exportFileList = new List<string>();
                     GetExportFiles("Assets/AM1/BaseFrame", exportFileList);
+                    GetExportFiles("Assets/ScriptTemplates", exportFileList);
                     AssetDatabase.ExportPackage(exportFileList.ToArray(), savePath + "/BaseFrame.unitypackage", ExportPackageOptions.Recurse);
                     AssetDatabase.Refresh();
                 }

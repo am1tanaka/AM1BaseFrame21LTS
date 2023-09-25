@@ -8,7 +8,7 @@ using AM1.BaseFrame.Assets;
 /// <summary>
 /// 状態システム起動クラス
 /// </summary>
-public class Booter : MonoBehaviour
+public class #SCRIPTNAME# : MonoBehaviour
 {
     private void Start()
     {

@@ -1,5 +1,11 @@
 # AM1BaseFrame Change Log
 
+## Ver0.9.5(2023/9/25)
+- BooterとBootSceneStateChangerをScriptTemplatesフォルダーへ移動
+- LocalSettingsをGit管理から削除
+- editorconfigの全体設定が抜けていたので追加
+
+
 ## Ver0.9.4(2023/7/10)
 - 読み込み後に1フレーム待つことで、AwakeDoneの呼び出しを不要に変更
 
